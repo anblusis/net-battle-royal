@@ -10,6 +10,7 @@ import org.bukkit.event.Event
 import org.bukkit.event.EventHandler
 import org.bukkit.event.HandlerList
 import org.bukkit.event.Listener
+import org.bukkit.event.block.BlockBreakEvent
 import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.event.inventory.InventoryOpenEvent
 import org.bukkit.event.inventory.InventoryType
@@ -52,5 +53,10 @@ object EventManager : Listener {
     private fun onPlayerPrepareCrafting(event: PrepareItemCraftEvent) {
         if (event.view.player !is Player) return
         playerPrepareCrafting(this, event)
+    }
+
+    @EventHandler
+    private fun onPlayerBreakBlock(event: BlockBreakEvent) {
+        playerBreakBlock(this, event)
     }
 }

@@ -1,9 +1,12 @@
 package io.github.anblusis.netBattleRoyal.data
 
 import io.github.anblusis.netBattleRoyal.game.Game
+import net.kyori.adventure.text.Component.space
 import net.kyori.adventure.text.Component.text
+import net.kyori.adventure.text.TextComponent
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.TextColor
+import net.kyori.adventure.text.format.TextDecoration
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.block.Chest
@@ -11,6 +14,8 @@ import org.bukkit.entity.BlockDisplay
 import org.bukkit.entity.Display
 import org.bukkit.entity.TextDisplay
 import org.bukkit.inventory.ItemStack
+import org.bukkit.inventory.meta.ItemMeta
+import java.util.ArrayList
 import kotlin.math.ln
 import kotlin.math.min
 import kotlin.random.Random
@@ -43,7 +48,6 @@ data class RoyalChest(val game: Game, val chestData: ChestData, val table: Chest
         location.block.blockData = (location.block.blockData as org.bukkit.block.data.type.Chest).apply {
             facing = this.faces.random()
         }
-
 
         entity = location.world.spawn(location.clone().add(0.5, 1.2, 0.5), TextDisplay::class.java).apply {
             text(text("${chestData.type.rating} 상자").color(chestData.type.color))
@@ -111,8 +115,12 @@ data class ChestLootTable(val stacks: List<IntRange>, val loots: List<ChestItemD
 
                 if (loot != null) {
                     val amount = loot.amount.random()
-                    val item = loot.item.clone().apply {
+                    var item = loot.item.clone().apply {
                         this.amount = amount
+                    }
+                    if (item.enchantValue > 0) {
+                        item = item.enchantWithLevels(item.enchantValue, false, java.util.Random())
+                        item.enchantValue = 0
                     }
                     if (amount > 1) {
                         lootQueue.add(item)

@@ -108,7 +108,7 @@ object InvManager {
         }.let { list ->
             if (clickedCustomRecipe != null) {
                 while(clickedCustomRecipe !in list.displays.map { it.first }) {
-                    list.index++
+                    list.page++
                 }
             }
 
@@ -116,14 +116,14 @@ object InvManager {
                 item = previousPageItem
                 onClick { event ->
                     (event.whoClicked as Player).playSound(event.whoClicked.location, Sound.UI_BUTTON_CLICK, 1f, 1f)
-                    list.index--
+                    list.page--
                 }
             }
             slot(if (clickedCustomRecipe == null) 5 else 2, 4) {
                 item = nextPageItem
                 onClick { event ->
                     (event.whoClicked as Player).playSound(event.whoClicked.location, Sound.UI_BUTTON_CLICK, 1f, 1f)
-                    list.index++
+                    list.page++
                 }
             }
             slot(if (clickedCustomRecipe == null) 4 else 1, 4) {
@@ -233,14 +233,14 @@ object InvManager {
                 item = previousPageItem
                 onClick { event ->
                     (event.whoClicked as Player).playSound(event.whoClicked.location, Sound.UI_BUTTON_CLICK, 1f, 1f)
-                    list.index--
+                    list.page--
                 }
             }
             slot(5, 2) {
                 item = nextPageItem
                 onClick { event ->
                     (event.whoClicked as Player).playSound(event.whoClicked.location, Sound.UI_BUTTON_CLICK, 1f, 1f)
-                    list.index++
+                    list.page++
                 }
             }
             slot(4, 2) {
@@ -265,14 +265,14 @@ object InvManager {
                 item = previousPageItem
                 onClick { event ->
                     (event.whoClicked as Player).playSound(event.whoClicked.location, Sound.UI_BUTTON_CLICK, 1f, 1f)
-                    list.index--
+                    list.page--
                 }
             }
             slot(6, 4) {
                 item = nextPageItem
                 onClick { event ->
                     (event.whoClicked as Player).playSound(event.whoClicked.location, Sound.UI_BUTTON_CLICK, 1f, 1f)
-                    list.index++
+                    list.page++
                 }
             }
             slot(5, 4) {
@@ -379,14 +379,14 @@ object InvManager {
                 item = previousPageItem
                 onClick { event ->
                     (event.whoClicked as Player).playSound(event.whoClicked.location, Sound.UI_BUTTON_CLICK, 1f, 1f)
-                    list.index--
+                    list.page--
                 }
             }
             slot(5, 4) {
                 item = nextPageItem
                 onClick { event ->
                     (event.whoClicked as Player).playSound(event.whoClicked.location, Sound.UI_BUTTON_CLICK, 1f, 1f)
-                    list.index++
+                    list.page++
                 }
             }
             slot(4, 4) {

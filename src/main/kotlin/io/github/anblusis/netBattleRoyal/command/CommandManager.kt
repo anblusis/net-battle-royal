@@ -18,6 +18,10 @@ import org.bukkit.Particle
 import org.bukkit.World
 import org.bukkit.entity.Player
 import org.bukkit.plugin.java.JavaPlugin
+import java.io.File
+import java.nio.file.Files
+import java.nio.file.Paths
+import java.nio.file.StandardOpenOption
 
 object CommandManager {
     fun register(kommand: PluginKommand)  {
@@ -82,7 +86,7 @@ object CommandManager {
                     printChestsData()
                 }
             }
-            then("experesschestsdata") {
+            then("expresschestsdata") {
                 requires { isOp }
                 then("block") {
                     executes {
@@ -169,19 +173,26 @@ object CommandManager {
             val location = chestData.location
             val type = chestData.type
 
-            codeSnippet.append(
-                """
-                ChestData(
-                    Location(world, ${location.x}, ${location.y}, ${location.z}),
-                    ChestType.$type
-                ),
-                """
+            codeSnippet.append("""
+                |    ChestData(
+                |        Location(world, ${location.x}, ${location.y}, ${location.z}),
+                |        ChestType.$type
+                |    ),
+            """.trimMargin()
             ).append("\n")
         }
 
         codeSnippet.append(")")
 
         plugin.server.broadcast(text(codeSnippet.toString()))
+
+        val directory = File("plugins/netBattleRoyale")
+        if (!directory.exists()) {
+            directory.mkdirs()
+        }
+
+        val filePath = Paths.get(directory.path, "chestsData.txt")
+        Files.write(filePath, codeSnippet.toString().toByteArray(), StandardOpenOption.CREATE)
     }
 
     private fun createBattleRoyal(map: String, mode: Int, players: List<Player>) {
