@@ -35,6 +35,15 @@ enum class CustomRecipe(
         mapOf('A' to 4),
         CustomRecipeType.SHAPELESS,
         listOf()
+    ),
+
+    RAIN_ARMOR("rain_armor",
+        CustomArmor.RAIN_ARMOR.item,
+        listOf("A A", "ABA", "AAA"),
+        mapOf('A' to ItemStack(Material.LEATHER), 'B' to ItemStack(Material.WATER_BUCKET)),
+        mapOf(),
+        CustomRecipeType.SHAPED,
+        listOf()
     );
 
     private val key = NamespacedKey(plugin, recipeName)

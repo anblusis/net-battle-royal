@@ -38,40 +38,25 @@ enum class BattleRoyalItemData(val item: ItemStack) {
     TRANSCEND_BOOK(ItemStack(Material.BOOK).apply {
         itemMeta = itemMeta.apply {
             displayName(
-                text().color(NamedTextColor.GOLD).content("초월서").decoration(TextDecoration.ITALIC, false).build()
+                transcendBook
             )
             lore(
                 listOf(
                     text().color(NamedTextColor.WHITE)
                         .decoration(TextDecoration.ITALIC,false)
                         .content("초월 시키고자 하는 장비를 반대 손에 두고 우클릭 시").build(),
-                    text().color(NamedTextColor.GRAY)
+                    text().color(NamedTextColor.WHITE)
                         .decoration(TextDecoration.ITALIC,false)
                         .content("책을 사용해 장비에 초월 인첸트를 부여합니다.").build()
                 )
             )
         }
     }),
-    RAIN_ARMOR(ItemStack(Material.LEATHER_CHESTPLATE).apply {
-        itemMeta = (itemMeta as LeatherArmorMeta).apply {
-            displayName(
-                text().color(NamedTextColor.BLUE).content("RainArmor").decoration(TextDecoration.ITALIC, false).build()
-            )
-            setColor(Color.AQUA)
-            lore(
-                CustomArmor.RAIN_ARMOR.makeStatLore().plus(
-                    listOf(
-                        space(),
-                        text()
-                            .color(NamedTextColor.WHITE)
-                            .decoration(TextDecoration.ITALIC,false)
-                            .content("비가 내리는 상황에서 신속 부여").build()
-                    )
-                )
-            )
-        }
-    }),
 }
+
+val transcendBook = text().content("초월서")
+    .decoration(TextDecoration.ITALIC, false)
+    .color(NamedTextColor.YELLOW).build()
 
 val randomEnchantTag = text().content("랜덤 인첸트")
     .decoration(TextDecoration.ITALIC, false)
@@ -107,14 +92,15 @@ var ItemStack.enchantValue
 var ItemStack.transcendLevel
     get() = displayName().children().firstOrNull()?.color()?.value() ?: 0
     set(value) {
-        var display = BattleRoyalItemData.TRANSCEND_BOOK.item.displayName()
+        var display = transcendBook
 
         if (value > 0) {
-            display = display.append(space().color(TextColor.color(value)))
-                .append(text()
+            display = display.children(listOf(space().color(TextColor.color(value)),
+                text()
                     .content(value.toRomanNumerals())
-                    .color(NamedTextColor.GOLD)
-                    .decoration(TextDecoration.ITALIC, false).build())
+                    .color(NamedTextColor.YELLOW)
+                    .decoration(TextDecoration.ITALIC, false).build()
+            ))
         }
 
         itemMeta = itemMeta.apply {

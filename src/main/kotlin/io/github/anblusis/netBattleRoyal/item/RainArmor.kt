@@ -2,6 +2,7 @@ package io.github.anblusis.netBattleRoyal.item
 
 import io.github.anblusis.netBattleRoyal.data.CustomArmor
 import io.github.anblusis.netBattleRoyal.main.NetBattleRoyal.Companion.plugin
+import org.bukkit.WeatherType
 import org.bukkit.entity.Player
 import org.bukkit.event.HandlerList
 import org.bukkit.event.Listener
@@ -25,7 +26,7 @@ object RainArmor: ArmorSystem() {
 
     override fun onUpdate() {
         players.forEach { player ->
-            if (player.isInRain) player.addPotionEffect(
+            if (player.playerWeather == WeatherType.DOWNFALL) player.addPotionEffect(
                 PotionEffect(
                     PotionEffectType.SPEED,
                     5,
