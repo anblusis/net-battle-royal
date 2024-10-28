@@ -1,5 +1,6 @@
 package io.github.anblusis.netBattleRoyal.event
 
+import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent
 import io.github.anblusis.netBattleRoyal.main.NetBattleRoyal.Companion.plugin
 import io.papermc.paper.event.world.border.WorldBorderBoundsChangeEvent
 import io.papermc.paper.event.world.border.WorldBorderCenterChangeEvent
@@ -58,5 +59,10 @@ object EventManager : Listener {
     @EventHandler
     private fun onPlayerBreakBlock(event: BlockBreakEvent) {
         playerBreakBlock(this, event)
+    }
+
+    @EventHandler
+    private fun onChangeArmor(event: PlayerArmorChangeEvent) {
+        playerChangeArmor(this, event)
     }
 }

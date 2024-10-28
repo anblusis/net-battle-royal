@@ -8,8 +8,9 @@ import net.kyori.adventure.text.format.TextColor
 import net.kyori.adventure.text.format.TextDecoration
 import org.bukkit.Material
 import org.bukkit.inventory.ItemStack
-import org.bukkit.inventory.meta.ItemMeta
+import org.bukkit.inventory.meta.LeatherArmorMeta
 import java.util.ArrayList
+import org.bukkit.Color
 
 enum class BattleRoyalItemData(val item: ItemStack) {
     MAGIC_STICK(ItemStack(Material.STICK).apply {
@@ -41,12 +42,31 @@ enum class BattleRoyalItemData(val item: ItemStack) {
             )
             lore(
                 listOf(
-                    text().color(NamedTextColor.GRAY)
+                    text().color(NamedTextColor.WHITE)
                         .decoration(TextDecoration.ITALIC,false)
                         .content("초월 시키고자 하는 장비를 반대 손에 두고 우클릭 시").build(),
                     text().color(NamedTextColor.GRAY)
                         .decoration(TextDecoration.ITALIC,false)
                         .content("책을 사용해 장비에 초월 인첸트를 부여합니다.").build()
+                )
+            )
+        }
+    }),
+    RAIN_ARMOR(ItemStack(Material.LEATHER_CHESTPLATE).apply {
+        itemMeta = (itemMeta as LeatherArmorMeta).apply {
+            displayName(
+                text().color(NamedTextColor.BLUE).content("RainArmor").decoration(TextDecoration.ITALIC, false).build()
+            )
+            setColor(Color.AQUA)
+            lore(
+                CustomArmor.RAIN_ARMOR.makeStatLore().plus(
+                    listOf(
+                        space(),
+                        text()
+                            .color(NamedTextColor.WHITE)
+                            .decoration(TextDecoration.ITALIC,false)
+                            .content("비가 내리는 상황에서 신속 부여").build()
+                    )
                 )
             )
         }
@@ -87,10 +107,10 @@ var ItemStack.enchantValue
 var ItemStack.transcendLevel
     get() = displayName().children().firstOrNull()?.color()?.value() ?: 0
     set(value) {
-        val display = BattleRoyalItemData.TRANSCEND_BOOK.item.displayName()
+        var display = BattleRoyalItemData.TRANSCEND_BOOK.item.displayName()
 
         if (value > 0) {
-            display.append(space().color(TextColor.color(value)))
+            display = display.append(space().color(TextColor.color(value)))
                 .append(text()
                     .content(value.toRomanNumerals())
                     .color(NamedTextColor.GOLD)

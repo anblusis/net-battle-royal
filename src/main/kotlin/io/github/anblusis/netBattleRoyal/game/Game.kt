@@ -1,9 +1,8 @@
 package io.github.anblusis.netBattleRoyal.game
 import io.github.anblusis.netBattleRoyal.data.*
-import io.github.anblusis.netBattleRoyal.data.DataManager.getMarmotte
 import io.github.anblusis.netBattleRoyal.game.event.FightStart
-import io.github.anblusis.netBattleRoyal.game.event.WorldBorderDecrease
 import io.github.anblusis.netBattleRoyal.inv.InvManager
+import io.github.anblusis.netBattleRoyal.data.CustomArmor
 import io.github.anblusis.netBattleRoyal.main.NetBattleRoyal.Companion.plugin
 import io.github.anblusis.netBattleRoyal.world.City
 import io.github.monun.invfx.frame.InvFrame
@@ -14,7 +13,6 @@ import org.bukkit.WorldBorder
 import org.bukkit.entity.Entity
 import org.bukkit.entity.Player
 import java.awt.Color
-import java.awt.image.BufferedImage
 import kotlin.math.abs
 
 class Game(
@@ -33,6 +31,7 @@ class Game(
     internal lateinit var targetWorldBorderCenter: Location
     internal lateinit var worldDefaultWeather: GameWeather
     internal lateinit var customRecipes: List<CustomRecipe>
+    internal lateinit var customArmors: List<CustomArmor>
     private lateinit var chestLocations: List<ChestData>
     private val tickTask: TickerTask
     internal val mainInv: InvFrame
@@ -84,6 +83,10 @@ class Game(
             task.run()
         }
 
+        customArmors.forEach {
+            it.system.onUpdate()
+        }
+
         if (state == GameState.PLAYING) worldTime += 3L
         if (worldTime >= 24000L) worldTime = 0L
         world.time = worldTime
@@ -133,6 +136,16 @@ class Game(
         regions.forEach { region ->
             region.gameWeather = worldDefaultWeather
         }
+
+        val armors = mutableListOf<CustomArmor>()
+        CustomRecipe.values().map { it.result }.plus(chestTables.values
+            .map { table -> table.loots.map { loot -> loot.item } }.flatten())
+            .forEach { item ->
+               if (item in CustomArmor.values().map { armor -> armor.item }) {
+                   armors.add(CustomArmor.values().find { it.item == item }!!)
+               }
+        }
+        customArmors = armors
 
         worldBorder.center = center
         targetWorldBorderCenter = worldBorderCenter
