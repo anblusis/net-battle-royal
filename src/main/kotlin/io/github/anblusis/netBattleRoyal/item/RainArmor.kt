@@ -36,6 +36,11 @@ object RainArmor: ArmorSystem() {
         }
     }
 
+    override fun onRemove() {
+        val willRemovedPlayers = players.toList()
+        willRemovedPlayers.forEach { onArmorUnequip(it, CustomArmor.RAIN_ARMOR) }
+    }
+
     class RainListener(val player: Player): Listener {
     }
 }

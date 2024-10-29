@@ -17,6 +17,7 @@ import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.ArmorMeta
 import org.bukkit.inventory.meta.LeatherArmorMeta
+import org.bukkit.inventory.ItemFlag
 
 enum class CustomArmor(val item: ItemStack, val stat: Map<String, Double>, val system: ArmorSystem = object : ArmorSystem() {}) {
     RAIN_ARMOR(ItemStack(Material.LEATHER_CHESTPLATE).apply item@ {
@@ -35,6 +36,8 @@ enum class CustomArmor(val item: ItemStack, val stat: Map<String, Double>, val s
                     .plus(makeStatLore(this@item, mapOf("armor" to 10.0, "armor_tough" to 0.1))
                 )
             )
+            removeItemFlags(ItemFlag.HIDE_DYE)
+            removeItemFlags(ItemFlag.HIDE_ATTRIBUTES)
         }
         clearAllAttributes(this@item)
     }, mapOf("armor" to 10.0, "armor_tough" to 0.1), RainArmor);
@@ -85,8 +88,9 @@ fun makeStatLore(item: ItemStack, stat: Map<String, Double>): List<Component> {
 val statKoreanName = mapOf(
     "armor" to " 방어",
     "armor_tough" to " 방어 강도",
-    "attack_damage" to "% 주는 피해",
-    "move_speed" to " 이동 속도",
+    "attack_damage" to " 공격 피해",
+    "attack_speed" to " 공격 속도",
+    "movement_speed" to " 이동 속도",
     "knockback_resistance" to " 밀치기 저항",
     "mana_regen" to " 마나 재생",
     "health_steal" to " 흡혈",

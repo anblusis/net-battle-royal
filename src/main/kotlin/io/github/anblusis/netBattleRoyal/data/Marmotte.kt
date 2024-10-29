@@ -15,6 +15,8 @@ import kotlin.math.abs
 
 data class Marmotte(val player: Player, val game: Game) {
     private val bossBar: BossBar
+    val stat: HashMap<String, Double>
+    var tick: Int = 0
 
     val region: Region?
         get() {
@@ -25,6 +27,10 @@ data class Marmotte(val player: Player, val game: Game) {
     init {
         player.sendMessage("게임에 참가했습니다.")
         bossBar = Bukkit.createBossBar("", BarColor.WHITE, BarStyle.SOLID).apply { addPlayer(player) }
+        stat = hashMapOf(
+            "mana_regen" to 0.0,
+            "defense_penetration" to 0.0
+        )
     }
 
     private fun updateBossBar() {
@@ -46,6 +52,10 @@ data class Marmotte(val player: Player, val game: Game) {
     fun update() {
         updateBossBar()
         updateWeather()
+        if(tick++ >= 20) {
+            tick = 0
+            plugin.server.dispatchCommand(plugin.server.consoleSender, "psychics mana add ${player.name} ${stat["mana_regen"]}")
+        }
     }
 
     private fun updateWeather() {

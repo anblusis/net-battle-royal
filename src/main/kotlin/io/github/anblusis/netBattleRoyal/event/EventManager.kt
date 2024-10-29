@@ -1,6 +1,8 @@
 package io.github.anblusis.netBattleRoyal.event
 
 import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent
+import io.github.anblusis.netBattleRoyal.data.BattleRoyalItemData
+import io.github.anblusis.netBattleRoyal.data.transcendBook
 import io.github.anblusis.netBattleRoyal.main.NetBattleRoyal.Companion.plugin
 import io.papermc.paper.event.world.border.WorldBorderBoundsChangeEvent
 import io.papermc.paper.event.world.border.WorldBorderCenterChangeEvent
@@ -9,9 +11,11 @@ import org.bukkit.block.Chest
 import org.bukkit.entity.Player
 import org.bukkit.event.Event
 import org.bukkit.event.EventHandler
+import org.bukkit.event.EventPriority
 import org.bukkit.event.HandlerList
 import org.bukkit.event.Listener
 import org.bukkit.event.block.BlockBreakEvent
+import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.event.inventory.InventoryOpenEvent
 import org.bukkit.event.inventory.InventoryType
@@ -19,6 +23,7 @@ import org.bukkit.event.inventory.PrepareItemCraftEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerQuitEvent
+import org.eclipse.sisu.Priority
 
 object EventManager : Listener {
 
@@ -35,7 +40,14 @@ object EventManager : Listener {
     private fun onPlayerQuit(event: PlayerQuitEvent) { playerQuit(this, event) }
 
     @EventHandler
-    private fun onPlayerInteract(event: PlayerInteractEvent) { playerInteract(this, event) }
+    private fun onPlayerInteract(event: PlayerInteractEvent) {
+        when {
+            event.item == null -> return
+            event.item!!.isSimilar(BattleRoyalItemData.MAGIC_STICK.item) -> playerInteractWithMagicStick(this, event)
+            transcendBook in event.item!!.displayName() -> playerInteractWithTranscendBook(this, event)
+            else -> return
+        }
+    }
 
     @EventHandler
     private fun onPlayerInventoryOpen(event: InventoryOpenEvent) {
@@ -48,6 +60,20 @@ object EventManager : Listener {
     @EventHandler
     private fun onPlayerDamaged(event: EntityDamageEvent) {
         if (event.entity is Player) playerDamaged(this, event)
+    }
+
+    @EventHandler(priority = EventPriority.LOW)
+    private fun onPlayerAttackWithHealthSteal(event: EntityDamageByEntityEvent) {
+        if (event.damager is Player) {
+            playerAttackWithHealthSteal(this, event)
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    private fun onPlayerAttackWithDefensePenetration(event: EntityDamageByEntityEvent) {
+        if (event.damager is Player) {
+            playerAttackWithDefensePenetration(this, event)
+        }
     }
 
     @EventHandler

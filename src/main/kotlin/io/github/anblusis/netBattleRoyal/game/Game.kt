@@ -186,6 +186,9 @@ class Game(
         }
         val willRemovedChests = chests.toList()
         willRemovedChests.forEach { it.remove() }
+        customArmors.forEach {
+            it.system.onRemove()
+        }
         val willRemovedMarmottes = marmottes.toList()
         willRemovedMarmottes.forEach { it.remove() }
         plugin.games.remove(this)
