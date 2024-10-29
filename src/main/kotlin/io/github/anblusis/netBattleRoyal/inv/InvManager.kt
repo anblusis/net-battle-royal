@@ -330,11 +330,11 @@ object InvManager {
             transform {
                 val explain = mutableListOf<Component>()
                 if (it in CustomRecipe.values().map { recipe -> recipe.result }) {
-                    // explain.add(text("").decoration(TextDecoration.ITALIC, false))
+                    explain.add(text("").decoration(TextDecoration.ITALIC, false))
                     explain.add(text("조합 아이템").decoration(TextDecoration.ITALIC, false).color(NamedTextColor.GOLD))
                     explain.add(text(" - 클릭하여 조합법 확인").decoration(TextDecoration.ITALIC, false).color(NamedTextColor.GRAY))
                 } else {
-                    // explain.add(text("").decoration(TextDecoration.ITALIC, false))
+                    explain.add(text("").decoration(TextDecoration.ITALIC, false))
                     explain.add(text("상자 아이템").decoration(TextDecoration.ITALIC, false).color(NamedTextColor.GOLD))
 
                     game.chestTables.forEach { (type, table) ->
@@ -363,7 +363,7 @@ object InvManager {
                 }
                 it.clone().apply {
                     itemMeta = itemMeta.apply {
-                        lore(explain.plus(lore() ?: listOf()))
+                        lore((lore() ?: listOf()).plus(explain))
                     }
                 }
             }

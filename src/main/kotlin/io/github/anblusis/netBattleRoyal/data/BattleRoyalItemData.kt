@@ -92,7 +92,7 @@ var ItemStack.enchantValue
 var ItemStack.transcendLevel
     get() = displayName().children().firstOrNull()?.color()?.value() ?: 0
     set(value) {
-        var display = transcendBook
+        var display = transcendBook.children(emptyList())
 
         if (value > 0) {
             display = display.children(listOf(space().color(TextColor.color(value)),

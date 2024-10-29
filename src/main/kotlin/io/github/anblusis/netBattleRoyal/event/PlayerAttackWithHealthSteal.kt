@@ -6,7 +6,7 @@ import org.bukkit.entity.Player
 import org.bukkit.event.entity.EntityDamageByEntityEvent
 
 fun playerAttackWithHealthSteal(listener: EventManager, event: EntityDamageByEntityEvent) : EventResult {
-    DataManager.getMarmotte(event.entity as Player)?.let {
+    DataManager.getMarmotte(event.damager as Player)?.let {
         if (it.game.state == GameState.PLAYING) {
             if (event.finalDamage != 0.0) {
                 it.stat["health_steal"]?.let { value ->

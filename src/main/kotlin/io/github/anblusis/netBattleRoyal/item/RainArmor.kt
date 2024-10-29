@@ -21,7 +21,7 @@ object RainArmor: ArmorSystem() {
 
     override fun onArmorUnequip(player: Player, armor: CustomArmor) {
         super.onArmorUnequip(player, armor)
-        HandlerList.unregisterAll(listeners[player]!!)
+        HandlerList.unregisterAll(listeners[player] ?: return)
     }
 
     override fun onUpdate() {

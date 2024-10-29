@@ -7,6 +7,7 @@ import io.github.anblusis.netBattleRoyal.main.NetBattleRoyal.Companion.plugin
 import io.papermc.paper.event.world.border.WorldBorderBoundsChangeEvent
 import io.papermc.paper.event.world.border.WorldBorderCenterChangeEvent
 import io.papermc.paper.event.world.border.WorldBorderEvent
+import net.kyori.adventure.text.Component.text
 import org.bukkit.block.Chest
 import org.bukkit.entity.Player
 import org.bukkit.event.Event
@@ -44,7 +45,7 @@ object EventManager : Listener {
         when {
             event.item == null -> return
             event.item!!.isSimilar(BattleRoyalItemData.MAGIC_STICK.item) -> playerInteractWithMagicStick(this, event)
-            transcendBook in event.item!!.displayName() -> playerInteractWithTranscendBook(this, event)
+            transcendBook.content() in event.item!!.displayName().toString() -> playerInteractWithTranscendBook(this, event)
             else -> return
         }
     }
@@ -65,14 +66,14 @@ object EventManager : Listener {
     @EventHandler(priority = EventPriority.LOW)
     private fun onPlayerAttackWithHealthSteal(event: EntityDamageByEntityEvent) {
         if (event.damager is Player) {
-            playerAttackWithHealthSteal(this, event)
+            event.damager.server.broadcast(text(playerAttackWithHealthSteal(this, event).toString()))
         }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
     private fun onPlayerAttackWithDefensePenetration(event: EntityDamageByEntityEvent) {
         if (event.damager is Player) {
-            playerAttackWithDefensePenetration(this, event)
+            event.damager.server.broadcast(text(playerAttackWithDefensePenetration(this, event).toString()))
         }
     }
 

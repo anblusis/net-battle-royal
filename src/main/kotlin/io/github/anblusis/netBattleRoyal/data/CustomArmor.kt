@@ -28,31 +28,24 @@ enum class CustomArmor(val item: ItemStack, val stat: Map<String, Double>, val s
             setColor(Color.AQUA)
             lore(
                 listOf(space())
-                    .plus(text()
-                        .color(NamedTextColor.WHITE)
-                        .decoration(TextDecoration.ITALIC,false)
-                        .content("비가 내리는 상황에서 신속 부여").build())
+                    .plus(
+                        text()
+                            .color(NamedTextColor.WHITE)
+                            .decoration(TextDecoration.ITALIC, false)
+                            .content("비가 내리는 상황에서 신속 부여").build()
+                    )
                     .plus(listOf(space()))
-                    .plus(makeStatLore(this@item, mapOf("armor" to 10.0, "armor_tough" to 0.1))
-                )
+                    .plus(
+                        makeAttributeLore(this@item, mapOf("armor" to 10.0, "armor_tough" to 0.1, "attack_damage" to 2.0, "movement_speed" to 0.02, "health_steal" to 3.0, "defense_penetration" to 15.0))
+                    )
             )
-            removeItemFlags(ItemFlag.HIDE_DYE)
+            removeAttributeModifier(Attribute.GENERIC_ARMOR)
             removeItemFlags(ItemFlag.HIDE_ATTRIBUTES)
         }
-        clearAllAttributes(this@item)
-    }, mapOf("armor" to 10.0, "armor_tough" to 0.1), RainArmor);
+    }, mapOf("armor" to 10.0, "armor_tough" to 0.1, "attack_damage" to 2.0, "movement_speed" to 0.02, "health_steal" to 3.0, "defense_penetration" to 15.0), RainArmor);
 }
 
-fun clearAllAttributes(item: ItemStack) {
-    item.editMeta { meta ->
-        // 모든 속성에 대해 AttributeModifier 제거
-        for (attribute in Attribute.values()) {
-            meta.removeAttributeModifier(attribute)
-        }
-    }
-}
-
-fun makeStatLore(item: ItemStack, stat: Map<String, Double>): List<Component> {
+fun makeAttributeLore(item: ItemStack, stat: Map<String, Double>): List<Component> {
     val lore = ArrayList<Component>()
     val useExplain = when (item.type.equipmentSlot) {
         EquipmentSlot.HEAD -> "머리에 있을 때:"
@@ -67,6 +60,15 @@ fun makeStatLore(item: ItemStack, stat: Map<String, Double>): List<Component> {
         .color(NamedTextColor.GRAY)
         .decoration(TextDecoration.ITALIC, false).build()
     )
+    if (item.type.equipmentSlot == EquipmentSlot.HAND) {
+        stat.forEach { (key, value) ->
+            lore.add(text()
+                .content("${value}${statKoreanName[key]}")
+                .color(NamedTextColor.GREEN)
+                .decoration(TextDecoration.ITALIC, false).build()
+            )
+        }
+    }
     stat.forEach { (key, value) ->
         if (value < 0) {
             lore.add(text()

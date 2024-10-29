@@ -6,7 +6,7 @@ import org.bukkit.entity.Player
 import org.bukkit.event.entity.EntityDamageByEntityEvent
 
 fun playerAttackWithDefensePenetration(listener: EventManager, event: EntityDamageByEntityEvent) : EventResult {
-    DataManager.getMarmotte(event.entity as Player)?.let {
+    DataManager.getMarmotte(event.damager as Player)?.let {
         if (it.game.state == GameState.PLAYING) {
             if (event.finalDamage != 0.0) {
                 val protectedDamage = event.damage - event.finalDamage
