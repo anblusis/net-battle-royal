@@ -1,5 +1,6 @@
 package io.github.anblusis.netBattleRoyal.data
 
+import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.Component.space
 import net.kyori.adventure.text.Component.text
 import net.kyori.adventure.text.TextComponent
@@ -92,7 +93,7 @@ var ItemStack.enchantValue
 var ItemStack.transcendLevel
     get() = displayName().children().firstOrNull()?.color()?.value() ?: 0
     set(value) {
-        var display = transcendBook.children(emptyList())
+        var display = transcendBook
 
         if (value > 0) {
             display = display.children(listOf(space().color(TextColor.color(value)),

@@ -62,14 +62,14 @@ object EventManager : Listener {
     @EventHandler(priority = EventPriority.LOW)
     private fun onPlayerAttackWithHealthSteal(event: EntityDamageByEntityEvent) {
         if (event.damager is Player) {
-            event.damager.server.broadcast(text(playerAttackWithHealthSteal(this, event).toString()))
+            playerAttackWithHealthSteal(this, event)
         }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
     private fun onPlayerAttackWithDefensePenetration(event: EntityDamageByEntityEvent) {
         if (event.damager is Player) {
-            event.damager.server.broadcast(text(playerAttackWithDefensePenetration(this, event).toString()))
+            playerAttackWithDefensePenetration(this, event)
         }
     }
 
@@ -87,17 +87,5 @@ object EventManager : Listener {
     @EventHandler
     private fun onPlayerChangeArmor(event: PlayerArmorChangeEvent) {
         playerChangeArmor(this, event)
-    }
-
-    @EventHandler
-    private fun onPlayerHeldItem(event: PlayerItemHeldEvent) {
-        val player = event.player
-        val previousItem: ItemStack? = player.inventory.getItem(event.previousSlot)
-        val newItem: ItemStack? = player.inventory.getItem(event.newSlot)
-
-        if (previousItem != newItem) {
-            player.sendMessage("Main hand item changed from ${previousItem?.type} to ${newItem?.type}")
-            playerChangeMainHandItem(this, event)
-        }
     }
 }

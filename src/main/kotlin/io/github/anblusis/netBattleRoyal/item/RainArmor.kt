@@ -11,6 +11,7 @@ import org.bukkit.potion.PotionEffectType
 
 object RainArmor: CustomEquipmentSystem() {
     private val listeners = hashMapOf<Player, Listener>()
+    override val players = mutableListOf<Player>()
 
     override fun onEnable(player: Player, equipment: CustomEquipment) {
         super.onEnable(player, equipment)

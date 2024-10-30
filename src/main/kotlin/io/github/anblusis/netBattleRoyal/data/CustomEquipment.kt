@@ -12,13 +12,15 @@ import org.bukkit.Color
 import org.bukkit.Material
 import org.bukkit.attribute.Attribute
 import org.bukkit.attribute.AttributeModifier
+import org.bukkit.entity.Player
 import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.LeatherArmorMeta
 import org.bukkit.inventory.ItemFlag
+import org.bukkit.inventory.meta.ItemMeta
 import java.util.*
 
-enum class CustomEquipment(val item: ItemStack, val stat: Map<CustomAttribute, Double>, val itemSlot: EquipmentSlot, val system: CustomEquipmentSystem = object : CustomEquipmentSystem() {}) {
+enum class CustomEquipment(val item: ItemStack, val stat: Map<CustomAttribute, Double>, val itemSlot: EquipmentSlot, val system: CustomEquipmentSystem = object : CustomEquipmentSystem() { override val players = mutableListOf<Player>() }) {
     RAIN_ARMOR(
         ItemStack(Material.LEATHER_CHESTPLATE).apply item@ {
             itemMeta = (itemMeta as LeatherArmorMeta).apply {
@@ -62,64 +64,62 @@ enum class CustomEquipment(val item: ItemStack, val stat: Map<CustomAttribute, D
     )
 }
 
-fun ItemStack.makeAttribute(stat: Map<CustomAttribute, Double>, itemSlot: EquipmentSlot) {
-    itemMeta = itemMeta.apply {
-        val attributeLore = arrayListOf(space())
-        val attributes: Multimap<Attribute, AttributeModifier> = ArrayListMultimap.create()
+fun ItemMeta.makeAttribute(stat: Map<CustomAttribute, Double>, itemSlot: EquipmentSlot) {
+    val attributeLore = arrayListOf(space())
+    val attributes: Multimap<Attribute, AttributeModifier> = ArrayListMultimap.create()
 
-        val useExplain = when (itemSlot) {
-            EquipmentSlot.HEAD -> "머리에 있을 때:"
-            EquipmentSlot.CHEST -> "몸에 있을 때:"
-            EquipmentSlot.LEGS -> "다리에 있을 때:"
-            EquipmentSlot.FEET -> "발에 있을 때:"
-            EquipmentSlot.HAND -> "주로 사용하는 손에 있을 때:"
-            EquipmentSlot.OFF_HAND -> "주로 사용하지 않는 손에 있을 때"
-        }
-        attributeLore.add(
-            text()
-                .content(useExplain)
-                .color(NamedTextColor.GRAY)
-                .decoration(TextDecoration.ITALIC, false).build()
-        )
-        stat.forEach { (key, value) ->
-            if (itemSlot == EquipmentSlot.HAND && key.isStatic) {
-                attributeLore.add(
-                    text()
-                        .content("${key.displayName} $value")
-                        .color(NamedTextColor.GREEN)
-                        .decoration(TextDecoration.ITALIC, false).build()
-                )
-            } else if (value < 0) {
-                attributeLore.add(
-                    text()
-                        .content("$value${if (key.isPercentage) "%" else ""} ${key.displayName}")
-                        .color(NamedTextColor.RED)
-                        .decoration(TextDecoration.ITALIC, false).build()
-                )
-            } else {
-                attributeLore.add(
-                    text()
-                        .content("+$value${if (key.isPercentage) "%" else ""} ${key.displayName}")
-                        .color(NamedTextColor.BLUE)
-                        .decoration(TextDecoration.ITALIC, false).build()
-                )
-            }
-            if (key.attribute != null)
-                attributes.put(
-                    key.attribute,
-                    AttributeModifier(
-                        UUID.randomUUID(),
-                        key.displayName,
-                        value,
-                        AttributeModifier.Operation.ADD_NUMBER,
-                        itemSlot
-                    )
-                )
-        }
-
-        lore(lore()?.plus(attributeLore) ?: attributeLore)
-        attributeModifiers = attributes
+    val useExplain = when (itemSlot) {
+        EquipmentSlot.HEAD -> "머리에 있을 때:"
+        EquipmentSlot.CHEST -> "몸에 있을 때:"
+        EquipmentSlot.LEGS -> "다리에 있을 때:"
+        EquipmentSlot.FEET -> "발에 있을 때:"
+        EquipmentSlot.HAND -> "주로 사용하는 손에 있을 때:"
+        EquipmentSlot.OFF_HAND -> "주로 사용하지 않는 손에 있을 때"
     }
+    attributeLore.add(
+        text()
+            .content(useExplain)
+            .color(NamedTextColor.GRAY)
+            .decoration(TextDecoration.ITALIC, false).build()
+    )
+    stat.forEach { (key, value) ->
+        if (itemSlot == EquipmentSlot.HAND && key.isStatic) {
+            attributeLore.add(
+                text()
+                    .content(" ${value + if (key.attribute == Attribute.GENERIC_ATTACK_DAMAGE) 1.0 else 0.0} ${key.displayName}")
+                    .color(NamedTextColor.GREEN)
+                    .decoration(TextDecoration.ITALIC, false).build()
+            )
+        } else if (value < 0) {
+            attributeLore.add(
+                text()
+                    .content("$value${if (key.isPercentage) "%" else ""} ${key.displayName}")
+                    .color(NamedTextColor.RED)
+                    .decoration(TextDecoration.ITALIC, false).build()
+            )
+        } else {
+            attributeLore.add(
+                text()
+                    .content("+$value${if (key.isPercentage) "%" else ""} ${key.displayName}")
+                    .color(NamedTextColor.BLUE)
+                    .decoration(TextDecoration.ITALIC, false).build()
+            )
+        }
+        if (key.attribute != null)
+            attributes.put(
+                key.attribute,
+                AttributeModifier(
+                    UUID.randomUUID(),
+                    key.displayName,
+                    value,
+                    AttributeModifier.Operation.ADD_NUMBER,
+                    itemSlot
+                )
+            )
+    }
+
+    lore(lore()?.plus(attributeLore) ?: attributeLore)
+    attributeModifiers = attributes
 }
 
 enum class CustomAttribute(val displayName: String, val attribute: Attribute?, val isPercentage: Boolean, val isStatic: Boolean) {

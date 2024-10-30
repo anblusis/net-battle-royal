@@ -1,23 +1,26 @@
 package io.github.anblusis.netBattleRoyal.data
 
+import io.github.anblusis.netBattleRoyal.event.EventManager
+import io.github.anblusis.netBattleRoyal.event.playerChangeMainHandItem
+import io.github.anblusis.netBattleRoyal.event.playerChangeOffHandItem
 import io.github.anblusis.netBattleRoyal.game.Game
 import io.github.anblusis.netBattleRoyal.main.NetBattleRoyal.Companion.plugin
+import io.github.anblusis.netBattleRoyal.tool.equalsDisplayName
 import org.bukkit.Bukkit
-import org.bukkit.Location
-import org.bukkit.WeatherType
+import org.bukkit.Material
 import org.bukkit.boss.BarColor
-import org.bukkit.boss.BarFlag
 import org.bukkit.boss.BarStyle
 import org.bukkit.boss.BossBar
 import org.bukkit.entity.Player
+import org.bukkit.inventory.ItemStack
 import java.util.EnumMap
-import javax.xml.crypto.Data
-import kotlin.math.abs
 
 data class Marmotte(val player: Player, val game: Game) {
     private val bossBar: BossBar
     private var tick: Int = 0
     val stat: EnumMap<CustomAttribute, Double> = EnumMap(CustomAttribute::class.java)
+    private var mainHandItem: ItemStack = ItemStack(Material.AIR)
+    private var offHandItem: ItemStack = ItemStack(Material.AIR)
 
     val region: Region?
         get() {
@@ -50,9 +53,27 @@ data class Marmotte(val player: Player, val game: Game) {
     fun update() {
         updateBossBar()
         updateWeather()
+        updateHandItem()
         if(tick++ >= 20) {
             tick = 0
             plugin.server.dispatchCommand(plugin.server.consoleSender, "psychics mana ${player.name} add ${stat[CustomAttribute.MANA_REGEN]}")
+        }
+    }
+
+    private fun updateHandItem() {
+        val newMainHandItem = player.inventory.itemInMainHand
+        val newOffHandItem = player.inventory.itemInOffHand
+
+        if (!mainHandItem.equalsDisplayName(newMainHandItem)) {
+            player.sendMessage("Main hand item changed from ${mainHandItem.type} to ${newMainHandItem.type}")
+            playerChangeMainHandItem(player, mainHandItem.clone(), newMainHandItem.clone())
+            mainHandItem = newMainHandItem
+        }
+
+        if (!offHandItem.equalsDisplayName(newOffHandItem)) {
+            player.sendMessage("Off hand item changed from ${offHandItem.type} to ${newOffHandItem.type}")
+            playerChangeOffHandItem(player, offHandItem.clone(), newOffHandItem.clone())
+            offHandItem = newOffHandItem.clone()
         }
     }
 

@@ -8,17 +8,17 @@ import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.Damageable
 
-fun playerChangeMainHandItem(player: Player, previousItem: ItemStack?, newItem: ItemStack?) : EventResult {
+fun playerChangeOffHandItem(player: Player, previousItem: ItemStack?, newItem: ItemStack?) : EventResult {
     val game = DataManager.getMarmotte(player)!!.game
 
     if (previousItem != null) {
-        game.customEquipments.filter { it.itemSlot == EquipmentSlot.HAND }.find { it.item.equalsDisplayName(previousItem) }?.let { equipment ->
+        game.customEquipments.filter { it.itemSlot == EquipmentSlot.OFF_HAND }.find { it.item.equalsDisplayName(previousItem) }?.let { equipment ->
             equipment.system.onDisable(player, equipment)
         }
     }
 
     if (newItem != null) {
-        game.customEquipments.filter { it.itemSlot == EquipmentSlot.HAND }.find { it.item.equalsDisplayName(newItem) }?.let { equipment ->
+        game.customEquipments.filter { it.itemSlot == EquipmentSlot.OFF_HAND }.find { it.item.equalsDisplayName(newItem) }?.let { equipment ->
             equipment.system.onEnable(player, equipment)
         }
     }
