@@ -24,7 +24,7 @@ fun playerInteractWithTranscendBook(listener: EventManager, event: PlayerInterac
     player.playSound(player.location, Sound.UI_TOAST_CHALLENGE_COMPLETE, 0.5f, 1.5f)
     player.server.dispatchCommand(
         player.server.consoleSender,
-        "psychics enchant add ${player.name} ${event.item!!.transcendLevel}"
+        "psychics enchant ${player.name} add ${event.item!!.transcendLevel}"
     )
 
     return EventResult.TRANSCEND_ITEM

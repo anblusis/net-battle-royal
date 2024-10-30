@@ -9,7 +9,7 @@ fun playerAttackWithHealthSteal(listener: EventManager, event: EntityDamageByEnt
     DataManager.getMarmotte(event.damager as Player)?.let {
         if (it.game.state == GameState.PLAYING) {
             if (event.finalDamage != 0.0) {
-                it.stat["health_steal"]?.let { value ->
+                it.stat[CustomAttribute.HEALTH_STEAL]?.let { value ->
                     (event.damager as Player).health += event.finalDamage * value / (value + 10)
                 }
             }

@@ -6,7 +6,6 @@ import org.bukkit.NamespacedKey
 import org.bukkit.World
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.Recipe
-import org.bukkit.inventory.RecipeChoice
 import org.bukkit.inventory.ShapedRecipe
 
 enum class CustomRecipe(
@@ -38,7 +37,7 @@ enum class CustomRecipe(
     ),
 
     RAIN_ARMOR("rain_armor",
-        CustomArmor.RAIN_ARMOR.item,
+        CustomEquipment.RAIN_ARMOR.item,
         listOf("A A", "ABA", "AAA"),
         mapOf('A' to ItemStack(Material.LEATHER), 'B' to ItemStack(Material.WATER_BUCKET)),
         mapOf(),

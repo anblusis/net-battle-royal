@@ -1,6 +1,6 @@
 package io.github.anblusis.netBattleRoyal.item
 
-import io.github.anblusis.netBattleRoyal.data.CustomArmor
+import io.github.anblusis.netBattleRoyal.data.CustomEquipment
 import io.github.anblusis.netBattleRoyal.main.NetBattleRoyal.Companion.plugin
 import org.bukkit.WeatherType
 import org.bukkit.entity.Player
@@ -9,18 +9,18 @@ import org.bukkit.event.Listener
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
 
-object RainArmor: ArmorSystem() {
+object RainArmor: CustomEquipmentSystem() {
     private val listeners = hashMapOf<Player, Listener>()
 
-    override fun onArmorEquip(player: Player, armor: CustomArmor) {
-        super.onArmorEquip(player, armor)
+    override fun onEnable(player: Player, equipment: CustomEquipment) {
+        super.onEnable(player, equipment)
         val listener = RainListener(player)
         player.server.pluginManager.registerEvents(listener, plugin)
         listeners[player] = listener
     }
 
-    override fun onArmorUnequip(player: Player, armor: CustomArmor) {
-        super.onArmorUnequip(player, armor)
+    override fun onDisable(player: Player, equipment: CustomEquipment) {
+        super.onDisable(player, equipment)
         HandlerList.unregisterAll(listeners[player] ?: return)
     }
 
@@ -38,7 +38,7 @@ object RainArmor: ArmorSystem() {
 
     override fun onRemove() {
         val willRemovedPlayers = players.toList()
-        willRemovedPlayers.forEach { onArmorUnequip(it, CustomArmor.RAIN_ARMOR) }
+        willRemovedPlayers.forEach { onDisable(it, CustomEquipment.RAIN_ARMOR) }
     }
 
     class RainListener(val player: Player): Listener {

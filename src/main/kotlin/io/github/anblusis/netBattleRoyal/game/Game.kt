@@ -2,7 +2,7 @@ package io.github.anblusis.netBattleRoyal.game
 import io.github.anblusis.netBattleRoyal.data.*
 import io.github.anblusis.netBattleRoyal.game.event.FightStart
 import io.github.anblusis.netBattleRoyal.inv.InvManager
-import io.github.anblusis.netBattleRoyal.data.CustomArmor
+import io.github.anblusis.netBattleRoyal.data.CustomEquipment
 import io.github.anblusis.netBattleRoyal.main.NetBattleRoyal.Companion.plugin
 import io.github.anblusis.netBattleRoyal.world.City
 import io.github.monun.invfx.frame.InvFrame
@@ -31,7 +31,7 @@ class Game(
     internal lateinit var targetWorldBorderCenter: Location
     internal lateinit var worldDefaultWeather: GameWeather
     internal lateinit var customRecipes: List<CustomRecipe>
-    internal lateinit var customArmors: List<CustomArmor>
+    internal lateinit var customEquipments: List<CustomEquipment>
     private lateinit var chestLocations: List<ChestData>
     private val tickTask: TickerTask
     internal val mainInv: InvFrame
@@ -83,7 +83,7 @@ class Game(
             task.run()
         }
 
-        customArmors.forEach {
+        customEquipments.forEach {
             it.system.onUpdate()
         }
 
@@ -137,15 +137,15 @@ class Game(
             region.gameWeather = worldDefaultWeather
         }
 
-        val armors = mutableListOf<CustomArmor>()
+        val armors = mutableListOf<CustomEquipment>()
         CustomRecipe.values().map { it.result }.plus(chestTables.values
             .map { table -> table.loots.map { loot -> loot.item } }.flatten())
             .forEach { item ->
-               if (item in CustomArmor.values().map { armor -> armor.item }) {
-                   armors.add(CustomArmor.values().find { it.item == item }!!)
+               if (item in CustomEquipment.values().map { armor -> armor.item }) {
+                   armors.add(CustomEquipment.values().find { it.item == item }!!)
                }
         }
-        customArmors = armors
+        customEquipments = armors
 
         worldBorder.center = center
         targetWorldBorderCenter = worldBorderCenter
@@ -186,7 +186,7 @@ class Game(
         }
         val willRemovedChests = chests.toList()
         willRemovedChests.forEach { it.remove() }
-        customArmors.forEach {
+        customEquipments.forEach {
             it.system.onRemove()
         }
         val willRemovedMarmottes = marmottes.toList()

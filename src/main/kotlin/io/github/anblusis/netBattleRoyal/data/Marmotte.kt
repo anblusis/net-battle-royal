@@ -10,13 +10,14 @@ import org.bukkit.boss.BarFlag
 import org.bukkit.boss.BarStyle
 import org.bukkit.boss.BossBar
 import org.bukkit.entity.Player
+import java.util.EnumMap
 import javax.xml.crypto.Data
 import kotlin.math.abs
 
 data class Marmotte(val player: Player, val game: Game) {
     private val bossBar: BossBar
-    val stat: HashMap<String, Double>
-    var tick: Int = 0
+    private var tick: Int = 0
+    val stat: EnumMap<CustomAttribute, Double> = EnumMap(CustomAttribute::class.java)
 
     val region: Region?
         get() {
@@ -27,10 +28,7 @@ data class Marmotte(val player: Player, val game: Game) {
     init {
         player.sendMessage("게임에 참가했습니다.")
         bossBar = Bukkit.createBossBar("", BarColor.WHITE, BarStyle.SOLID).apply { addPlayer(player) }
-        stat = hashMapOf(
-            "mana_regen" to 0.0,
-            "defense_penetration" to 0.0
-        )
+        CustomAttribute.values().filter { it.attribute == null }.forEach { stat[it] = 0.0 }
     }
 
     private fun updateBossBar() {
@@ -54,7 +52,7 @@ data class Marmotte(val player: Player, val game: Game) {
         updateWeather()
         if(tick++ >= 20) {
             tick = 0
-            plugin.server.dispatchCommand(plugin.server.consoleSender, "psychics mana add ${player.name} ${stat["mana_regen"]}")
+            plugin.server.dispatchCommand(plugin.server.consoleSender, "psychics mana ${player.name} add ${stat[CustomAttribute.MANA_REGEN]}")
         }
     }
 

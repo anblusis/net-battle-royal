@@ -4,27 +4,23 @@ import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent
 import io.github.anblusis.netBattleRoyal.data.BattleRoyalItemData
 import io.github.anblusis.netBattleRoyal.data.transcendBook
 import io.github.anblusis.netBattleRoyal.main.NetBattleRoyal.Companion.plugin
-import io.papermc.paper.event.world.border.WorldBorderBoundsChangeEvent
-import io.papermc.paper.event.world.border.WorldBorderCenterChangeEvent
-import io.papermc.paper.event.world.border.WorldBorderEvent
 import net.kyori.adventure.text.Component.text
 import org.bukkit.block.Chest
 import org.bukkit.entity.Player
-import org.bukkit.event.Event
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
-import org.bukkit.event.HandlerList
 import org.bukkit.event.Listener
 import org.bukkit.event.block.BlockBreakEvent
 import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.EntityDamageEvent
+import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.inventory.InventoryOpenEvent
-import org.bukkit.event.inventory.InventoryType
 import org.bukkit.event.inventory.PrepareItemCraftEvent
 import org.bukkit.event.player.PlayerInteractEvent
-import org.bukkit.event.player.PlayerJoinEvent
+import org.bukkit.event.player.PlayerItemHeldEvent
 import org.bukkit.event.player.PlayerQuitEvent
-import org.eclipse.sisu.Priority
+import org.bukkit.event.player.PlayerSwapHandItemsEvent
+import org.bukkit.inventory.ItemStack
 
 object EventManager : Listener {
 
@@ -89,7 +85,19 @@ object EventManager : Listener {
     }
 
     @EventHandler
-    private fun onChangeArmor(event: PlayerArmorChangeEvent) {
+    private fun onPlayerChangeArmor(event: PlayerArmorChangeEvent) {
         playerChangeArmor(this, event)
+    }
+
+    @EventHandler
+    private fun onPlayerHeldItem(event: PlayerItemHeldEvent) {
+        val player = event.player
+        val previousItem: ItemStack? = player.inventory.getItem(event.previousSlot)
+        val newItem: ItemStack? = player.inventory.getItem(event.newSlot)
+
+        if (previousItem != newItem) {
+            player.sendMessage("Main hand item changed from ${previousItem?.type} to ${newItem?.type}")
+            playerChangeMainHandItem(this, event)
+        }
     }
 }
