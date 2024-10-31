@@ -1,9 +1,6 @@
 package io.github.anblusis.netBattleRoyal.command
 
-import io.github.anblusis.netBattleRoyal.data.BattleRoyalItemData
-import io.github.anblusis.netBattleRoyal.data.BattleRoyalMap
-import io.github.anblusis.netBattleRoyal.data.ChestType
-import io.github.anblusis.netBattleRoyal.data.DataManager
+import io.github.anblusis.netBattleRoyal.data.*
 import io.github.anblusis.netBattleRoyal.game.Game
 import io.github.anblusis.netBattleRoyal.main.NetBattleRoyal
 import io.github.anblusis.netBattleRoyal.main.NetBattleRoyal.Companion.plugin
@@ -17,6 +14,7 @@ import net.kyori.adventure.text.Component.text
 import org.bukkit.Particle
 import org.bukkit.World
 import org.bukkit.entity.Player
+import org.bukkit.inventory.ItemStack
 import org.bukkit.plugin.java.JavaPlugin
 import java.io.File
 import java.nio.file.Files
@@ -27,10 +25,12 @@ object CommandManager {
     fun register(kommand: PluginKommand)  {
         kommand.register("netbattleroyal", "netbr") {
             val battleRoyalItemArgument = dynamic { _, input ->
-                BattleRoyalItemData.valueOf(input)
+                if (input in BattleRoyalItemData.values().map { it.name }) BattleRoyalItemData.valueOf(input).item.clone()
+                else CustomEquipment.valueOf(input).item.clone()
             }.apply {
                 suggests {
                     suggest(BattleRoyalItemData.values().map { it.name })
+                    suggest(CustomEquipment.values().map { it.name })
                 }
             }
             val worldArgument = dynamic { _, input ->
@@ -146,9 +146,9 @@ object CommandManager {
         }
     }
 
-    private fun giveBattleRoyalItem(players: List<Player>, item: BattleRoyalItemData, count: Int) {
+    private fun giveBattleRoyalItem(players: List<Player>, item: ItemStack, count: Int) {
         players.forEach { player ->
-            player.inventory.addItem(item.item.apply {
+            player.inventory.addItem(item.apply {
                 amount = count
             })
         }

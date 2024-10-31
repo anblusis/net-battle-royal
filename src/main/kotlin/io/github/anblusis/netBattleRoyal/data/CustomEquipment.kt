@@ -25,17 +25,16 @@ enum class CustomEquipment(val item: ItemStack, val stat: Map<CustomAttribute, D
         ItemStack(Material.LEATHER_CHESTPLATE).apply item@ {
             itemMeta = (itemMeta as LeatherArmorMeta).apply {
                 displayName(
-                    text().color(NamedTextColor.BLUE).content("RainArmor").decoration(TextDecoration.ITALIC, false).build()
+                    text().color(NamedTextColor.WHITE).content("비의 흉갑").decoration(TextDecoration.ITALIC, false).build()
                 )
                 setColor(Color.AQUA)
                 lore(
-                    listOf(space())
-                        .plus(
-                            text()
-                                .color(NamedTextColor.WHITE)
-                                .decoration(TextDecoration.ITALIC, false)
-                                .content("비가 내리는 상황에서 신속 부여").build()
-                        )
+                    listOf(
+                        text()
+                            .color(NamedTextColor.GRAY)
+                            .decoration(TextDecoration.ITALIC, false)
+                            .content("비가 내리는 상황에서 신속 부여").build()
+                    )
                 )
                 makeAttribute(
                     mapOf(
@@ -61,7 +60,28 @@ enum class CustomEquipment(val item: ItemStack, val stat: Map<CustomAttribute, D
         ),
         EquipmentSlot.CHEST,
         RainArmor
-    )
+    ),
+    AMETHYST_SWORD(
+        ItemStack(Material.AMETHYST_SHARD).apply item@ {
+            itemMeta = itemMeta.apply {
+                displayName(
+                    text().color(NamedTextColor.WHITE).content("자수정 단검").decoration(TextDecoration.ITALIC, false).build()
+                )
+                makeAttribute(
+                    mapOf(
+                        CustomAttribute.ATTACK_DAMAGE to 5.0,
+                        CustomAttribute.ATTACK_SPEED to 2.5
+                    ), EquipmentSlot.HAND
+                )
+                addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
+            }
+        },
+        mapOf(
+            CustomAttribute.ATTACK_DAMAGE to 5.0,
+            CustomAttribute.ATTACK_SPEED to 2.5
+        ),
+        EquipmentSlot.HAND
+    ),
 }
 
 fun ItemMeta.makeAttribute(stat: Map<CustomAttribute, Double>, itemSlot: EquipmentSlot) {
@@ -87,7 +107,7 @@ fun ItemMeta.makeAttribute(stat: Map<CustomAttribute, Double>, itemSlot: Equipme
             attributeLore.add(
                 text()
                     .content(" ${value + if (key.attribute == Attribute.GENERIC_ATTACK_DAMAGE) 1.0 else 0.0} ${key.displayName}")
-                    .color(NamedTextColor.GREEN)
+                    .color(NamedTextColor.DARK_GREEN)
                     .decoration(TextDecoration.ITALIC, false).build()
             )
         } else if (value < 0) {
@@ -111,7 +131,10 @@ fun ItemMeta.makeAttribute(stat: Map<CustomAttribute, Double>, itemSlot: Equipme
                 AttributeModifier(
                     UUID.randomUUID(),
                     key.displayName,
-                    value,
+                    if (itemSlot.isHand && key.attribute == Attribute.GENERIC_ATTACK_SPEED)
+                        value - 4.0
+                    else
+                        value,
                     AttributeModifier.Operation.ADD_NUMBER,
                     itemSlot
                 )

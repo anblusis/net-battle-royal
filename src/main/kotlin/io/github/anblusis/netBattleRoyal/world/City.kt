@@ -5,6 +5,7 @@ import io.github.anblusis.netBattleRoyal.game.GameWeather
 import io.github.anblusis.netBattleRoyal.main.NetBattleRoyal.Companion.plugin
 import net.kyori.adventure.text.Component.text
 import net.kyori.adventure.text.format.NamedTextColor
+import net.kyori.adventure.text.format.TextDecoration
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.enchantments.Enchantment
@@ -2974,6 +2975,8 @@ object City : WorldData {
                             ChestItemData(ItemStack(Material.PAPER), 5..7, 2..3, 5.5),
                             ChestItemData(ItemStack(Material.GUNPOWDER), 3..8, 2..3, 5.5),
                             ChestItemData(ItemStack(Material.REDSTONE), 12..12, 2..3, 2.5),
+                            *listOf(Material.LEATHER_HELMET, Material.LEATHER_CHESTPLATE, Material.LEATHER_LEGGINGS, Material.LEATHER_BOOTS)
+                                .map { ChestItemData(ItemStack(it), 1..1, 2..3, 3.0 / 4) }.toTypedArray(),
                         )
                     ),
             ChestType.RARE to
@@ -2987,7 +2990,7 @@ object City : WorldData {
                             ChestItemData(ItemStack(Material.ENCHANTED_GOLDEN_APPLE), 1..1, 1..1, 1.0),
                             ChestItemData(ItemStack(Material.CAKE).apply {
                                 itemMeta = itemMeta.apply {
-                                    displayName(text("진짜 멋진 케이크").color(NamedTextColor.GOLD))
+                                    displayName(text("진짜 멋진 케이크").color(NamedTextColor.GOLD).decoration(TextDecoration.ITALIC, false))
                                 }
                             }, 1..1, 1..1, 1.0),
                             ChestItemData(ItemStack(Material.BOOK).apply {
@@ -3026,7 +3029,8 @@ object City : WorldData {
                             ChestItemData(ItemStack(Material.DIAMOND), 1..2, 3..5, 2.5),
                             ChestItemData(ItemStack(Material.LAPIS_LAZULI), 3..9, 3..5, 4.0),
                             ChestItemData(ItemStack(Material.CHORUS_FRUIT), 1..3, 3..5, 3.0),
-                            ChestItemData(BattleRoyalItemData.SUPER_EXP_BOTTLE.item, 1..4, 3..5, 3.5)
+                            ChestItemData(BattleRoyalItemData.SUPER_EXP_BOTTLE.item, 1..4, 3..5, 3.5),
+                            ChestItemData(ItemStack(Material.TNT), 2..6, 3..5, 3.0),
                         )
                     ),
             ChestType.EPIC to

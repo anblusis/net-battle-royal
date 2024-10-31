@@ -7,43 +7,37 @@ import org.bukkit.World
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.Recipe
 import org.bukkit.inventory.ShapedRecipe
+import org.bukkit.inventory.ShapelessRecipe
 
 enum class CustomRecipe(
     recipeName: String,
     val result: ItemStack,
     private val shape: List<String>,
+    private val displayShape: List<String>,
     private val ingredients: Map<Char, ItemStack>,
     private val counts: Map<Char, Int>,
     private val type: CustomRecipeType,
     val worlds: List<World>
 ) {
-
-    MAGIC_STICK("magic_stick",
-        BattleRoyalItemData.MAGIC_STICK.item,
-        listOf("AA ", " B ", " AA"),
-        mapOf('A' to ItemStack(Material.BLAZE_POWDER), 'B' to BattleRoyalItemData.MAGIC_STICK.item),
-        mapOf(),
-        CustomRecipeType.SHAPED,
-        listOf()
-    ),
-
-    DMDDO("dmddo",
-        ItemStack(Material.AMETHYST_BLOCK),
-        listOf("AAA", "A  ", "   "),
-        mapOf('A' to ItemStack(Material.AMETHYST_SHARD)),
-        mapOf('A' to 4),
-        CustomRecipeType.SHAPELESS,
-        listOf()
-    ),
-
     RAIN_ARMOR("rain_armor",
         CustomEquipment.RAIN_ARMOR.item,
+        listOf("A A", "ABA", "AAA"),
         listOf("A A", "ABA", "AAA"),
         mapOf('A' to ItemStack(Material.LEATHER), 'B' to ItemStack(Material.WATER_BUCKET)),
         mapOf(),
         CustomRecipeType.SHAPED,
         listOf()
-    );
+    ),
+    AMETHYST_SWORD("amethyst_sword",
+        CustomEquipment.AMETHYST_SWORD.item,
+        listOf("A", "B"),
+        listOf(" A ", " B ", "   "),
+        mapOf('A' to ItemStack(Material.AMETHYST_SHARD), 'B' to ItemStack(Material.STICK)),
+        mapOf(),
+        CustomRecipeType.SHAPED,
+        listOf()
+    )
+    ;
 
     private val key = NamespacedKey(plugin, recipeName)
 
@@ -58,7 +52,7 @@ enum class CustomRecipe(
                 return recipe
             }
             CustomRecipeType.SHAPELESS -> {
-                val recipe = org.bukkit.inventory.ShapelessRecipe(key, result)
+                val recipe = ShapelessRecipe(key, result)
                 ingredients.forEach { (key, item) ->
                     recipe.addIngredient(counts[key]!!, item)
                 }
@@ -67,7 +61,7 @@ enum class CustomRecipe(
         }
     }
 
-    fun toItemShape(): List<ItemStack?> = shape.flatMap { it.toCharArray().toList() }.map { ingredients[it] }
+    fun toItemShape(): List<ItemStack?> = displayShape.flatMap { it.toCharArray().toList() }.map { ingredients[it] }
 
     fun addToServer() {
         val recipe = toBukkitRecipe()

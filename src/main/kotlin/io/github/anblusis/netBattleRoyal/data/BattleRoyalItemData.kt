@@ -43,10 +43,10 @@ enum class BattleRoyalItemData(val item: ItemStack) {
             )
             lore(
                 listOf(
-                    text().color(NamedTextColor.WHITE)
+                    text().color(NamedTextColor.GRAY)
                         .decoration(TextDecoration.ITALIC,false)
                         .content("초월 시키고자 하는 장비를 반대 손에 두고 우클릭 시").build(),
-                    text().color(NamedTextColor.WHITE)
+                    text().color(NamedTextColor.GRAY)
                         .decoration(TextDecoration.ITALIC,false)
                         .content("책을 사용해 장비에 초월 인첸트를 부여합니다.").build()
                 )
@@ -56,7 +56,7 @@ enum class BattleRoyalItemData(val item: ItemStack) {
     SUPER_EXP_BOTTLE(ItemStack(Material.EXPERIENCE_BOTTLE).apply {
         itemMeta = itemMeta.apply {
             displayName(
-                text().color(NamedTextColor.GREEN).content("슈퍼 경험치 병").build()
+                text().color(NamedTextColor.GREEN).content("슈퍼 경험치 병").decoration(TextDecoration.ITALIC, false).build()
             )
         }
     }),
@@ -68,7 +68,7 @@ val transcendBook = text().content("초월서")
 
 val randomEnchantTag = text().content("랜덤 인첸트")
     .decoration(TextDecoration.ITALIC, false)
-    .color(NamedTextColor.GRAY).build()
+    .color(NamedTextColor.BLUE).build()
 
 var ItemStack.enchantValue
     get() = lore()?.find { lore ->
@@ -85,9 +85,9 @@ var ItemStack.enchantValue
                 0, randomEnchantTag.children(
                     listOf(
                         space().color(TextColor.color(value)),
-                        text().content(value.toString()).color(NamedTextColor.GRAY)
+                        text().content(value.toString()).color(NamedTextColor.BLUE)
                             .decoration(TextDecoration.ITALIC, false).build(),
-                        text().content(" 레벨").color(NamedTextColor.GRAY)
+                        text().content(" 레벨").color(NamedTextColor.BLUE)
                             .decoration(TextDecoration.ITALIC, false).build()
                     )
                 )
