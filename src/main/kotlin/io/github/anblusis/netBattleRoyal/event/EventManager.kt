@@ -1,6 +1,7 @@
 package io.github.anblusis.netBattleRoyal.event
 
 import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent
+import com.destroystokyo.paper.event.player.PlayerLaunchProjectileEvent
 import io.github.anblusis.netBattleRoyal.data.BattleRoyalItemData
 import io.github.anblusis.netBattleRoyal.data.transcendBook
 import io.github.anblusis.netBattleRoyal.main.NetBattleRoyal.Companion.plugin
@@ -13,6 +14,7 @@ import org.bukkit.event.Listener
 import org.bukkit.event.block.BlockBreakEvent
 import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.EntityDamageEvent
+import org.bukkit.event.entity.ExpBottleEvent
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.inventory.InventoryOpenEvent
 import org.bukkit.event.inventory.PrepareItemCraftEvent
@@ -87,5 +89,15 @@ object EventManager : Listener {
     @EventHandler
     private fun onPlayerChangeArmor(event: PlayerArmorChangeEvent) {
         playerChangeArmor(this, event)
+    }
+
+    @EventHandler
+    fun onExpBottleTHit(event: ExpBottleEvent) {
+        expBottleHit(this, event)
+    }
+
+    @EventHandler
+    fun onPlayerLaunchProjectile(event: PlayerLaunchProjectileEvent) {
+        playerLaunchSuperExpBottle(this, event)
     }
 }

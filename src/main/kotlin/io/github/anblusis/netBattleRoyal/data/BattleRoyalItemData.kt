@@ -53,6 +53,13 @@ enum class BattleRoyalItemData(val item: ItemStack) {
             )
         }
     }),
+    SUPER_EXP_BOTTLE(ItemStack(Material.EXPERIENCE_BOTTLE).apply {
+        itemMeta = itemMeta.apply {
+            displayName(
+                text().color(NamedTextColor.GREEN).content("슈퍼 경험치 병").build()
+            )
+        }
+    }),
 }
 
 val transcendBook = text().content("초월서")
