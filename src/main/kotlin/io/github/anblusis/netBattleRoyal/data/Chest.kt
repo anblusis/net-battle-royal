@@ -113,9 +113,9 @@ data class ChestLootTable(val stacks: List<IntRange>, val loots: List<ChestItemD
                 val loot = loots.filter { it.stackRange == range && (it.regions.isEmpty() || it.regions.contains(region?.name)) }
                     .minByOrNull { -ln(Random.nextDouble()) / it.weight }
 
-                if (loot != null) {
+                loot?.subItems!!.plus(loot.item).forEach {
                     val amount = loot.amount.random()
-                    var item = loot.item.clone().apply {
+                    var item = it.clone().apply {
                         this.amount = amount
                     }
                     if (item.enchantValue > 0) {
@@ -166,4 +166,10 @@ data class ChestLootTable(val stacks: List<IntRange>, val loots: List<ChestItemD
     }
 }
 
-data class ChestItemData(val item: ItemStack, val amount: IntRange, val stackRange: IntRange, val weight: Double, val regions: List<String> = listOf())
+data class ChestItemData(
+    val item: ItemStack,
+    val amount: IntRange,
+    val stackRange: IntRange,
+    val weight: Double,
+    val regions: List<String> = listOf(),
+    val subItems: List<ItemStack> = listOf())

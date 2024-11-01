@@ -13,6 +13,7 @@ import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.PotionMeta
 import org.bukkit.potion.PotionData
 import org.bukkit.potion.PotionEffect
+import org.bukkit.potion.PotionEffectType
 import org.bukkit.potion.PotionType
 import java.io.InputStream
 
@@ -2952,6 +2953,7 @@ object City : WorldData {
                             ChestItemData(ItemStack(Material.COBBLESTONE), 8..12, 1..2, 10.0),
                             ChestItemData(ItemStack(Material.WHITE_WOOL), 16..16, 1..2, 6.0),
                             ChestItemData(ItemStack(Material.STICK), 12..16, 1..2, 7.0),
+
                             ChestItemData(ItemStack(Material.BREAD), 3..4, 2..3, 7.5),
                             ChestItemData(ItemStack(Material.APPLE), 1..2, 2..3, 3.0),
                             ChestItemData(ItemStack(Material.COOKED_BEEF), 2..5, 2..3, 4.5),
@@ -2974,6 +2976,7 @@ object City : WorldData {
                             ChestItemData(ItemStack(Material.FLINT_AND_STEEL), 1..1, 2..3, 2.0),
                             ChestItemData(ItemStack(Material.PAPER), 5..7, 2..3, 5.5),
                             ChestItemData(ItemStack(Material.GUNPOWDER), 3..8, 2..3, 5.5),
+                            ChestItemData(ItemStack(Material.EXPERIENCE_BOTTLE), 3.. 9, 2..3, 4.0),
                             ChestItemData(ItemStack(Material.REDSTONE), 12..12, 2..3, 2.5),
                             *listOf(Material.LEATHER_HELMET, Material.LEATHER_CHESTPLATE, Material.LEATHER_LEGGINGS, Material.LEATHER_BOOTS)
                                 .map { ChestItemData(ItemStack(it), 1..1, 2..3, 3.0 / 4) }.toTypedArray(),
@@ -2988,24 +2991,26 @@ object City : WorldData {
                         listOf(
                             ChestItemData(ItemStack(Material.DIAMOND), 2..8, 1..1, 2.0),
                             ChestItemData(ItemStack(Material.ENCHANTED_GOLDEN_APPLE), 1..1, 1..1, 1.0),
+                            ChestItemData(ItemStack(Material.ANVIL), 1..1, 1..1, 1.5),
                             ChestItemData(ItemStack(Material.CAKE).apply {
                                 itemMeta = itemMeta.apply {
                                     displayName(text("진짜 멋진 케이크").color(NamedTextColor.GOLD).decoration(TextDecoration.ITALIC, false))
                                 }
                             }, 1..1, 1..1, 1.0),
-                            ChestItemData(ItemStack(Material.BOOK).apply {
+                             ChestItemData(ItemStack(Material.BOOK).apply {
                                 enchantValue = 16
                             }, 1..1, 1..1, 4.0),
                             ChestItemData(BattleRoyalItemData.TRANSCEND_BOOK.item.clone().apply {
                                 transcendLevel = 1
                             }, 1..1, 1..1, 5.0),
-                            ChestItemData(ItemStack(Material.SPLASH_POTION).apply {
+                            ChestItemData(ItemStack(Material.POTION).apply {
                                 itemMeta = (itemMeta as PotionMeta).apply {
                                     basePotionData = PotionData(PotionType.STRENGTH)
                                 }
                             }, 1..1, 1..1, 2.5),
                             *listOf(Material.IRON_HELMET, Material.IRON_CHESTPLATE, Material.IRON_LEGGINGS, Material.IRON_BOOTS, Material.IRON_SWORD, Material.BOW, Material.CROSSBOW)
                                 .map { ChestItemData(ItemStack(it).apply { enchantValue = 20 }, 1..1, 1..1, 4.0 / 7) }.toTypedArray(),
+
                             ChestItemData(ItemStack(Material.ARROW), 16..16, 3..5, 6.0),
                             ChestItemData(ItemStack(Material.GOLDEN_APPLE), 1..1, 3..5, 3.0),
                             ChestItemData(ItemStack(Material.GOLDEN_CARROT), 3..6, 3..5, 5.5),
@@ -3031,15 +3036,47 @@ object City : WorldData {
                             ChestItemData(ItemStack(Material.CHORUS_FRUIT), 1..3, 3..5, 3.0),
                             ChestItemData(BattleRoyalItemData.SUPER_EXP_BOTTLE.item, 1..4, 3..5, 3.5),
                             ChestItemData(ItemStack(Material.TNT), 2..6, 3..5, 3.0),
+                            ChestItemData(ItemStack(Material.OBSIDIAN), 3..5, 3..5, 2.0)
                         )
                     ),
             ChestType.EPIC to
                     ChestLootTable(
                         listOf(
-
+                            1..2,
+                            4..4
                         ),
                         listOf(
+                            ChestItemData(ItemStack(Material.IRON_INGOT), 12..16, 1..2, 4.0),
+                            ChestItemData(ItemStack(Material.GOLD_INGOT), 9..12, 1..2, 3.0),
+                            ChestItemData(BattleRoyalItemData.SUPER_EXP_BOTTLE.item, 9..12, 1..2, 2.0),
 
+                            ChestItemData(ItemStack(Material.DIAMOND), 4..8, 4..4, 5.0),
+                            ChestItemData(ItemStack(Material.ENCHANTED_GOLDEN_APPLE), 1..2, 4..4, 4.0),
+                            ChestItemData(ItemStack(Material.TRIDENT), 1..1, 4..4, 3.0),
+                            ChestItemData(ItemStack(Material.TOTEM_OF_UNDYING), 1..2, 4..4, 2.5),
+                            ChestItemData(ItemStack(Material.BOOK).apply {
+                                enchantValue = 24
+                            }, 1..2, 4..4, 4.0),
+                            ChestItemData(BattleRoyalItemData.TRANSCEND_BOOK.item.clone().apply {
+                                transcendLevel = 2
+                            }, 1..2, 4..4, 3.5),
+                            ChestItemData(BattleRoyalItemData.TRANSCEND_BOOK.item.clone().apply {
+                                transcendLevel = 3
+                            }, 1..2, 4..4, 2.0),
+                            ChestItemData(ItemStack(Material.POTION).apply {
+                                itemMeta = (itemMeta as PotionMeta).apply {
+                                    basePotionData = PotionData(PotionType.STRENGTH, false, true)
+                                }
+                            }, 1..2, 4..4, 4.0),
+                            ChestItemData(BattleRoyalItemData.SUPER_POTION.item, 1..2, 4..4, 4.0),
+                            ChestItemData(ItemStack(Material.ELYTRA), 1..1, 4..4, 1.0),
+                            *listOf(Material.DIAMOND_HELMET, Material.DIAMOND_CHESTPLATE, Material.DIAMOND_LEGGINGS, Material.DIAMOND_BOOTS, Material.DIAMOND_SWORD, Material.BOW, Material.CROSSBOW)
+                                .map { ChestItemData(ItemStack(it).apply { enchantValue = 30 }, 1..1, 4..4, 4.0 / 7) }.toTypedArray(),
+                            ChestItemData(ItemStack(Material.DIAMOND_AXE).apply {
+                                addUnsafeEnchantment(Enchantment.DAMAGE_ALL, 3)
+                            }, 1..1, 4..4, 2.0),
+                            ChestItemData(ItemStack(Material.NETHERITE_INGOT), 1..1, 4..4, 3.0,
+                                subItems = listOf(ItemStack(Material.NETHERITE_UPGRADE_SMITHING_TEMPLATE)))
                         )
                     )
         )

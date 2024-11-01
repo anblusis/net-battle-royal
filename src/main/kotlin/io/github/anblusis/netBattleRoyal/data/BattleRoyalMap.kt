@@ -122,7 +122,10 @@ object RegionRenderer : MapRenderer() {
                             0,
                             MapCursor.Type.BLUE_POINTER,
                             true,
-                            text(region.displayName).color(region.gameWeather.color)
+                            text(region.displayName).color(
+                                if (region.isTntRaining) NamedTextColor.RED
+                                else region.gameWeather.color
+                            )
                         )
                     } else {
                         MapCursor(

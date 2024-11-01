@@ -12,6 +12,8 @@ import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.LeatherArmorMeta
 import java.util.ArrayList
 import org.bukkit.Color
+import org.bukkit.potion.PotionEffect
+import org.bukkit.potion.PotionEffectType
 
 enum class BattleRoyalItemData(val item: ItemStack) {
     MAGIC_STICK(ItemStack(Material.STICK).apply {
@@ -22,11 +24,22 @@ enum class BattleRoyalItemData(val item: ItemStack) {
             )
         }
     }),
-    MAGIC_SWORD(ItemStack(Material.DIAMOND_SWORD).apply {
-        itemMeta = itemMeta.apply {
+    SUPER_POTION(ItemStack(Material.POTION).apply {
+        itemMeta = (itemMeta as org.bukkit.inventory.meta.PotionMeta).apply {
             displayName(
-                text().color(NamedTextColor.AQUA).content("검").decoration(TextDecoration.ITALIC, false).build()
+                text()
+                    .color(NamedTextColor.GREEN)
+                    .decoration(TextDecoration.ITALIC, false)
+                    .content("슈퍼 포션").build()
             )
+            listOf(
+                PotionEffectType.SPEED,
+                PotionEffectType.JUMP,
+                PotionEffectType.REGENERATION
+            ).forEach {
+                addCustomEffect(PotionEffect(it, 400, 1), true)
+            }
+            color = Color.LIME
         }
     }),
     BATTLE_ROYAL_MAP(ItemStack(Material.FILLED_MAP).apply {

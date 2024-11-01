@@ -65,7 +65,7 @@ object InvManager {
             addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
         }
     }
-    
+
     fun createMainInv(game: Game): InvFrame = InvFX.frame(1, text("배틀로얄").decorate(TextDecoration.BOLD)) {
         item(1, 0, recipeMenuItem)
         item(4, 0, chestMenuItem)
