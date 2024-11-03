@@ -3,9 +3,9 @@ package io.github.anblusis.netBattleRoyal.game.event
 import io.github.anblusis.netBattleRoyal.game.Game
 import io.github.anblusis.netBattleRoyal.main.NetBattleRoyal.Companion.plugin
 import io.github.monun.tap.task.TickerTask
-import net.kyori.adventure.title.Title
 import net.kyori.adventure.text.Component.text
 import net.kyori.adventure.text.format.NamedTextColor
+import net.kyori.adventure.title.Title
 import org.bukkit.util.Vector
 import java.time.Duration
 import kotlin.random.Random
@@ -13,7 +13,7 @@ import kotlin.random.Random
 class WorldBorderDecrease(
     private val game: Game,
     private val tick: Int
-): Runnable {
+) : Runnable {
     override fun run() {
         val sizeDecrease = game.worldBorderSize * Random.nextDouble(0.25, 0.35)
         val size = game.worldBorderSize - sizeDecrease
@@ -43,12 +43,12 @@ class WorldBorderDecrease(
             player.sendMessage(
                 text("중심 위치: ")
                     .append(text("${center.blockX}, ${center.blockZ} ").color(NamedTextColor.GREEN))
-                        .append(text("(처음에서 ${center.distance(game.worldBorderCenter).toInt()} 블록 거리)"))
+                    .append(text("(처음에서 ${center.distance(game.worldBorderCenter).toInt()} 블록 거리)"))
             )
             player.sendMessage(
                 text("경계 크기: ")
                     .append(text("${size.toInt()} ").color(NamedTextColor.GREEN))
-                        .append(text("(처음에서 ${sizeDecrease.toInt()} 블록 감소)"))
+                    .append(text("(처음에서 ${sizeDecrease.toInt()} 블록 감소)"))
             )
         }
 

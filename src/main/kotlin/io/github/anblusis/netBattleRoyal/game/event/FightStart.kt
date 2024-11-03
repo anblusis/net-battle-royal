@@ -6,21 +6,12 @@ import io.github.anblusis.netBattleRoyal.game.GameTask
 import net.kyori.adventure.text.Component.text
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.title.Title
-import org.bukkit.potion.PotionEffect
-import org.bukkit.potion.PotionEffectType
 import java.time.Duration
 
 class FightStart(
     private val game: Game,
     private val tick: Int
-): Runnable {
-    init {
-        game.marmottes.forEach {
-            val player = it.player
-            player.addPotionEffect(PotionEffect(PotionEffectType.SPEED, tick, 1, false, false))
-        }
-    }
-
+) : Runnable {
     override fun run() {
         game.state = GameState.PLAYING
         game.marmottes.forEach {
@@ -39,11 +30,12 @@ class FightStart(
         }
         game.run {
             tasks.add(
-                GameTask(this,
+                GameTask(
+                    this,
                     WorldBorderDecrease(this, 1200),
                     "월드보더 감소",
-                    6000,
-                    6000,
+                    4800,
+                    4800,
                     0,
                     true
                 )
@@ -51,10 +43,10 @@ class FightStart(
             tasks.add(
                 GameTask(
                     this,
-                    CreateRandomEvent(this, 120, RandomGameEvent.values()),
+                    CreateRandomEvent(this, 1200, RandomGameEvent.values()),
                     "무작위 사건 타이머",
-                    120,
-                    720,
+                    3400,
+                    3400,
                     -999,
                     true
                 )

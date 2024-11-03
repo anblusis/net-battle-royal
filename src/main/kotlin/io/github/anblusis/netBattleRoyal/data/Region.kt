@@ -11,7 +11,14 @@ data class Region(
     val height: Double,
     val priority: Int
 ) {
-    constructor(name: String, displayName: String, center: Location, radius: Double, priority: Int) : this(name, displayName, center, radius, radius, priority)
+    constructor(name: String, displayName: String, center: Location, radius: Double, priority: Int) : this(
+        name,
+        displayName,
+        center,
+        radius,
+        radius,
+        priority
+    )
 
     internal var gameWeather = GameWeather.SUNNY
     internal var isTntRaining = false

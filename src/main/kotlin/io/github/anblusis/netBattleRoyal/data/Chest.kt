@@ -1,12 +1,9 @@
 package io.github.anblusis.netBattleRoyal.data
 
 import io.github.anblusis.netBattleRoyal.game.Game
-import net.kyori.adventure.text.Component.space
 import net.kyori.adventure.text.Component.text
-import net.kyori.adventure.text.TextComponent
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.TextColor
-import net.kyori.adventure.text.format.TextDecoration
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.block.Chest
@@ -14,8 +11,6 @@ import org.bukkit.entity.BlockDisplay
 import org.bukkit.entity.Display
 import org.bukkit.entity.TextDisplay
 import org.bukkit.inventory.ItemStack
-import org.bukkit.inventory.meta.ItemMeta
-import java.util.ArrayList
 import kotlin.math.ln
 import kotlin.math.min
 import kotlin.random.Random
@@ -28,7 +23,12 @@ enum class ChestType(val rating: String, val color: TextColor, val material: Mat
     EPIC("에픽", NamedTextColor.DARK_PURPLE, Material.PURPLE_STAINED_GLASS)
 }
 
-data class RoyalChest(val game: Game, val chestData: ChestData, val table: ChestLootTable, var beams: List<BlockDisplay>? = null) {
+data class RoyalChest(
+    val game: Game,
+    val chestData: ChestData,
+    val table: ChestLootTable,
+    var beams: List<BlockDisplay>? = null
+) {
 
     var isOpened: Boolean
     private val entity: TextDisplay
@@ -110,19 +110,34 @@ data class ChestLootTable(val stacks: List<IntRange>, val loots: List<ChestItemD
         stacks.forEach { range ->
             repeat(range.random()) {
                 // 가중치 랜덤
-                val loot = loots.filter { it.stackRange == range && (it.regions.isEmpty() || it.regions.contains(region?.name)) }
-                    .minByOrNull { -ln(Random.nextDouble()) / it.weight }
+                val loot =
+                    loots.filter { it.stackRange == range && (it.regions.isEmpty() || it.regions.contains(region?.name)) }
+                        .minByOrNull { -ln(Random.nextDouble()) / it.weight }
 
-                loot?.subItems!!.plus(loot.item).forEach {
+                loot?.subItems?.forEach { (it, amount) ->
+                    val item = it.clone().apply {
+                        this.amount = amount.random()
+                    }
+                    if (item.enchantValue > 0) {
+                        item.enchantWithLevels(item.enchantValue, false, java.util.Random())
+                        item.enchantValue = 0
+                    }
+                    if (item.amount > 1) {
+                        lootQueue.add(item)
+                    } else {
+                        lootItems.add(item)
+                    }
+                }
+                if (loot != null) {
                     val amount = loot.amount.random()
-                    var item = it.clone().apply {
+                    var item = loot.item.clone().apply {
                         this.amount = amount
                     }
                     if (item.enchantValue > 0) {
                         item = item.enchantWithLevels(item.enchantValue, false, java.util.Random())
                         item.enchantValue = 0
                     }
-                    if (amount > 1) {
+                    if (item.amount > 1) {
                         lootQueue.add(item)
                     } else {
                         lootItems.add(item)
@@ -172,4 +187,5 @@ data class ChestItemData(
     val stackRange: IntRange,
     val weight: Double,
     val regions: List<String> = listOf(),
-    val subItems: List<ItemStack> = listOf())
+    val subItems: Map<ItemStack, IntRange> = hashMapOf()
+)

@@ -1,17 +1,15 @@
 package io.github.anblusis.netBattleRoyal.data
 
-import net.kyori.adventure.text.Component
+import io.github.anblusis.netBattleRoyal.main.NetBattleRoyal.Companion.plugin
 import net.kyori.adventure.text.Component.space
 import net.kyori.adventure.text.Component.text
 import net.kyori.adventure.text.TextComponent
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.TextColor
 import net.kyori.adventure.text.format.TextDecoration
+import org.bukkit.Color
 import org.bukkit.Material
 import org.bukkit.inventory.ItemStack
-import org.bukkit.inventory.meta.LeatherArmorMeta
-import java.util.ArrayList
-import org.bukkit.Color
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
 
@@ -57,10 +55,10 @@ enum class BattleRoyalItemData(val item: ItemStack) {
             lore(
                 listOf(
                     text().color(NamedTextColor.GRAY)
-                        .decoration(TextDecoration.ITALIC,false)
+                        .decoration(TextDecoration.ITALIC, false)
                         .content("초월 시키고자 하는 장비를 반대 손에 두고 우클릭 시").build(),
                     text().color(NamedTextColor.GRAY)
-                        .decoration(TextDecoration.ITALIC,false)
+                        .decoration(TextDecoration.ITALIC, false)
                         .content("책을 사용해 장비에 초월 인첸트를 부여합니다.").build()
                 )
             )
@@ -110,18 +108,23 @@ var ItemStack.enchantValue
         lore(lore)
     }
 
-var ItemStack.transcendLevel
-    get() = displayName().children().firstOrNull()?.color()?.value() ?: 0
+var ItemStack.transcendLevel: Int
+    get() {
+        return itemMeta.displayName()?.children()?.firstOrNull()?.color()?.value() ?: 0
+    }
     set(value) {
         var display = transcendBook
 
         if (value > 0) {
-            display = display.children(listOf(space().color(TextColor.color(value)),
-                text()
-                    .content(value.toRomanNumerals())
-                    .color(NamedTextColor.YELLOW)
-                    .decoration(TextDecoration.ITALIC, false).build()
-            ))
+            display = display.children(
+                listOf(
+                    space().color(TextColor.color(value)),
+                    text()
+                        .content(value.toRomanNumerals())
+                        .color(NamedTextColor.YELLOW)
+                        .decoration(TextDecoration.ITALIC, false).build()
+                )
+            )
         }
 
         itemMeta = itemMeta.apply {

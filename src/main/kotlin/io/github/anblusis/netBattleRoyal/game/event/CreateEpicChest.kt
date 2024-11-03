@@ -1,6 +1,9 @@
 package io.github.anblusis.netBattleRoyal.game.event
 
-import io.github.anblusis.netBattleRoyal.data.*
+import io.github.anblusis.netBattleRoyal.data.ChestData
+import io.github.anblusis.netBattleRoyal.data.ChestType
+import io.github.anblusis.netBattleRoyal.data.Region
+import io.github.anblusis.netBattleRoyal.data.RoyalChest
 import io.github.anblusis.netBattleRoyal.game.Game
 import io.github.anblusis.netBattleRoyal.main.NetBattleRoyal.Companion.plugin
 import io.github.monun.tap.task.TickerTask
@@ -17,14 +20,12 @@ import org.bukkit.entity.Display
 import org.bukkit.util.Vector
 import org.joml.Matrix4f
 import java.time.Duration
-import kotlin.math.atan2
-import kotlin.math.sqrt
 import kotlin.random.Random
 
 class CreateEpicChest(
     private val game: Game,
     private val region: Region
-): Runnable {
+) : Runnable {
     override fun run() {
         game.marmottes.filter { it.region == region }.forEach {
             val player = it.player
@@ -181,7 +182,12 @@ class CreateEpicChest(
 
     private fun createChest(location: Location, beams: List<BlockDisplay>) {
         game.run {
-            val chest = RoyalChest(this, ChestData(location.toBlockLocation(), ChestType.EPIC), chestTables.getValue(ChestType.EPIC), beams)
+            val chest = RoyalChest(
+                this,
+                ChestData(location.toBlockLocation(), ChestType.EPIC),
+                chestTables.getValue(ChestType.EPIC),
+                beams
+            )
             chests.add(chest)
             chestRegionCount[chest.region] = (chestRegionCount[chest.region] ?: 0) + 1
         }

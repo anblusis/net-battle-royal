@@ -1,31 +1,30 @@
 package io.github.anblusis.netBattleRoyal.command
 
-import io.github.anblusis.netBattleRoyal.data.*
+import io.github.anblusis.netBattleRoyal.data.BattleRoyalItemData
+import io.github.anblusis.netBattleRoyal.data.ChestType
+import io.github.anblusis.netBattleRoyal.data.CustomEquipment
+import io.github.anblusis.netBattleRoyal.data.DataManager
 import io.github.anblusis.netBattleRoyal.game.Game
-import io.github.anblusis.netBattleRoyal.main.NetBattleRoyal
 import io.github.anblusis.netBattleRoyal.main.NetBattleRoyal.Companion.plugin
-import io.github.anblusis.netBattleRoyal.world.WorldData
 import io.github.monun.invfx.openFrame
-import io.github.monun.kommand.Kommand
-import io.github.monun.kommand.KommandArgument.Companion.dynamic
 import io.github.monun.kommand.PluginKommand
-import io.github.monun.kommand.kommand
 import net.kyori.adventure.text.Component.text
 import org.bukkit.Particle
 import org.bukkit.World
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
-import org.bukkit.plugin.java.JavaPlugin
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.nio.file.StandardOpenOption
 
 object CommandManager {
-    fun register(kommand: PluginKommand)  {
+    fun register(kommand: PluginKommand) {
         kommand.register("netbattleroyal", "netbr") {
             val battleRoyalItemArgument = dynamic { _, input ->
-                if (input in BattleRoyalItemData.values().map { it.name }) BattleRoyalItemData.valueOf(input).item.clone()
+                if (input in BattleRoyalItemData.values()
+                        .map { it.name }
+                ) BattleRoyalItemData.valueOf(input).item.clone()
                 else CustomEquipment.valueOf(input).item.clone()
             }.apply {
                 suggests {
@@ -48,7 +47,7 @@ object CommandManager {
                         executes {
                             giveBattleRoyalItem(it["players"], it["item"], 1)
                         }
-                        then("item" to int() ) {
+                        then("count" to int()) {
                             executes {
                                 giveBattleRoyalItem(it["players"], it["item"], it["count"])
                             }
@@ -118,11 +117,25 @@ object CommandManager {
             }
             then("createbattleroyal") {
                 then("map" to string()) {
-                    then("mode" to int()) {
-                        then("players" to players()) {
-                            executes {
-                                createBattleRoyal(it["map"], it["mode"], it["players"])
+                    then("world" to worldArgument) {
+                        then("mode" to int()) {
+                            then("players" to players()) {
+                                executes {
+                                    createBattleRoyal(it["map"], it["world"], it["mode"], it["players"])
+                                }
                             }
+                            executes {
+                                createBattleRoyal(it["map"], it["world"], it["mode"], listOf())
+                            }
+                        }
+                    }
+                }
+            }
+            then("joinbattleroyal") {
+                then("world" to worldArgument) {
+                    then("players" to players()) {
+                        executes {
+                            joinBattleRoyal(plugin.games.find { game -> game.world == it["world"] }, it["players"])
                         }
                     }
                 }
@@ -156,7 +169,7 @@ object CommandManager {
 
     private fun makeBattleRoyalMap(player: Player) {
         DataManager.getMarmotte(player)?.game?.let {
-            player.inventory.addItem(BattleRoyalMap(it).item)
+            player.inventory.addItem(it.mapItem)
         }
     }
 
@@ -173,7 +186,8 @@ object CommandManager {
             val location = chestData.location
             val type = chestData.type
 
-            codeSnippet.append("""
+            codeSnippet.append(
+                """
                 |    ChestData(
                 |        Location(world, ${location.x}, ${location.y}, ${location.z}),
                 |        ChestType.$type
@@ -195,8 +209,18 @@ object CommandManager {
         Files.write(filePath, codeSnippet.toString().toByteArray(), StandardOpenOption.CREATE)
     }
 
-    private fun createBattleRoyal(map: String, mode: Int, players: List<Player>) {
-        plugin.games.add(Game(map, mode, players.toMutableList()))
+    private fun createBattleRoyal(map: String, world: World, mode: Int, players: List<Player>) {
+        plugin.games.add(Game(map, world, mode, players.toMutableList()))
+    }
+
+    private fun joinBattleRoyal(game: Game?, players: List<Player>) {
+        game?.let {
+            players.forEach { player ->
+                it.marmottes.add(
+                    DataManager.addMarmotte(player, game)
+                )
+            }
+        }
     }
 
     private fun removeBattleRoyal(game: Game?) {

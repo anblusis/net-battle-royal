@@ -1,18 +1,16 @@
 package io.github.anblusis.netBattleRoyal.game.event
 
-import io.github.anblusis.netBattleRoyal.data.*
+import io.github.anblusis.netBattleRoyal.data.Region
 import io.github.anblusis.netBattleRoyal.game.Game
-import io.github.anblusis.netBattleRoyal.game.GameTask
 import net.kyori.adventure.text.Component.text
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.title.Title
 import java.time.Duration
-import kotlin.random.Random
 
 class StopTntRain(
     private val game: Game,
     private val region: Region
-): Runnable {
+) : Runnable {
     override fun run() {
         region.isTntRaining = false
         game.tasks.remove(

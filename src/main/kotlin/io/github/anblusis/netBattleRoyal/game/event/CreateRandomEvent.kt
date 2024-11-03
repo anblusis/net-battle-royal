@@ -13,17 +13,23 @@ class CreateRandomEvent(
     private val game: Game,
     private val tick: Int,
     private val events: Array<RandomGameEvent>
-): Runnable {
+) : Runnable {
     override fun run() {
         val randomEvent = events.random()
-        when(randomEvent) {
+        when (randomEvent) {
             RandomGameEvent.EPIC_CHEST -> {
                 val regions = game.regions.filter { game.isInWorldBorder(it.center, true) }
                 if (regions.isEmpty()) return
                 val randomRegion = regions.random()
-                game.marmottes.forEach {
-                    val player = it.player
-                    player.sendMessage(text("${tick / 20}초 후에 ").append(text(randomRegion.displayName).decorate(TextDecoration.BOLD)).append(text(" 지역에 상자가 떨어집니다.")).color(NamedTextColor.GOLD))
+                game.marmottes.forEach { marmotte ->
+                    val player = marmotte.player
+                    player.sendMessage(
+                        text("${tick / 20}초 후에 ").append(
+                            text(randomRegion.displayName).decorate(
+                                TextDecoration.BOLD
+                            )
+                        ).append(text(" 지역에 상자가 떨어집니다.")).color(NamedTextColor.GOLD)
+                    )
                     player.playSound(player.location, Sound.BLOCK_NOTE_BLOCK_HARP, 1f, 2.0f)
                 }
                 game.tasks.add(
@@ -38,6 +44,7 @@ class CreateRandomEvent(
                     )
                 )
             }
+
             RandomGameEvent.CHANGE_WEATHER -> {
                 val regions = game.regions.filter { game.isInWorldBorder(it.center, true) }.shuffled()
                 if (regions.isEmpty()) return
@@ -45,9 +52,15 @@ class CreateRandomEvent(
                 repeat(Random.nextInt(1, 5)) {
                     selectedRegions.add(regions[it])
                 }
-                game.marmottes.forEach {
-                    val player = it.player
-                    player.sendMessage(text("${tick / 20}초 후에 ").append(text(selectedRegions.joinToString(", ") { it.displayName }).decorate(TextDecoration.BOLD)).append(text(" 지역의 날씨가 변합니다.")).color(NamedTextColor.GOLD))
+                game.marmottes.forEach { marmotte ->
+                    val player = marmotte.player
+                    player.sendMessage(
+                        text("${tick / 20}초 후에 ").append(
+                            text(selectedRegions.joinToString(", ") { it.displayName }).decorate(
+                                TextDecoration.BOLD
+                            )
+                        ).append(text(" 지역의 날씨가 변합니다.")).color(NamedTextColor.GOLD)
+                    )
                     player.playSound(player.location, Sound.BLOCK_NOTE_BLOCK_HARP, 1f, 2.0f)
                 }
                 game.tasks.add(
@@ -62,6 +75,7 @@ class CreateRandomEvent(
                     )
                 )
             }
+
             RandomGameEvent.MONSTER_WAVE -> {
                 val regions = game.regions.filter { game.isInWorldBorder(it.center, true) }.shuffled()
                 if (regions.isEmpty()) return
@@ -70,9 +84,15 @@ class CreateRandomEvent(
                     selectedRegions.add(regions[it])
                 }
                 val selectedWave = MonsterWave.values().random()
-                game.marmottes.forEach {
-                    val player = it.player
-                    player.sendMessage(text("${tick / 20}초 후에 ").append(text(selectedRegions.joinToString(", ") { it.displayName }).decorate(TextDecoration.BOLD)).append(text(" 지역에 ${selectedWave.displayName}들이 소환됩니다.")).color(NamedTextColor.GOLD))
+                game.marmottes.forEach { marmotte ->
+                    val player = marmotte.player
+                    player.sendMessage(
+                        text("${tick / 20}초 후에 ").append(
+                            text(selectedRegions.joinToString(", ") { it.displayName }).decorate(
+                                TextDecoration.BOLD
+                            )
+                        ).append(text(" 지역에 ${selectedWave.displayName}들이 소환됩니다.")).color(NamedTextColor.GOLD)
+                    )
                     player.playSound(player.location, Sound.BLOCK_NOTE_BLOCK_HARP, 1f, 2.0f)
                 }
                 game.tasks.add(
@@ -87,16 +107,24 @@ class CreateRandomEvent(
                     )
                 )
             }
+
             RandomGameEvent.TNT_RAIN -> {
-                val regions = game.regions.filter { game.isInWorldBorder(it.center, true) }.shuffled()
+                val regions =
+                    game.regions.filter { game.isInWorldBorder(it.center, true) && !it.isTntRaining }.shuffled()
                 if (regions.isEmpty()) return
                 val selectedRegions = mutableListOf<Region>()
                 repeat(Random.nextInt(1, 3)) {
                     selectedRegions.add(regions[it])
                 }
-                game.marmottes.forEach {
-                    val player = it.player
-                    player.sendMessage(text("${tick / 20}초 후에 ").append(text(selectedRegions.joinToString(", ") { it.displayName }).decorate(TextDecoration.BOLD)).append(text(" 지역에 TNT가 비가 내립니다.")).color(NamedTextColor.GOLD))
+                game.marmottes.forEach { marmotte ->
+                    val player = marmotte.player
+                    player.sendMessage(
+                        text("${tick / 20}초 후에 ").append(
+                            text(selectedRegions.joinToString(", ") { it.displayName }).decorate(
+                                TextDecoration.BOLD
+                            )
+                        ).append(text(" 지역에 TNT 비가 내립니다.")).color(NamedTextColor.GOLD)
+                    )
                     player.playSound(player.location, Sound.BLOCK_NOTE_BLOCK_HARP, 1f, 2.0f)
                 }
                 game.tasks.add(

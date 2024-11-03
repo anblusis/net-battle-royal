@@ -1,6 +1,6 @@
 package io.github.anblusis.netBattleRoyal.game.event
 
-import io.github.anblusis.netBattleRoyal.data.*
+import io.github.anblusis.netBattleRoyal.data.Region
 import io.github.anblusis.netBattleRoyal.game.Game
 import io.github.anblusis.netBattleRoyal.game.GameWeather
 import net.kyori.adventure.text.Component.text
@@ -11,7 +11,7 @@ import java.time.Duration
 class ChangeWeather(
     private val game: Game,
     private val regions: List<Region>
-): Runnable {
+) : Runnable {
     override fun run() {
         regions.forEach { region ->
             region.gameWeather = GameWeather.values().filter { it != region.gameWeather }.random()

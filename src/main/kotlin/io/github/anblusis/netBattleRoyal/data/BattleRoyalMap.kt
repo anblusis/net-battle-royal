@@ -15,8 +15,6 @@ data class BattleRoyalMap(private val game: Game, private val hasRender: Boolean
     val item = BattleRoyalItemData.BATTLE_ROYAL_MAP.item
 
     init {
-        game.maps.add(this)
-
         val view = plugin.server.createMap(game.world)
         view.centerX = game.center.blockX
         view.centerZ = game.center.blockZ
@@ -73,7 +71,8 @@ object WorldBorderRenderer : MapRenderer() {
                     val relativeZ = 64 + ((game.worldBorderCenter.blockZ - centerZ + z) / scale).toInt()
                     if (relativeX in 0..127 && relativeZ in 0..127) {
                         if (!game.worldBorderDots.containsKey(Pair(relativeX, relativeZ))) {
-                            game.worldBorderDots[Pair(relativeX, relativeZ)] = mapCanvas.getPixelColor(relativeX, relativeZ)
+                            game.worldBorderDots[Pair(relativeX, relativeZ)] =
+                                mapCanvas.getPixelColor(relativeX, relativeZ)
                             mapCanvas.setPixelColor(relativeX, relativeZ, Color.RED)
                         }
                     }
@@ -90,7 +89,8 @@ object WorldBorderRenderer : MapRenderer() {
                     val relativeZ = 64 + ((game.targetWorldBorderCenter.blockZ - centerZ + z) / scale).toInt()
                     if (relativeX in 0..127 && relativeZ in 0..127) {
                         if (!game.worldBorderDots.containsKey(Pair(relativeX, relativeZ))) {
-                            game.worldBorderDots[Pair(relativeX, relativeZ)] = mapCanvas.getPixelColor(relativeX, relativeZ)
+                            game.worldBorderDots[Pair(relativeX, relativeZ)] =
+                                mapCanvas.getPixelColor(relativeX, relativeZ)
                             mapCanvas.setPixelColor(relativeX, relativeZ, Color.cyan)
                         }
                     }

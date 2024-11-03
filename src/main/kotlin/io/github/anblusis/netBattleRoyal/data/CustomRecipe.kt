@@ -19,7 +19,8 @@ enum class CustomRecipe(
     private val type: CustomRecipeType,
     val worlds: List<World>
 ) {
-    RAIN_ARMOR("rain_armor",
+    RAIN_ARMOR(
+        "rain_armor",
         CustomEquipment.RAIN_ARMOR.item,
         listOf("A A", "ABA", "AAA"),
         listOf("A A", "ABA", "AAA"),
@@ -28,16 +29,56 @@ enum class CustomRecipe(
         CustomRecipeType.SHAPED,
         listOf()
     ),
-    AMETHYST_SWORD("amethyst_sword",
-        CustomEquipment.AMETHYST_SWORD.item,
-        listOf("A", "B"),
-        listOf(" A ", " B ", "   "),
-        mapOf('A' to ItemStack(Material.AMETHYST_SHARD), 'B' to ItemStack(Material.STICK)),
+    RAIN_LEGGINGS(
+        "rain_leggings",
+        CustomEquipment.RAIN_LEGGINGS.item,
+        listOf("ABA", "A A", "A A"),
+        listOf("ABA", "A A", "A A"),
+        mapOf('A' to ItemStack(Material.LEATHER), 'B' to ItemStack(Material.WATER_BUCKET)),
         mapOf(),
         CustomRecipeType.SHAPED,
         listOf()
-    )
-    ;
+    ),
+    RAIN_HELMET(
+        "rain_helmet",
+        CustomEquipment.RAIN_HELMET.item,
+        listOf("ABA", "A A"),
+        listOf("ABA", "A A", "   "),
+        mapOf('A' to ItemStack(Material.LEATHER), 'B' to ItemStack(Material.WATER_BUCKET)),
+        mapOf(),
+        CustomRecipeType.SHAPED,
+        listOf()
+    ),
+    RAIN_BOOTS(
+        "rain_boots",
+        CustomEquipment.RAIN_BOOTS.item,
+        listOf("A A", "A A", "B B"),
+        listOf("A A", "A A", "B B"),
+        mapOf('A' to ItemStack(Material.LEATHER), 'B' to ItemStack(Material.WATER_BUCKET)),
+        mapOf(),
+        CustomRecipeType.SHAPED,
+        listOf()
+    ),
+    RAIN_DROP(
+        "rain_drop",
+        CustomEquipment.RAIN_DROP.item,
+        listOf(" A ", "ABA", " A "),
+        listOf(" A ", "ABA", " A "),
+        mapOf('A' to ItemStack(Material.WATER_BUCKET), 'B' to ItemStack(Material.DIAMOND)),
+        mapOf(),
+        CustomRecipeType.SHAPED,
+        listOf()
+    ),
+    BONE_HELMET(
+        "bone_helmet",
+        CustomEquipment.BONE_HELMET.item,
+        listOf("AAA", "A A"),
+        listOf("AAA", "A A", "   "),
+        mapOf('A' to ItemStack(Material.BONE)),
+        mapOf(),
+        CustomRecipeType.SHAPED,
+        listOf()
+    ),;
 
     private val key = NamespacedKey(plugin, recipeName)
 
@@ -51,6 +92,7 @@ enum class CustomRecipe(
                 }
                 return recipe
             }
+
             CustomRecipeType.SHAPELESS -> {
                 val recipe = ShapelessRecipe(key, result)
                 ingredients.forEach { (key, item) ->

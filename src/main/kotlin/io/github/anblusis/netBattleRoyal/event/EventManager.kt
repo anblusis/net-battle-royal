@@ -5,24 +5,22 @@ import com.destroystokyo.paper.event.player.PlayerLaunchProjectileEvent
 import io.github.anblusis.netBattleRoyal.data.BattleRoyalItemData
 import io.github.anblusis.netBattleRoyal.data.transcendBook
 import io.github.anblusis.netBattleRoyal.main.NetBattleRoyal.Companion.plugin
-import net.kyori.adventure.text.Component.text
 import org.bukkit.block.Chest
+import org.bukkit.entity.Animals
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
 import org.bukkit.event.block.BlockBreakEvent
+import org.bukkit.event.entity.CreatureSpawnEvent
 import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.event.entity.ExpBottleEvent
-import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.inventory.InventoryOpenEvent
 import org.bukkit.event.inventory.PrepareItemCraftEvent
 import org.bukkit.event.player.PlayerInteractEvent
-import org.bukkit.event.player.PlayerItemHeldEvent
 import org.bukkit.event.player.PlayerQuitEvent
-import org.bukkit.event.player.PlayerSwapHandItemsEvent
-import org.bukkit.inventory.ItemStack
+import org.bukkit.event.world.PortalCreateEvent
 
 object EventManager : Listener {
 
@@ -36,14 +34,20 @@ object EventManager : Listener {
     }
 
     @EventHandler
-    private fun onPlayerQuit(event: PlayerQuitEvent) { playerQuit(this, event) }
+    private fun onPlayerQuit(event: PlayerQuitEvent) {
+        playerQuit(this, event)
+    }
 
     @EventHandler
     private fun onPlayerInteract(event: PlayerInteractEvent) {
         when {
             event.item == null -> return
             event.item!!.isSimilar(BattleRoyalItemData.MAGIC_STICK.item) -> playerInteractWithMagicStick(this, event)
-            transcendBook.content() in event.item!!.displayName().toString() -> playerInteractWithTranscendBook(this, event)
+            transcendBook.content() in event.item!!.displayName().toString() -> playerInteractWithTranscendBook(
+                this,
+                event
+            )
+
             else -> return
         }
     }
@@ -99,5 +103,23 @@ object EventManager : Listener {
     @EventHandler
     fun onPlayerLaunchProjectile(event: PlayerLaunchProjectileEvent) {
         playerLaunchSuperExpBottle(this, event)
+    }
+
+    /*
+    @EventHandler
+    fun onTntExplode(event: EntityExplodeEvent) {
+        if (event.entity is TNTPrimed) event.isCancelled = true
+    }
+    */
+
+    @EventHandler
+    fun onCreatePortal(event: PortalCreateEvent) {
+        if (event.world in plugin.games.map { it.world }) event.isCancelled = true
+    }
+
+    @EventHandler
+    fun onAnimalSpawnNaturally(event: CreatureSpawnEvent) {
+        if (event.spawnReason == CreatureSpawnEvent.SpawnReason.NATURAL && event.entity is Animals)
+            event.isCancelled = true
     }
 }

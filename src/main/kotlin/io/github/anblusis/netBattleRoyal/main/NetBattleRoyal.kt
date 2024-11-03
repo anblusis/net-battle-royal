@@ -1,7 +1,9 @@
 package io.github.anblusis.netBattleRoyal.main
 
 import io.github.anblusis.netBattleRoyal.command.CommandManager
-import io.github.anblusis.netBattleRoyal.data.*
+import io.github.anblusis.netBattleRoyal.data.ChestData
+import io.github.anblusis.netBattleRoyal.data.CustomRecipe
+import io.github.anblusis.netBattleRoyal.data.Marmotte
 import io.github.anblusis.netBattleRoyal.event.EventManager
 import io.github.anblusis.netBattleRoyal.game.Game
 import io.github.monun.kommand.kommand

@@ -2,25 +2,21 @@ package io.github.anblusis.netBattleRoyal.world
 
 import io.github.anblusis.netBattleRoyal.data.*
 import io.github.anblusis.netBattleRoyal.game.GameWeather
-import io.github.anblusis.netBattleRoyal.main.NetBattleRoyal.Companion.plugin
 import net.kyori.adventure.text.Component.text
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.TextDecoration
 import org.bukkit.Location
 import org.bukkit.Material
+import org.bukkit.World
 import org.bukkit.enchantments.Enchantment
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.PotionMeta
 import org.bukkit.potion.PotionData
-import org.bukkit.potion.PotionEffect
-import org.bukkit.potion.PotionEffectType
 import org.bukkit.potion.PotionType
 import java.io.InputStream
 
 object City : WorldData {
-    private val world = plugin.server.getWorld("world")
-
-    override fun getCenter(): Location =
+    override fun getCenter(world: World): Location =
         Location(world, -291.50, 0.0, 821.50)
 
     override fun getWorldDefaultWeather(): GameWeather =
@@ -30,9 +26,9 @@ object City : WorldData {
         500.0
 
     override fun getChestCount(): Int =
-        1000
+        400
 
-    override fun getChestLocations(): List<ChestData> =
+    override fun getChestLocations(world: World): List<ChestData> =
         listOf(
             ChestData(
                 Location(world, -282.0, 35.0, 860.0),
@@ -2925,7 +2921,7 @@ object City : WorldData {
         )
 
 
-    override fun getRegions(): List<Region> =
+    override fun getRegions(world: World): List<Region> =
         listOf(
             Region("school", "학교", Location(world, -228.0, 0.0, 960.0), 108.0, 83.0, 2),
             Region("baseballStadium", "야구장", Location(world, -371.5, 0.0, 750.5), 129.0, 119.0, 2),
@@ -2976,9 +2972,14 @@ object City : WorldData {
                             ChestItemData(ItemStack(Material.FLINT_AND_STEEL), 1..1, 2..3, 2.0),
                             ChestItemData(ItemStack(Material.PAPER), 5..7, 2..3, 5.5),
                             ChestItemData(ItemStack(Material.GUNPOWDER), 3..8, 2..3, 5.5),
-                            ChestItemData(ItemStack(Material.EXPERIENCE_BOTTLE), 3.. 9, 2..3, 4.0),
+                            ChestItemData(ItemStack(Material.EXPERIENCE_BOTTLE), 12..16, 2..3, 4.0),
                             ChestItemData(ItemStack(Material.REDSTONE), 12..12, 2..3, 2.5),
-                            *listOf(Material.LEATHER_HELMET, Material.LEATHER_CHESTPLATE, Material.LEATHER_LEGGINGS, Material.LEATHER_BOOTS)
+                            *listOf(
+                                Material.LEATHER_HELMET,
+                                Material.LEATHER_CHESTPLATE,
+                                Material.LEATHER_LEGGINGS,
+                                Material.LEATHER_BOOTS
+                            )
                                 .map { ChestItemData(ItemStack(it), 1..1, 2..3, 3.0 / 4) }.toTypedArray(),
                         )
                     ),
@@ -2994,10 +2995,13 @@ object City : WorldData {
                             ChestItemData(ItemStack(Material.ANVIL), 1..1, 1..1, 1.5),
                             ChestItemData(ItemStack(Material.CAKE).apply {
                                 itemMeta = itemMeta.apply {
-                                    displayName(text("진짜 멋진 케이크").color(NamedTextColor.GOLD).decoration(TextDecoration.ITALIC, false))
+                                    displayName(
+                                        text("진짜 멋진 케이크").color(NamedTextColor.GOLD)
+                                            .decoration(TextDecoration.ITALIC, false)
+                                    )
                                 }
                             }, 1..1, 1..1, 1.0),
-                             ChestItemData(ItemStack(Material.BOOK).apply {
+                            ChestItemData(ItemStack(Material.BOOK).apply {
                                 enchantValue = 16
                             }, 1..1, 1..1, 4.0),
                             ChestItemData(BattleRoyalItemData.TRANSCEND_BOOK.item.clone().apply {
@@ -3008,33 +3012,51 @@ object City : WorldData {
                                     basePotionData = PotionData(PotionType.STRENGTH)
                                 }
                             }, 1..1, 1..1, 2.5),
-                            *listOf(Material.IRON_HELMET, Material.IRON_CHESTPLATE, Material.IRON_LEGGINGS, Material.IRON_BOOTS, Material.IRON_SWORD, Material.BOW, Material.CROSSBOW)
-                                .map { ChestItemData(ItemStack(it).apply { enchantValue = 20 }, 1..1, 1..1, 4.0 / 7) }.toTypedArray(),
+                            *listOf(
+                                Material.IRON_HELMET,
+                                Material.IRON_CHESTPLATE,
+                                Material.IRON_LEGGINGS,
+                                Material.IRON_BOOTS,
+                                Material.IRON_SWORD,
+                                Material.BOW,
+                                Material.CROSSBOW
+                            )
+                                .map { ChestItemData(ItemStack(it).apply { enchantValue = 20 }, 1..1, 1..1, 4.0 / 7) }
+                                .toTypedArray(),
 
                             ChestItemData(ItemStack(Material.ARROW), 16..16, 3..5, 6.0),
                             ChestItemData(ItemStack(Material.GOLDEN_APPLE), 1..1, 3..5, 3.0),
                             ChestItemData(ItemStack(Material.GOLDEN_CARROT), 3..6, 3..5, 5.5),
-                            ChestItemData(ItemStack(Material.ENDER_PEARL),1..2, 3..5, 4.0),
-                            *listOf(Material.GOLDEN_HELMET, Material.GOLDEN_CHESTPLATE, Material.GOLDEN_LEGGINGS, Material.GOLDEN_BOOTS)
+                            ChestItemData(ItemStack(Material.ENDER_PEARL), 1..2, 3..5, 4.0),
+                            *listOf(
+                                Material.GOLDEN_HELMET,
+                                Material.GOLDEN_CHESTPLATE,
+                                Material.GOLDEN_LEGGINGS,
+                                Material.GOLDEN_BOOTS
+                            )
                                 .map { ChestItemData(ItemStack(it), 1..1, 3..5, 6.0 / 4) }.toTypedArray(),
                             *listOf(PotionType.SLOWNESS, PotionType.POISON, PotionType.WEAKNESS)
-                                .map { ChestItemData(ItemStack(Material.SPLASH_POTION).apply {
-                                    itemMeta = (itemMeta as PotionMeta).apply {
-                                        basePotionData = PotionData(it)
-                                    }
-                                }, 1..1, 3..5, 2.5 / 3) }.toTypedArray(),
+                                .map {
+                                    ChestItemData(ItemStack(Material.SPLASH_POTION).apply {
+                                        itemMeta = (itemMeta as PotionMeta).apply {
+                                            basePotionData = PotionData(it)
+                                        }
+                                    }, 1..1, 3..5, 2.5 / 3)
+                                }.toTypedArray(),
                             *listOf(PotionType.JUMP, PotionType.SPEED, PotionType.REGEN)
-                                .map { ChestItemData(ItemStack(Material.POTION).apply {
-                                    itemMeta = (itemMeta as PotionMeta).apply {
-                                        basePotionData = PotionData(it)
-                                    }
-                                }, 1..1, 3..5, 2.5 / 3) }.toTypedArray(),
+                                .map {
+                                    ChestItemData(ItemStack(Material.POTION).apply {
+                                        itemMeta = (itemMeta as PotionMeta).apply {
+                                            basePotionData = PotionData(it)
+                                        }
+                                    }, 1..1, 3..5, 2.5 / 3)
+                                }.toTypedArray(),
                             ChestItemData(ItemStack(Material.IRON_INGOT), 4..8, 3..5, 9.0),
                             ChestItemData(ItemStack(Material.GOLD_INGOT), 2..8, 3..5, 7.0),
                             ChestItemData(ItemStack(Material.DIAMOND), 1..2, 3..5, 2.5),
                             ChestItemData(ItemStack(Material.LAPIS_LAZULI), 3..9, 3..5, 4.0),
                             ChestItemData(ItemStack(Material.CHORUS_FRUIT), 1..3, 3..5, 3.0),
-                            ChestItemData(BattleRoyalItemData.SUPER_EXP_BOTTLE.item, 1..4, 3..5, 3.5),
+                            ChestItemData(BattleRoyalItemData.SUPER_EXP_BOTTLE.item, 1..4, 3..5, 5.0),
                             ChestItemData(ItemStack(Material.TNT), 2..6, 3..5, 3.0),
                             ChestItemData(ItemStack(Material.OBSIDIAN), 3..5, 3..5, 2.0)
                         )
@@ -3070,13 +3092,24 @@ object City : WorldData {
                             }, 1..2, 4..4, 4.0),
                             ChestItemData(BattleRoyalItemData.SUPER_POTION.item, 1..2, 4..4, 4.0),
                             ChestItemData(ItemStack(Material.ELYTRA), 1..1, 4..4, 1.0),
-                            *listOf(Material.DIAMOND_HELMET, Material.DIAMOND_CHESTPLATE, Material.DIAMOND_LEGGINGS, Material.DIAMOND_BOOTS, Material.DIAMOND_SWORD, Material.BOW, Material.CROSSBOW)
-                                .map { ChestItemData(ItemStack(it).apply { enchantValue = 30 }, 1..1, 4..4, 4.0 / 7) }.toTypedArray(),
+                            *listOf(
+                                Material.DIAMOND_HELMET,
+                                Material.DIAMOND_CHESTPLATE,
+                                Material.DIAMOND_LEGGINGS,
+                                Material.DIAMOND_BOOTS,
+                                Material.DIAMOND_SWORD,
+                                Material.BOW,
+                                Material.CROSSBOW
+                            )
+                                .map { ChestItemData(ItemStack(it).apply { enchantValue = 30 }, 1..1, 4..4, 4.0 / 7) }
+                                .toTypedArray(),
                             ChestItemData(ItemStack(Material.DIAMOND_AXE).apply {
                                 addUnsafeEnchantment(Enchantment.DAMAGE_ALL, 3)
                             }, 1..1, 4..4, 2.0),
-                            ChestItemData(ItemStack(Material.NETHERITE_INGOT), 1..1, 4..4, 3.0,
-                                subItems = listOf(ItemStack(Material.NETHERITE_UPGRADE_SMITHING_TEMPLATE)))
+                            ChestItemData(
+                                ItemStack(Material.NETHERITE_INGOT), 1..1, 4..4, 3.0,
+                                subItems = hashMapOf(ItemStack(Material.NETHERITE_UPGRADE_SMITHING_TEMPLATE) to 1..1)
+                            )
                         )
                     )
         )
@@ -3093,7 +3126,7 @@ object City : WorldData {
         }
     }
 
-    override fun getCustomRecipes(): List<CustomRecipe> {
+    override fun getCustomRecipes(world: World): List<CustomRecipe> {
         val recipes = CustomRecipe.values().filter { it.worlds.isEmpty() || it.worlds.contains(world) }
         return recipes
     }

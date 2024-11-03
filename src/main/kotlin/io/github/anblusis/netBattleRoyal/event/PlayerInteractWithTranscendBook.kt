@@ -1,14 +1,15 @@
 package io.github.anblusis.netBattleRoyal.event
 
-import io.github.anblusis.netBattleRoyal.data.*
-import io.github.anblusis.netBattleRoyal.main.NetBattleRoyal.Companion.plugin
+import io.github.anblusis.netBattleRoyal.data.DataManager
+import io.github.anblusis.netBattleRoyal.data.EventResult
+import io.github.anblusis.netBattleRoyal.data.transcendLevel
 import org.bukkit.Sound
 import org.bukkit.Tag
 import org.bukkit.event.block.Action
 import org.bukkit.event.player.PlayerInteractEvent
 
-fun playerInteractWithTranscendBook(listener: EventManager, event: PlayerInteractEvent) : EventResult {
-    if (event.action !in listOf(Action.RIGHT_CLICK_BLOCK, Action.RIGHT_CLICK_AIR)) return EventResult.FAIL
+fun playerInteractWithTranscendBook(listener: EventManager, event: PlayerInteractEvent): EventResult {
+    if (event.action !in listOf(Action.LEFT_CLICK_BLOCK, Action.LEFT_CLICK_AIR)) return EventResult.FAIL
     if (DataManager.getMarmotte(event.player) == null) return EventResult.FAIL
 
     val player = event.player
@@ -18,13 +19,20 @@ fun playerInteractWithTranscendBook(listener: EventManager, event: PlayerInterac
         return EventResult.FAIL
     }
 
+    if (event.item!!.amount != 1) {
+        player.sendMessage("초월서는 한 번에 하나씩만 사용할 수 있습니다.")
+        return EventResult.FAIL
+    }
+
+    val level = event.item!!.transcendLevel
+
     inventory.setItemInMainHand(inventory.itemInOffHand)
     inventory.setItemInOffHand(null)
 
     player.playSound(player.location, Sound.UI_TOAST_CHALLENGE_COMPLETE, 0.5f, 1.5f)
     player.server.dispatchCommand(
         player.server.consoleSender,
-        "psychics enchant ${player.name} add ${event.item!!.transcendLevel}"
+        "psychics enchant ${player.name} $level add"
     )
 
     return EventResult.TRANSCEND_ITEM

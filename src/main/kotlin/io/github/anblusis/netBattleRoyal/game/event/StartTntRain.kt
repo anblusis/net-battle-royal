@@ -1,6 +1,6 @@
 package io.github.anblusis.netBattleRoyal.game.event
 
-import io.github.anblusis.netBattleRoyal.data.*
+import io.github.anblusis.netBattleRoyal.data.Region
 import io.github.anblusis.netBattleRoyal.game.Game
 import io.github.anblusis.netBattleRoyal.game.GameTask
 import net.kyori.adventure.text.Component.text
@@ -12,7 +12,7 @@ import kotlin.random.Random
 class StartTntRain(
     private val game: Game,
     private val regions: List<Region>
-): Runnable {
+) : Runnable {
     override fun run() {
         regions.forEach { region ->
             region.isTntRaining = true
