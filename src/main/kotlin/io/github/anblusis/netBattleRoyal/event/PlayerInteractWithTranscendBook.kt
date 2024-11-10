@@ -1,27 +1,26 @@
 package io.github.anblusis.netBattleRoyal.event
 
 import io.github.anblusis.netBattleRoyal.data.DataManager
-import io.github.anblusis.netBattleRoyal.data.EventResult
 import io.github.anblusis.netBattleRoyal.data.transcendLevel
 import org.bukkit.Sound
 import org.bukkit.Tag
 import org.bukkit.event.block.Action
 import org.bukkit.event.player.PlayerInteractEvent
 
-fun playerInteractWithTranscendBook(listener: EventManager, event: PlayerInteractEvent): EventResult {
-    if (event.action !in listOf(Action.LEFT_CLICK_BLOCK, Action.LEFT_CLICK_AIR)) return EventResult.FAIL
-    if (DataManager.getMarmotte(event.player) == null) return EventResult.FAIL
+fun playerInteractWithTranscendBook(listener: EventManager, event: PlayerInteractEvent) {
+    if (event.action !in listOf(Action.LEFT_CLICK_BLOCK, Action.LEFT_CLICK_AIR)) return
+    if (DataManager.getMarmotte(event.player) == null) return
 
     val player = event.player
     val inventory = player.inventory
     if (!Tag.ITEMS_TRIMMABLE_ARMOR.isTagged(inventory.itemInOffHand.type)) {
         player.sendMessage("주로 사용하지 않는 손에 갑옷을 든 채로 사용해주세요.")
-        return EventResult.FAIL
+        return
     }
 
     if (event.item!!.amount != 1) {
         player.sendMessage("초월서는 한 번에 하나씩만 사용할 수 있습니다.")
-        return EventResult.FAIL
+        return
     }
 
     val level = event.item!!.transcendLevel
@@ -34,6 +33,4 @@ fun playerInteractWithTranscendBook(listener: EventManager, event: PlayerInterac
         player.server.consoleSender,
         "psychics enchant ${player.name} $level add"
     )
-
-    return EventResult.TRANSCEND_ITEM
 }

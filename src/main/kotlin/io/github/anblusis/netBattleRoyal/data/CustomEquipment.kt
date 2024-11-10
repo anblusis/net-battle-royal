@@ -2,10 +2,7 @@ package io.github.anblusis.netBattleRoyal.data
 
 import com.google.common.collect.ArrayListMultimap
 import com.google.common.collect.Multimap
-import io.github.anblusis.netBattleRoyal.item.CustomEquipmentSystem
-import io.github.anblusis.netBattleRoyal.item.RainArmor
-import io.github.anblusis.netBattleRoyal.item.RainDrop
-import io.github.anblusis.netBattleRoyal.item.RainLeggings
+import io.github.anblusis.netBattleRoyal.item.*
 import net.kyori.adventure.text.Component.space
 import net.kyori.adventure.text.Component.text
 import net.kyori.adventure.text.format.NamedTextColor
@@ -18,8 +15,12 @@ import org.bukkit.entity.Player
 import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.inventory.ItemFlag
 import org.bukkit.inventory.ItemStack
+import org.bukkit.inventory.meta.ArmorMeta
 import org.bukkit.inventory.meta.ItemMeta
 import org.bukkit.inventory.meta.LeatherArmorMeta
+import org.bukkit.inventory.meta.trim.ArmorTrim
+import org.bukkit.inventory.meta.trim.TrimMaterial
+import org.bukkit.inventory.meta.trim.TrimPattern
 import java.util.*
 
 enum class CustomEquipment(
@@ -34,13 +35,13 @@ enum class CustomEquipment(
         ItemStack(Material.LEATHER_CHESTPLATE).apply item@{
             itemMeta = (itemMeta as LeatherArmorMeta).apply {
                 displayName(
-                    text().color(NamedTextColor.WHITE).content("비의 흉갑").decoration(TextDecoration.ITALIC, false).build()
+                    text().color(NamedTextColor.WHITE).content("비의 조끼").decoration(TextDecoration.ITALIC, false).build()
                 )
                 setColor(Color.AQUA)
                 lore(
                     listOf(
                         text()
-                            .color(NamedTextColor.GRAY)
+                            .color(NamedTextColor.GOLD)
                             .decoration(TextDecoration.ITALIC, false)
                             .content("비가 내리는 상황에서 신속 부여").build()
                     )
@@ -57,19 +58,19 @@ enum class CustomEquipment(
             CustomAttribute.ARMOR to 5.0
         ),
         EquipmentSlot.CHEST,
-        RainArmor
+        RainChestplate
     ),
     RAIN_LEGGINGS(
         ItemStack(Material.LEATHER_LEGGINGS).apply item@{
             itemMeta = (itemMeta as LeatherArmorMeta).apply {
                 displayName(
-                    text().color(NamedTextColor.WHITE).content("비의 레깅스").decoration(TextDecoration.ITALIC, false).build()
+                    text().color(NamedTextColor.WHITE).content("비의 바지").decoration(TextDecoration.ITALIC, false).build()
                 )
                 setColor(Color.AQUA)
                 lore(
                     listOf(
                         text()
-                            .color(NamedTextColor.GRAY)
+                            .color(NamedTextColor.GOLD)
                             .decoration(TextDecoration.ITALIC, false)
                             .content("비가 내리는 상황에서 재생 부여").build()
                     )
@@ -92,12 +93,12 @@ enum class CustomEquipment(
         ItemStack(Material.LEATHER_HELMET).apply item@{
             itemMeta = (itemMeta as LeatherArmorMeta).apply {
                 displayName(
-                    text().color(NamedTextColor.WHITE).content("비의 투구").decoration(TextDecoration.ITALIC, false).build()
+                    text().color(NamedTextColor.WHITE).content("비의 모자").decoration(TextDecoration.ITALIC, false).build()
                 )
                 setColor(Color.AQUA)
                 makeAttribute(
                     mapOf(
-                        CustomAttribute.ARMOR to 3.0,
+                        CustomAttribute.ARMOR to 1.5,
                         CustomAttribute.MANA_REGEN to 0.2
                     ), EquipmentSlot.HEAD
                 )
@@ -114,12 +115,12 @@ enum class CustomEquipment(
         ItemStack(Material.LEATHER_BOOTS).apply item@{
             itemMeta = (itemMeta as LeatherArmorMeta).apply {
                 displayName(
-                    text().color(NamedTextColor.WHITE).content("비의 투구").decoration(TextDecoration.ITALIC, false).build()
+                    text().color(NamedTextColor.WHITE).content("비의 장화").decoration(TextDecoration.ITALIC, false).build()
                 )
                 setColor(Color.AQUA)
                 makeAttribute(
                     mapOf(
-                        CustomAttribute.ARMOR to 3.0,
+                        CustomAttribute.ARMOR to 1.5,
                         CustomAttribute.MOVEMENT_SPEED to 0.02
                     ), EquipmentSlot.FEET
                 )
@@ -141,7 +142,7 @@ enum class CustomEquipment(
                 lore(
                     listOf(
                         text()
-                            .color(NamedTextColor.GRAY)
+                            .color(NamedTextColor.GOLD)
                             .decoration(TextDecoration.ITALIC, false)
                             .content("비가 내리는 상황에서 힘 부여").build()
                     )
@@ -157,7 +158,8 @@ enum class CustomEquipment(
         ItemStack(Material.LEATHER_HELMET).apply item@{
             itemMeta = (itemMeta as LeatherArmorMeta).apply {
                 displayName(
-                    text().color(NamedTextColor.WHITE).content("골때리는 투구").decoration(TextDecoration.ITALIC, false).build()
+                    text().color(NamedTextColor.WHITE).content("골때리는 투구").decoration(TextDecoration.ITALIC, false)
+                        .build()
                 )
                 setColor(Color.WHITE)
                 makeAttribute(
@@ -172,7 +174,290 @@ enum class CustomEquipment(
             CustomAttribute.ARMOR_TOUGH to 5.0
         ),
         EquipmentSlot.HEAD
-    )
+    ),
+    BONE_CHESTPLATE(
+        ItemStack(Material.LEATHER_CHESTPLATE).apply item@{
+            itemMeta = (itemMeta as LeatherArmorMeta).apply {
+                displayName(
+                    text().color(NamedTextColor.WHITE).content("골때리는 흉갑").decoration(TextDecoration.ITALIC, false)
+                        .build()
+                )
+                setColor(Color.WHITE)
+                makeAttribute(
+                    mapOf(
+                        CustomAttribute.ARMOR_TOUGH to 10.0
+                    ), EquipmentSlot.CHEST
+                )
+                addItemFlags(ItemFlag.HIDE_DYE)
+            }
+        },
+        mapOf(
+            CustomAttribute.ARMOR_TOUGH to 10.0
+        ),
+        EquipmentSlot.CHEST
+    ),
+    BONE_LEGGINGS(
+        ItemStack(Material.LEATHER_LEGGINGS).apply item@{
+            itemMeta = (itemMeta as LeatherArmorMeta).apply {
+                displayName(
+                    text().color(NamedTextColor.WHITE).content("골때리는 레깅스").decoration(TextDecoration.ITALIC, false)
+                        .build()
+                )
+                setColor(Color.WHITE)
+                makeAttribute(
+                    mapOf(
+                        CustomAttribute.ARMOR_TOUGH to 8.0
+                    ), EquipmentSlot.LEGS
+                )
+                addItemFlags(ItemFlag.HIDE_DYE)
+            }
+        },
+        mapOf(
+            CustomAttribute.ARMOR_TOUGH to 8.0
+        ),
+        EquipmentSlot.LEGS
+    ),
+    BONE_BOOTS(
+        ItemStack(Material.LEATHER_BOOTS).apply item@{
+            itemMeta = (itemMeta as LeatherArmorMeta).apply {
+                displayName(
+                    text().color(NamedTextColor.WHITE).content("골때리는 부츠").decoration(TextDecoration.ITALIC, false)
+                        .build()
+                )
+                setColor(Color.WHITE)
+                makeAttribute(
+                    mapOf(
+                        CustomAttribute.ARMOR_TOUGH to 5.0
+                    ), EquipmentSlot.FEET
+                )
+                addItemFlags(ItemFlag.HIDE_DYE)
+            }
+        },
+        mapOf(
+            CustomAttribute.ARMOR_TOUGH to 5.0
+        ),
+        EquipmentSlot.FEET
+    ),
+    SLIME_HELMET(
+        ItemStack(Material.LEATHER_HELMET).apply item@{
+            itemMeta = (itemMeta as LeatherArmorMeta).apply {
+                displayName(
+                    text().color(NamedTextColor.WHITE).content("슬라임 모자").decoration(TextDecoration.ITALIC, false)
+                        .build()
+                )
+                setColor(Color.LIME)
+                lore(
+                    listOf(
+                        text()
+                            .color(NamedTextColor.GOLD)
+                            .decoration(TextDecoration.ITALIC, false)
+                            .content("피격 시 때린 상대에게 구속 부여").build()
+                    )
+                )
+                makeAttribute(
+                    mapOf(
+                        CustomAttribute.ARMOR to 1.5,
+                        CustomAttribute.HEALTH_STEAL to 1.0
+                    ), EquipmentSlot.HEAD
+                )
+                addItemFlags(ItemFlag.HIDE_DYE)
+            }
+        },
+        mapOf(
+            CustomAttribute.ARMOR to 1.5,
+            CustomAttribute.HEALTH_STEAL to 1.0
+        ), EquipmentSlot.HEAD, SlimeHelmet
+    ),
+    SLIME_CHESTPLATE(
+        ItemStack(Material.LEATHER_CHESTPLATE).apply item@{
+            itemMeta = (itemMeta as LeatherArmorMeta).apply {
+                displayName(
+                    text().color(NamedTextColor.WHITE).content("슬라임 조끼").decoration(TextDecoration.ITALIC, false)
+                        .build()
+                )
+                setColor(Color.LIME)
+                lore(
+                    listOf(
+                        text()
+                            .color(NamedTextColor.GOLD)
+                            .decoration(TextDecoration.ITALIC, false)
+                            .content("피격 시 때린 상대에게 구속 부여").build()
+                    )
+                )
+                makeAttribute(
+                    mapOf(
+                        CustomAttribute.ARMOR to 4.0,
+                        CustomAttribute.HEALTH_STEAL to 1.5
+                    ), EquipmentSlot.CHEST
+                )
+                addItemFlags(ItemFlag.HIDE_DYE)
+            }
+        },
+        mapOf(
+            CustomAttribute.ARMOR to 4.0,
+            CustomAttribute.HEALTH_STEAL to 1.5
+        ), EquipmentSlot.CHEST, SlimeChestplate
+    ),
+    SLIME_LEGGINGS(
+        ItemStack(Material.LEATHER_LEGGINGS).apply item@{
+            itemMeta = (itemMeta as LeatherArmorMeta).apply {
+                displayName(
+                    text().color(NamedTextColor.WHITE).content("슬라임 바지").decoration(TextDecoration.ITALIC, false)
+                        .build()
+                )
+                setColor(Color.LIME)
+                lore(
+                    listOf(
+                        text()
+                            .color(NamedTextColor.GOLD)
+                            .decoration(TextDecoration.ITALIC, false)
+                            .content("피격 시 때린 상대에게 구속 부여").build()
+                    )
+                )
+                makeAttribute(
+                    mapOf(
+                        CustomAttribute.ARMOR to 3.0,
+                        CustomAttribute.HEALTH_STEAL to 1.5
+                    ), EquipmentSlot.LEGS
+                )
+                addItemFlags(ItemFlag.HIDE_DYE)
+            }
+        },
+        mapOf(
+            CustomAttribute.ARMOR to 3.0,
+            CustomAttribute.HEALTH_STEAL to 1.5
+        ), EquipmentSlot.LEGS, SlimeLeggings
+    ),
+    SLIME_BOOTS(
+        ItemStack(Material.LEATHER_BOOTS).apply item@{
+            itemMeta = (itemMeta as LeatherArmorMeta).apply {
+                displayName(
+                    text().color(NamedTextColor.WHITE).content("슬라임 장화").decoration(TextDecoration.ITALIC, false)
+                        .build()
+                )
+                setColor(Color.LIME)
+                lore(
+                    listOf(
+                        text()
+                            .color(NamedTextColor.GOLD)
+                            .decoration(TextDecoration.ITALIC, false)
+                            .content("피격 시 때린 상대에게 구속 부여").build(),
+                        text()
+                            .color(NamedTextColor.GOLD)
+                            .decoration(TextDecoration.ITALIC, false)
+                            .content("낙하 시 튀어오름").build()
+                    )
+                )
+                makeAttribute(
+                    mapOf(
+                        CustomAttribute.ARMOR to 1.5,
+                        CustomAttribute.HEALTH_STEAL to 1.0
+                    ), EquipmentSlot.FEET
+                )
+                addItemFlags(ItemFlag.HIDE_DYE)
+            }
+        },
+        mapOf(
+            CustomAttribute.ARMOR to 1.5,
+            CustomAttribute.HEALTH_STEAL to 1.0
+        ), EquipmentSlot.FEET, SlimeBoots
+    ),
+    ALLOY_HELMET(
+        ItemStack(Material.IRON_HELMET).apply item@{
+            itemMeta = (itemMeta as ArmorMeta).apply {
+                displayName(
+                    text().color(NamedTextColor.WHITE).content("합금 투구").decoration(TextDecoration.ITALIC, false)
+                        .build()
+                )
+                trim = ArmorTrim(TrimMaterial.GOLD, TrimPattern.SILENCE)
+                makeAttribute(
+                    mapOf(
+                        CustomAttribute.ARMOR to 3.0,
+                        CustomAttribute.ARMOR_TOUGH to 1.0,
+                        CustomAttribute.MOVEMENT_SPEED to -0.005
+                    ), EquipmentSlot.HEAD
+                )
+                addItemFlags(ItemFlag.HIDE_ARMOR_TRIM)
+            }
+        },
+        mapOf(
+            CustomAttribute.ARMOR to 3.0,
+            CustomAttribute.ARMOR_TOUGH to 1.0,
+            CustomAttribute.MOVEMENT_SPEED to -0.01
+        ), EquipmentSlot.HEAD
+    ),
+    ALLOY_CHESTPLATE(
+        ItemStack(Material.IRON_CHESTPLATE).apply item@{
+            itemMeta = (itemMeta as ArmorMeta).apply {
+                displayName(
+                    text().color(NamedTextColor.WHITE).content("합금 흉갑").decoration(TextDecoration.ITALIC, false)
+                        .build()
+                )
+                trim = ArmorTrim(TrimMaterial.GOLD, TrimPattern.SILENCE)
+                makeAttribute(
+                    mapOf(
+                        CustomAttribute.ARMOR to 8.0,
+                        CustomAttribute.ARMOR_TOUGH to 1.0,
+                        CustomAttribute.MOVEMENT_SPEED to -0.005
+                    ), EquipmentSlot.CHEST
+                )
+                addItemFlags(ItemFlag.HIDE_ARMOR_TRIM)
+            }
+        },
+        mapOf(
+            CustomAttribute.ARMOR to 8.0,
+            CustomAttribute.ARMOR_TOUGH to 1.0,
+            CustomAttribute.MOVEMENT_SPEED to -0.01
+        ), EquipmentSlot.CHEST
+    ),
+    ALLOY_LEGGINGS(
+        ItemStack(Material.IRON_LEGGINGS).apply item@{
+            itemMeta = (itemMeta as ArmorMeta).apply {
+                displayName(
+                    text().color(NamedTextColor.WHITE).content("합금 레깅스").decoration(TextDecoration.ITALIC, false)
+                        .build()
+                )
+                trim = ArmorTrim(TrimMaterial.GOLD, TrimPattern.SILENCE)
+                makeAttribute(
+                    mapOf(
+                        CustomAttribute.ARMOR to 6.0,
+                        CustomAttribute.ARMOR_TOUGH to 1.0,
+                        CustomAttribute.MOVEMENT_SPEED to -0.005
+                    ), EquipmentSlot.LEGS
+                )
+                addItemFlags(ItemFlag.HIDE_ARMOR_TRIM)
+            }
+        },
+        mapOf(
+            CustomAttribute.ARMOR to 6.0,
+            CustomAttribute.ARMOR_TOUGH to 1.0,
+            CustomAttribute.MOVEMENT_SPEED to -0.01
+        ), EquipmentSlot.LEGS
+    ),
+    ALLOY_BOOTS(
+        ItemStack(Material.IRON_BOOTS).apply item@{
+            itemMeta = (itemMeta as ArmorMeta).apply {
+                displayName(
+                    text().color(NamedTextColor.WHITE).content("합금 부츠").decoration(TextDecoration.ITALIC, false)
+                        .build()
+                )
+                trim = ArmorTrim(TrimMaterial.GOLD, TrimPattern.SILENCE)
+                makeAttribute(
+                    mapOf(
+                        CustomAttribute.ARMOR to 3.0,
+                        CustomAttribute.ARMOR_TOUGH to 1.0,
+                        CustomAttribute.MOVEMENT_SPEED to -0.005
+                    ), EquipmentSlot.FEET
+                )
+                addItemFlags(ItemFlag.HIDE_ARMOR_TRIM)
+            }
+        },
+        mapOf(
+            CustomAttribute.ARMOR to 3.0,
+            CustomAttribute.ARMOR_TOUGH to 1.0,
+            CustomAttribute.MOVEMENT_SPEED to -0.01
+        ), EquipmentSlot.FEET
+    ),
 }
 
 fun ItemMeta.makeAttribute(stat: Map<CustomAttribute, Double>, itemSlot: EquipmentSlot) {

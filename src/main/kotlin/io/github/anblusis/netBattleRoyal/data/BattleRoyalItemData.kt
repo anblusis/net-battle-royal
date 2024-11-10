@@ -132,6 +132,56 @@ var ItemStack.transcendLevel: Int
         }
     }
 
+val explosionPowerTag = text().content("폭발력")
+    .decoration(TextDecoration.ITALIC, false)
+    .color(NamedTextColor.BLUE).build()
+
+var ItemStack.hasExplosionPower
+    get() = lore()?.find { lore ->
+        lore is TextComponent && lore.content() == explosionPowerTag.content()
+    }?.let { tag ->
+        tag.children().firstOrNull()?.color()?.value()
+    } ?: 0
+    set(value) {
+        val lore = lore() ?: ArrayList()
+        lore.removeIf { it is TextComponent && it.content() == explosionPowerTag.content() }
+
+        if (value > 0) {
+            lore.add(
+                0, explosionPowerTag.children(
+                    listOf(
+                        space().color(TextColor.color(value)),
+                        text().content(value.toRomanNumerals()).color(NamedTextColor.BLUE)
+                            .decoration(TextDecoration.ITALIC, false).build()
+                    )
+                )
+            )
+        }
+
+        lore(lore)
+    }
+
+val magneticPowerTag = text().content("자속 상태")
+    .decoration(TextDecoration.ITALIC, false)
+    .color(NamedTextColor.BLUE).build()
+
+var ItemStack.hasMagneticPower
+    get() = lore()?.find { lore ->
+        lore is TextComponent && lore.content() == magneticPowerTag.content()
+    }?.let { true } ?: false
+    set(value) {
+        val lore = lore() ?: ArrayList()
+        lore.removeIf { it is TextComponent && it.content() == magneticPowerTag.content() }
+
+        if (value) {
+            lore.add(
+                0, magneticPowerTag
+            )
+        }
+
+        lore(lore)
+    }
+
 private fun Int.toRomanNumerals() = when (this) {
     1 -> "I"
     2 -> "II"

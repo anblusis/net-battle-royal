@@ -1,13 +1,12 @@
 package io.github.anblusis.netBattleRoyal.event
 
 import io.github.anblusis.netBattleRoyal.data.DataManager
-import io.github.anblusis.netBattleRoyal.data.EventResult
 import io.github.anblusis.netBattleRoyal.tool.equalsDisplayName
 import org.bukkit.entity.Player
 import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.inventory.ItemStack
 
-fun playerChangeMainHandItem(player: Player, previousItem: ItemStack?, newItem: ItemStack?): EventResult {
+fun playerChangeMainHandItem(player: Player, previousItem: ItemStack?, newItem: ItemStack?) {
     val game = DataManager.getMarmotte(player)!!.game
 
     if (previousItem != null) {
@@ -19,6 +18,4 @@ fun playerChangeMainHandItem(player: Player, previousItem: ItemStack?, newItem: 
         game.customEquipments.filter { it.itemSlot == EquipmentSlot.HAND }
             .find { it.item.equalsDisplayName(newItem) }?.system?.onEnable(player)
     }
-
-    return EventResult.CHANGE_MAIN_HAND_ITEM
 }

@@ -4,21 +4,29 @@ import io.github.anblusis.netBattleRoyal.main.NetBattleRoyal.Companion.plugin
 import org.bukkit.Material
 import org.bukkit.NamespacedKey
 import org.bukkit.World
-import org.bukkit.inventory.ItemStack
-import org.bukkit.inventory.Recipe
-import org.bukkit.inventory.ShapedRecipe
-import org.bukkit.inventory.ShapelessRecipe
+import org.bukkit.inventory.*
 
 enum class CustomRecipe(
     recipeName: String,
     val result: ItemStack,
     private val shape: List<String>,
     private val displayShape: List<String>,
-    private val ingredients: Map<Char, ItemStack>,
+    private val ingredients: Map<Char, Any>,
     private val counts: Map<Char, Int>,
     private val type: CustomRecipeType,
-    val worlds: List<World>
+    val worlds: List<World>,
+    val resultFunction: (Array<ItemStack?>) -> ItemStack? = { result }
 ) {
+    RAIN_HELMET(
+        "rain_helmet",
+        CustomEquipment.RAIN_HELMET.item,
+        listOf("ABA", "A A"),
+        listOf("ABA", "A A", "   "),
+        mapOf('A' to ItemStack(Material.LEATHER), 'B' to ItemStack(Material.WATER_BUCKET)),
+        mapOf(),
+        CustomRecipeType.SHAPED,
+        listOf()
+    ),
     RAIN_ARMOR(
         "rain_armor",
         CustomEquipment.RAIN_ARMOR.item,
@@ -34,16 +42,6 @@ enum class CustomRecipe(
         CustomEquipment.RAIN_LEGGINGS.item,
         listOf("ABA", "A A", "A A"),
         listOf("ABA", "A A", "A A"),
-        mapOf('A' to ItemStack(Material.LEATHER), 'B' to ItemStack(Material.WATER_BUCKET)),
-        mapOf(),
-        CustomRecipeType.SHAPED,
-        listOf()
-    ),
-    RAIN_HELMET(
-        "rain_helmet",
-        CustomEquipment.RAIN_HELMET.item,
-        listOf("ABA", "A A"),
-        listOf("ABA", "A A", "   "),
         mapOf('A' to ItemStack(Material.LEATHER), 'B' to ItemStack(Material.WATER_BUCKET)),
         mapOf(),
         CustomRecipeType.SHAPED,
@@ -78,7 +76,156 @@ enum class CustomRecipe(
         mapOf(),
         CustomRecipeType.SHAPED,
         listOf()
-    ),;
+    ),
+    BONE_CHESTPLATE(
+        "bone_chestplate",
+        CustomEquipment.BONE_CHESTPLATE.item,
+        listOf("A A", "AAA", "AAA"),
+        listOf("A A", "AAA", "AAA"),
+        mapOf('A' to ItemStack(Material.BONE)),
+        mapOf(),
+        CustomRecipeType.SHAPED,
+        listOf()
+    ),
+    BONE_LEGGINGS(
+        "bone_leggings",
+        CustomEquipment.BONE_LEGGINGS.item,
+        listOf("AAA", "A A", "A A"),
+        listOf("AAA", "A A", "A A"),
+        mapOf('A' to ItemStack(Material.BONE)),
+        mapOf(),
+        CustomRecipeType.SHAPED,
+        listOf()
+    ),
+    BONE_BOOTS(
+        "bone_boots",
+        CustomEquipment.BONE_BOOTS.item,
+        listOf("A A", "A A"),
+        listOf("A A", "A A", "   "),
+        mapOf('A' to ItemStack(Material.BONE)),
+        mapOf(),
+        CustomRecipeType.SHAPED,
+        listOf()
+    ),
+    EXPLOSION_ARROW(
+        "explosion_arrow",
+        ItemStack(Material.ARROW).apply {
+            hasExplosionPower = 1
+        },
+        listOf(" A ", "ABA", " A "),
+        listOf(" A ", "ABA", " A "),
+        mapOf('A' to ItemStack(Material.GUNPOWDER), 'B' to RecipeChoice.MaterialChoice(
+            Material.ARROW, Material.TIPPED_ARROW, Material.SPECTRAL_ARROW
+        )),
+        mapOf(),
+        CustomRecipeType.SHAPED,
+        listOf(),
+        {
+            val arrow = it[4]!!.clone()
+            if (arrow.hasExplosionPower >= 3) null
+            else arrow.apply { amount = 1; hasExplosionPower += 1 }
+        }
+    ),
+    MAGNETIC_ARROW(
+        "magnetic_arrow",
+        ItemStack(Material.ARROW).apply {
+            hasMagneticPower = true
+        },
+        listOf(" A ", "ABA", " A "),
+        listOf(" A ", "ABA", " A "),
+        mapOf('A' to ItemStack(Material.REDSTONE), 'B' to RecipeChoice.MaterialChoice(
+            Material.ARROW, Material.TIPPED_ARROW, Material.SPECTRAL_ARROW
+        )),
+        mapOf(),
+        CustomRecipeType.SHAPED,
+        listOf(),
+        {
+            val arrow = it[4]!!.clone()
+            if (arrow.hasMagneticPower) null
+            else arrow.apply { amount = 1; hasMagneticPower = true }
+        }
+    ),
+    SLIME_HELMET(
+        "slime_helmet",
+        CustomEquipment.SLIME_HELMET.item,
+        listOf("AAA", "A A"),
+        listOf("AAA", "A A", "   "),
+        mapOf('A' to ItemStack(Material.SLIME_BALL)),
+        mapOf(),
+        CustomRecipeType.SHAPED,
+        listOf()
+    ),
+    SLIME_CHESTPLATE(
+        "slime_chestplate",
+        CustomEquipment.SLIME_CHESTPLATE.item,
+        listOf("A A", "AAA", "AAA"),
+        listOf("A A", "AAA", "AAA"),
+        mapOf('A' to ItemStack(Material.SLIME_BALL)),
+        mapOf(),
+        CustomRecipeType.SHAPED,
+        listOf()
+    ),
+    SLIME_LEGGINGS(
+        "slime_leggings",
+        CustomEquipment.SLIME_LEGGINGS.item,
+        listOf("AAA", "A A", "A A"),
+        listOf("AAA", "A A", "A A"),
+        mapOf('A' to ItemStack(Material.SLIME_BALL)),
+        mapOf(),
+        CustomRecipeType.SHAPED,
+        listOf()
+    ),
+    SLIME_BOOTS(
+        "slime_boots",
+        CustomEquipment.SLIME_BOOTS.item,
+        listOf("A A", "A A"),
+        listOf("A A", "A A", "   "),
+        mapOf('A' to ItemStack(Material.SLIME_BALL)),
+        mapOf(),
+        CustomRecipeType.SHAPED,
+        listOf()
+    ),
+    ALLOY_HELMET(
+        "alloy_helmet",
+        CustomEquipment.ALLOY_HELMET.item,
+        listOf("BCB", "A A"),
+        listOf("BCB", "A A", "   "),
+        mapOf('A' to ItemStack(Material.COPPER_INGOT), 'B' to ItemStack(Material.IRON_INGOT), 'C' to ItemStack(Material.GOLD_INGOT)),
+        mapOf(),
+        CustomRecipeType.SHAPED,
+        listOf()
+    ),
+    ALLOY_CHESTPLATE(
+        "alloy_chestplate",
+        CustomEquipment.ALLOY_CHESTPLATE.item,
+        listOf("B B", "ACA", "BAB"),
+        listOf("B B", "ACA", "BAB"),
+        mapOf('A' to ItemStack(Material.COPPER_INGOT), 'B' to ItemStack(Material.IRON_INGOT), 'C' to ItemStack(Material.GOLD_INGOT)),
+        mapOf(),
+        CustomRecipeType.SHAPED,
+        listOf()
+    ),
+    ALLOY_LEGGINGS(
+        "alloy_leggings",
+        CustomEquipment.ALLOY_LEGGINGS.item,
+        listOf("ACA", "B B", "A A"),
+        listOf("ACA", "B B", "A A"),
+        mapOf('A' to ItemStack(Material.COPPER_INGOT), 'B' to ItemStack(Material.IRON_INGOT), 'C' to ItemStack(Material.GOLD_INGOT)),
+        mapOf(),
+        CustomRecipeType.SHAPED,
+        listOf()
+    ),
+    ALLOY_BOOTS(
+        "alloy_boots",
+        CustomEquipment.ALLOY_BOOTS.item,
+        listOf("B B", "A A"),
+        listOf("B B", "A A", "   "),
+        mapOf('A' to ItemStack(Material.COPPER_INGOT), 'B' to ItemStack(Material.IRON_INGOT)),
+        mapOf(),
+        CustomRecipeType.SHAPED,
+        listOf()
+    ),
+    ;
 
     private val key = NamespacedKey(plugin, recipeName)
 
@@ -88,7 +235,8 @@ enum class CustomRecipe(
                 val recipe = ShapedRecipe(key, result)
                 recipe.shape(*shape.toTypedArray())
                 ingredients.forEach { (key, item) ->
-                    recipe.setIngredient(key, item)
+                    if (item is ItemStack) recipe.setIngredient(key, item)
+                    else if (item is RecipeChoice) recipe.setIngredient(key, item)
                 }
                 return recipe
             }
@@ -96,14 +244,18 @@ enum class CustomRecipe(
             CustomRecipeType.SHAPELESS -> {
                 val recipe = ShapelessRecipe(key, result)
                 ingredients.forEach { (key, item) ->
-                    recipe.addIngredient(counts[key]!!, item)
+                    if (item is ItemStack) recipe.addIngredient(counts[key]!!, item)
                 }
                 return recipe
             }
         }
     }
 
-    fun toItemShape(): List<ItemStack?> = displayShape.flatMap { it.toCharArray().toList() }.map { ingredients[it] }
+    fun toItemShape(): List<ItemStack?> = displayShape.flatMap { it.toCharArray().toList() }.map {
+        if (ingredients[it] is ItemStack) ingredients[it] as ItemStack
+        else if (ingredients[it] is RecipeChoice) (ingredients[it] as RecipeChoice).itemStack
+        else null
+    }
 
     fun addToServer() {
         val recipe = toBukkitRecipe()

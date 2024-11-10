@@ -2,12 +2,11 @@ package io.github.anblusis.netBattleRoyal.event
 
 import io.github.anblusis.netBattleRoyal.data.ChestData
 import io.github.anblusis.netBattleRoyal.data.ChestType
-import io.github.anblusis.netBattleRoyal.data.EventResult
 import io.github.anblusis.netBattleRoyal.main.NetBattleRoyal.Companion.plugin
 import org.bukkit.event.block.Action
 import org.bukkit.event.player.PlayerInteractEvent
 
-fun playerInteractWithMagicStick(listener: EventManager, event: PlayerInteractEvent): EventResult {
+fun playerInteractWithMagicStick(listener: EventManager, event: PlayerInteractEvent) {
     when (event.action) {
         Action.RIGHT_CLICK_BLOCK -> {
             event.isCancelled = true
@@ -30,7 +29,7 @@ fun playerInteractWithMagicStick(listener: EventManager, event: PlayerInteractEv
             val selecting = plugin.debugChestData.find { it.location == block!!.location }
             if (selecting == null) {
                 event.player.sendMessage("해당 위치엔 상자가 존재하지 않습니다.")
-                return EventResult.FAIL
+                return
             }
             selecting.type = when (selecting.type) {
                 ChestType.NORMAL -> ChestType.RARE
@@ -40,7 +39,6 @@ fun playerInteractWithMagicStick(listener: EventManager, event: PlayerInteractEv
             event.player.sendMessage("해당 위치의 상자 유형을 ${selecting.type.rating}(으)로 설정했습니다!")
         }
 
-        else -> return EventResult.FAIL
+        else -> return
     }
-    return EventResult.SET_CHEST_DATA
 }

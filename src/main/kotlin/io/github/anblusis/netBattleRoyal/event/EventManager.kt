@@ -5,8 +5,10 @@ import com.destroystokyo.paper.event.player.PlayerLaunchProjectileEvent
 import io.github.anblusis.netBattleRoyal.data.BattleRoyalItemData
 import io.github.anblusis.netBattleRoyal.data.transcendBook
 import io.github.anblusis.netBattleRoyal.main.NetBattleRoyal.Companion.plugin
+import org.bukkit.Tag
 import org.bukkit.block.Chest
 import org.bukkit.entity.Animals
+import org.bukkit.entity.Arrow
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
@@ -15,7 +17,9 @@ import org.bukkit.event.block.BlockBreakEvent
 import org.bukkit.event.entity.CreatureSpawnEvent
 import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.EntityDamageEvent
+import org.bukkit.event.entity.EntityShootBowEvent
 import org.bukkit.event.entity.ExpBottleEvent
+import org.bukkit.event.entity.ProjectileHitEvent
 import org.bukkit.event.inventory.InventoryOpenEvent
 import org.bukkit.event.inventory.PrepareItemCraftEvent
 import org.bukkit.event.player.PlayerInteractEvent
@@ -102,7 +106,13 @@ object EventManager : Listener {
 
     @EventHandler
     fun onPlayerLaunchProjectile(event: PlayerLaunchProjectileEvent) {
-        playerLaunchSuperExpBottle(this, event)
+        if (event.itemStack.isSimilar(BattleRoyalItemData.SUPER_EXP_BOTTLE.item))
+            playerLaunchSuperExpBottle(this, event)
+    }
+
+    @EventHandler
+    fun onPlayerShootArrow(event: EntityShootBowEvent) {
+        if (event.entity is Player) playerShootArrow(this, event)
     }
 
     /*
@@ -121,5 +131,10 @@ object EventManager : Listener {
     fun onAnimalSpawnNaturally(event: CreatureSpawnEvent) {
         if (event.spawnReason == CreatureSpawnEvent.SpawnReason.NATURAL && event.entity is Animals)
             event.isCancelled = true
+    }
+
+    @EventHandler
+    fun onArrowHit(event: ProjectileHitEvent) {
+        if (event.entity is Arrow) arrowHit(this, event)
     }
 }

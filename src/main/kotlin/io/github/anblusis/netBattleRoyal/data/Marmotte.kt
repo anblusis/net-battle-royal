@@ -19,7 +19,7 @@ import java.util.*
 
 
 data class Marmotte(val player: Player, val game: Game) {
-    private val bossBar: BossBar
+    private val bossBar: BossBar = Bukkit.createBossBar("", BarColor.WHITE, BarStyle.SOLID).apply { addPlayer(player) }
     private var tick: Int = 0
     val stat: EnumMap<CustomAttribute, Double> = EnumMap(CustomAttribute::class.java)
     private var mainHandItem: ItemStack = ItemStack(Material.AIR)
@@ -33,7 +33,6 @@ data class Marmotte(val player: Player, val game: Game) {
 
     init {
         // player.sendMessage("게임에 참가했습니다.")
-        bossBar = Bukkit.createBossBar("", BarColor.WHITE, BarStyle.SOLID).apply { addPlayer(player) }
         CustomAttribute.values().filter { it.attribute == null }.forEach { stat[it] = 0.0 }
 
         /* 이거 가끔 버그 걸렸을 때 Attribute 초기화용

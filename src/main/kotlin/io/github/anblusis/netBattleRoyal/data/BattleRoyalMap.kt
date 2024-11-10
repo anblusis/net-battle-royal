@@ -19,8 +19,6 @@ data class BattleRoyalMap(private val game: Game, private val hasRender: Boolean
         view.centerX = game.center.blockX
         view.centerZ = game.center.blockZ
         view.scale = MapView.Scale.NORMAL
-        view.isUnlimitedTracking = true
-        view.isTrackingPosition = true
 
         if (hasRender) {
             view.apply {
@@ -106,6 +104,31 @@ object RegionRenderer : MapRenderer() {
 
         mapCanvas.cursors = MapCursorCollection()
         val scale = (2.0).pow(mapView.scale.value.toDouble())
+
+        var playerX = 64 + ((player.location.blockX - mapView.centerX) / scale).toInt()
+        var playerZ = 64 + ((player.location.blockZ - mapView.centerZ) / scale).toInt()
+        if (playerX in 0..127 && playerZ in 0..127) {
+            playerX = (playerX * 2) - 128
+            playerZ = (playerZ * 2) - 128
+        }
+        val direction = ((player.location.yaw % 360 + 360) % 360 / 22.5).toInt().toByte()
+
+        mapCanvas.cursors.addCursor(MapCursor(playerX.toByte(), playerZ.toByte(), direction, MapCursor.Type.WHITE_POINTER, true))
+
+        player.scoreboard.getEntryTeam(player.name)?.entries?.forEach { teamMemberName ->
+            val teamMember = player.server.getPlayer(teamMemberName) ?: return@forEach
+            if (teamMember == player) return@forEach
+            var teamMemberX = 64 + ((teamMember.location.blockX - mapView.centerX) / scale).toInt()
+            var teamMemberZ = 64 + ((teamMember.location.blockZ - mapView.centerZ) / scale).toInt()
+            if (teamMemberX in 0..127 && teamMemberZ in 0..127) {
+                teamMemberX = (teamMemberX * 2) - 128
+                teamMemberZ = (teamMemberZ * 2) - 128
+            }
+            val teamDirection = ((teamMember.location.yaw % 360 + 360) % 360 / 22.5).toInt().toByte()
+            mapCanvas.cursors.addCursor(MapCursor(teamMemberX.toByte(), teamMemberZ.toByte(), teamDirection, MapCursor.Type.GREEN_POINTER, true))
+        }
+
+
         game.regions.forEach { region ->
             var relativeX = 64 + ((region.center.blockX - mapView.centerX) / scale).toInt()
             var relativeZ = 64 + ((region.center.blockZ - mapView.centerZ) / scale).toInt()

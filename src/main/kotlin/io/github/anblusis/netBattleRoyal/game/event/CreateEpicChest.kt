@@ -1,9 +1,6 @@
 package io.github.anblusis.netBattleRoyal.game.event
 
-import io.github.anblusis.netBattleRoyal.data.ChestData
-import io.github.anblusis.netBattleRoyal.data.ChestType
-import io.github.anblusis.netBattleRoyal.data.Region
-import io.github.anblusis.netBattleRoyal.data.RoyalChest
+import io.github.anblusis.netBattleRoyal.data.*
 import io.github.anblusis.netBattleRoyal.game.Game
 import io.github.anblusis.netBattleRoyal.main.NetBattleRoyal.Companion.plugin
 import io.github.monun.tap.task.TickerTask

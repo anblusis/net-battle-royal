@@ -1,9 +1,6 @@
 package io.github.anblusis.netBattleRoyal.command
 
-import io.github.anblusis.netBattleRoyal.data.BattleRoyalItemData
-import io.github.anblusis.netBattleRoyal.data.ChestType
-import io.github.anblusis.netBattleRoyal.data.CustomEquipment
-import io.github.anblusis.netBattleRoyal.data.DataManager
+import io.github.anblusis.netBattleRoyal.data.*
 import io.github.anblusis.netBattleRoyal.game.Game
 import io.github.anblusis.netBattleRoyal.main.NetBattleRoyal.Companion.plugin
 import io.github.monun.invfx.openFrame
@@ -168,8 +165,8 @@ object CommandManager {
     }
 
     private fun makeBattleRoyalMap(player: Player) {
-        DataManager.getMarmotte(player)?.game?.let {
-            player.inventory.addItem(it.mapItem)
+        DataManager.getMarmotte(player)?.let {
+            player.inventory.addItem(it.game.mapItem)
         }
     }
 

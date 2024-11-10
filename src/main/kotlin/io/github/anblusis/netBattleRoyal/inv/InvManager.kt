@@ -123,9 +123,7 @@ object InvManager {
                 }
             }.let { list ->
                 if (clickedCustomRecipe != null) {
-                    while (clickedCustomRecipe !in list.displays.map { it.first }) {
-                        list.page++
-                    }
+                    list.page = (game.customRecipes.indexOf(clickedCustomRecipe) / 16).toDouble()
                 }
 
                 slot(if (clickedCustomRecipe == null) 3 else 0, 4) {

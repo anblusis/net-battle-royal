@@ -50,6 +50,7 @@ class Game(
     internal val tasks: MutableList<GameTask> = mutableListOf()
     internal val entities: MutableList<Entity> = mutableListOf()
     internal val marmottes: MutableList<Marmotte> = mutableListOf()
+    internal val objects: MutableList<GameObject> = mutableListOf()
 
     val worldBorderCenter
         get() = worldBorder.center
@@ -75,6 +76,13 @@ class Game(
         marmottes.forEach {
             it.update()
         }
+        objects.forEach {
+            it.onUpdate()
+        }
+        customEquipments.forEach {
+            it.system.onUpdate()
+        }
+
         val timedOutTasks = mutableListOf<GameTask>()
         tasks.forEach { task ->
             if (task.tick == 0) timedOutTasks.add(task)
@@ -88,10 +96,6 @@ class Game(
             }
 
             task.run()
-        }
-
-        customEquipments.forEach {
-            it.system.onUpdate()
         }
 
         if (state == GameState.PLAYING) worldTime += 3L
@@ -208,16 +212,23 @@ class Game(
 
     fun remove() {
         tickTask.cancel()
+
         entities.forEach {
             it.remove()
         }
-        val willRemovedChests = chests.toList()
-        willRemovedChests.forEach { it.remove() }
+
+        objects.toList().forEach {
+            it.onRemove()
+        }
+
+        chests.toList().forEach { it.remove() }
+
         customEquipments.forEach {
             it.system.onRemove()
         }
-        val willRemovedMarmottes = marmottes.toList()
-        willRemovedMarmottes.forEach { it.remove() }
+
+        marmottes.toList().forEach { it.remove() }
+
         plugin.games.remove(this)
     }
 }

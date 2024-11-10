@@ -9,7 +9,7 @@ import org.bukkit.event.Listener
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
 
-object RainArmor : CustomEquipmentSystem() {
+object RainChestplate : CustomEquipmentSystem() {
     private val listeners = hashMapOf<Player, Listener>()
     override val players = mutableListOf<Player>()
 

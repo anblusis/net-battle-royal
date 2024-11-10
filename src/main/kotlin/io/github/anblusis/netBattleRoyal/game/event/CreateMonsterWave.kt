@@ -45,7 +45,10 @@ class CreateMonsterWave(
                         isCustomNameVisible = true
                         removeWhenFarAway = false
 
+                        game.entities.add(this)
+
                         plugin.ticker.runTask({
+                            game.entities.remove(this)
                             if (!isDead) {
                                 world.spawnParticle(Particle.SMOKE_NORMAL, location, 10, 0.5, 0.5, 0.5, 0.1)
                                 world.playSound(location, Sound.ENTITY_ENDERMAN_TELEPORT, 1f, 0.1f)

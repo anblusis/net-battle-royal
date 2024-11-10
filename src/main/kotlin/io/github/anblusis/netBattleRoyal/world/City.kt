@@ -2957,7 +2957,8 @@ object City : WorldData {
                             ChestItemData(ItemStack(Material.IRON_INGOT), 3..5, 2..3, 3.0),
                             ChestItemData(ItemStack(Material.DIAMOND), 1..3, 2..3, 1.0),
                             ChestItemData(ItemStack(Material.STRING), 3..8, 2..3, 6.0),
-                            ChestItemData(ItemStack(Material.GOLD_INGOT), 4..6, 2..3, 2.5),
+                            ChestItemData(ItemStack(Material.RAW_GOLD), 4..6, 2..3, 3.0),
+                            ChestItemData(ItemStack(Material.GOLD_INGOT), 3..5, 2..3, 2.0),
                             ChestItemData(ItemStack(Material.LEATHER), 4..8, 2..3, 7.0),
                             ChestItemData(ItemStack(Material.DAMAGED_ANVIL), 1..1, 2..3, 1.0),
                             ChestItemData(ItemStack(Material.STICK).apply {
@@ -2971,9 +2972,11 @@ object City : WorldData {
                             ChestItemData(ItemStack(Material.ARROW), 8..16, 2..3, 3.0),
                             ChestItemData(ItemStack(Material.FLINT_AND_STEEL), 1..1, 2..3, 2.0),
                             ChestItemData(ItemStack(Material.PAPER), 5..7, 2..3, 5.5),
-                            ChestItemData(ItemStack(Material.GUNPOWDER), 3..8, 2..3, 5.5),
+                            ChestItemData(ItemStack(Material.GUNPOWDER), 3..8, 2..3, 5.5, listOf("baseballStadium", "prison", "sandBeach")),
                             ChestItemData(ItemStack(Material.EXPERIENCE_BOTTLE), 12..16, 2..3, 4.0),
-                            ChestItemData(ItemStack(Material.REDSTONE), 12..12, 2..3, 2.5),
+                            ChestItemData(ItemStack(Material.REDSTONE), 12..12, 2..3, 2.5, listOf("apartment", "mansion", "hospital")),
+                            ChestItemData(ItemStack(Material.RAW_COPPER), 3..8, 2..3, 4.5, listOf("school", "mart", "store")),
+                            ChestItemData(ItemStack(Material.COPPER_INGOT), 2..6, 2..3, 3.5, listOf("school", "mart", "store")),
                             *listOf(
                                 Material.LEATHER_HELMET,
                                 Material.LEATHER_CHESTPLATE,
