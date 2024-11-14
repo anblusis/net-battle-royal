@@ -49,7 +49,7 @@ class CreateRandomEvent(
                 val regions = game.regions.filter { game.isInWorldBorder(it.center, true) }.shuffled()
                 if (regions.isEmpty()) return
                 val selectedRegions = mutableListOf<Region>()
-                repeat(Random.nextInt(1, 5)) {
+                repeat(Random.nextInt(1, 6)) {
                     selectedRegions.add(regions[it])
                 }
                 game.marmottes.forEach { marmotte ->
@@ -80,7 +80,7 @@ class CreateRandomEvent(
                 val regions = game.regions.filter { game.isInWorldBorder(it.center, true) }.shuffled()
                 if (regions.isEmpty()) return
                 val selectedRegions = mutableListOf<Region>()
-                repeat(Random.nextInt(1, 2)) {
+                repeat(Random.nextInt(1, 4)) {
                     selectedRegions.add(regions[it])
                 }
                 val selectedWave = MonsterWave.values().random()

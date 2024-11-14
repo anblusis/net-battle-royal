@@ -36,6 +36,7 @@ class Game(
     internal lateinit var worldDefaultWeather: GameWeather
     internal lateinit var customRecipes: List<CustomRecipe>
     internal lateinit var customEquipments: List<CustomEquipment>
+    internal lateinit var customRecipeSets: List<CustomRecipeSet>
     private lateinit var chestLocations: List<ChestData>
     private val tickTask: TickerTask
     internal val mainInv: InvFrame
@@ -114,7 +115,7 @@ class Game(
                 if (leftChestLocations.isEmpty()) return@run
 
                 val type = when (leftChestLocations.first().type) {
-                    ChestType.NORMAL -> if (Random.nextDouble() <= 0.05) ChestType.RARE else ChestType.NORMAL
+                    ChestType.NORMAL -> if (Random.nextDouble() <= 0.08) ChestType.RARE else ChestType.NORMAL
                     ChestType.RARE -> if (Random.nextDouble() <= 0.2) ChestType.NORMAL else ChestType.RARE
                     ChestType.EPIC -> if (Random.nextDouble() <= 0.5) ChestType.RARE else ChestType.EPIC
                 }
@@ -154,7 +155,8 @@ class Game(
                 regions = City.getRegions(playWorld)
                 chestTables = City.getChestTables()
                 mapColors = City.getMapColors()
-                customRecipes = City.getCustomRecipes(playWorld)
+                customRecipes = City.getCustomRecipes()
+                customRecipeSets = City.getCustomRecipeSets()
             }
         }
 
@@ -191,7 +193,7 @@ class Game(
     }
 
     private fun registerEvent() {
-        tasks.add(GameTask(this, FightStart(this, 3000), "무적 해제", 3000, 3000, 1, false))
+        tasks.add(GameTask(this, FightStart(this), "무적 해제", 3600, 3600, 1, false))
     }
 
     fun isInRegion(region: Region, spot: Location): Boolean {

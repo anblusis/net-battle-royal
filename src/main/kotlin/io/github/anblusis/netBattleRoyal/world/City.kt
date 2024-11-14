@@ -3129,8 +3129,13 @@ object City : WorldData {
         }
     }
 
-    override fun getCustomRecipes(world: World): List<CustomRecipe> {
-        val recipes = CustomRecipe.values().filter { it.worlds.isEmpty() || it.worlds.contains(world) }
+    override fun getCustomRecipes(): List<CustomRecipe> {
+        val recipes = CustomRecipe.values().toList()
         return recipes
+    }
+
+    override fun getCustomRecipeSets(): List<CustomRecipeSet> {
+        val sets = CustomRecipeSet.values().toList()
+        return sets
     }
 }

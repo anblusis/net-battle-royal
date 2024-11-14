@@ -16,7 +16,7 @@ object RainChestplate : CustomEquipmentSystem() {
     override fun onEnable(player: Player, equipment: CustomEquipment?) {
         if (player in players) return
 
-        super.onEnable(player, CustomEquipment.RAIN_ARMOR)
+        super.onEnable(player, CustomEquipment.RAIN_CHESTPLATE)
         val listener = RainListener(player)
         player.server.pluginManager.registerEvents(listener, plugin)
         listeners[player] = listener
@@ -25,7 +25,7 @@ object RainChestplate : CustomEquipmentSystem() {
     override fun onDisable(player: Player, equipment: CustomEquipment?) {
         if (player !in players) return
 
-        super.onDisable(player, CustomEquipment.RAIN_ARMOR)
+        super.onDisable(player, CustomEquipment.RAIN_CHESTPLATE)
         HandlerList.unregisterAll(listeners[player]!!)
         listeners.remove(player)
     }

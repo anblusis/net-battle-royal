@@ -22,5 +22,7 @@ internal interface WorldData {
 
     fun getMapColors(): List<Byte>
 
-    fun getCustomRecipes(world: World): List<CustomRecipe>
+    fun getCustomRecipes(): List<CustomRecipe>
+
+    fun getCustomRecipeSets(): List<CustomRecipeSet>
 }

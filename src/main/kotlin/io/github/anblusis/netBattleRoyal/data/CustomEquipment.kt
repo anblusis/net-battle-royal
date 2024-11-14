@@ -31,7 +31,7 @@ enum class CustomEquipment(
         override val players = mutableListOf<Player>()
     }
 ) {
-    RAIN_ARMOR(
+    RAIN_CHESTPLATE(
         ItemStack(Material.LEATHER_CHESTPLATE).apply item@{
             itemMeta = (itemMeta as LeatherArmorMeta).apply {
                 displayName(

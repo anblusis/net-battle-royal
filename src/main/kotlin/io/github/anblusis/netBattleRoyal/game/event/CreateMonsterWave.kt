@@ -54,7 +54,7 @@ class CreateMonsterWave(
                                 world.playSound(location, Sound.ENTITY_ENDERMAN_TELEPORT, 1f, 0.1f)
                                 remove()
                             }
-                        }, 1200L)
+                        }, 2800L)
                     }
                 }
             }
@@ -78,13 +78,13 @@ class CreateMonsterWave(
 }
 
 enum class MonsterWave(val displayName: String, val type: EntityType, val density: Int) {
-    ZOMBIE("좀비", EntityType.ZOMBIE, 300),
-    SKELETON("스켈레톤", EntityType.SKELETON, 300),
-    CREEPER("크리퍼", EntityType.CREEPER, 400),
-    WITCH("마녀", EntityType.WITCH, 500),
-    SLIME("슬라임", EntityType.SLIME, 250),
-    PHANTOM("팬텀", EntityType.PHANTOM, 400),
-    SILVERFISH("좀벌레", EntityType.SILVERFISH, 120),
-    PILLAGER("약탈자", EntityType.PILLAGER, 350),
-    VINDICATOR("변명자", EntityType.VINDICATOR, 700),
+    ZOMBIE("좀비", EntityType.ZOMBIE, 200),
+    SKELETON("스켈레톤", EntityType.SKELETON, 200),
+    CREEPER("크리퍼", EntityType.CREEPER, 250),
+    WITCH("마녀", EntityType.WITCH, 320),
+    SLIME("슬라임", EntityType.SLIME, 160),
+    PHANTOM("팬텀", EntityType.PHANTOM, 300),
+    SILVERFISH("좀벌레", EntityType.SILVERFISH, 80),
+    PILLAGER("약탈자", EntityType.PILLAGER, 230),
+    VINDICATOR("변명자", EntityType.VINDICATOR, 350),
 }

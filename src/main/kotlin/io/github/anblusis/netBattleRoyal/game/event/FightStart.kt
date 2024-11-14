@@ -9,8 +9,7 @@ import net.kyori.adventure.title.Title
 import java.time.Duration
 
 class FightStart(
-    private val game: Game,
-    private val tick: Int
+    private val game: Game
 ) : Runnable {
     override fun run() {
         game.state = GameState.PLAYING
@@ -46,7 +45,7 @@ class FightStart(
                     CreateRandomEvent(this, 1200, RandomGameEvent.values()),
                     "무작위 사건 타이머",
                     3400,
-                    3400,
+                    2800,
                     -999,
                     true
                 )

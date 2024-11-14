@@ -1,6 +1,7 @@
 package io.github.anblusis.netBattleRoyal.inv
 
 import io.github.anblusis.netBattleRoyal.data.ChestType
+import io.github.anblusis.netBattleRoyal.data.CustomRecipeSet
 import io.github.anblusis.netBattleRoyal.data.CustomRecipe
 import io.github.anblusis.netBattleRoyal.data.Region
 import io.github.anblusis.netBattleRoyal.game.Game
@@ -91,10 +92,17 @@ object InvManager {
         }
     }
 
-    private fun createRecipeInv(game: Game, clickedCustomRecipe: CustomRecipe? = null): InvFrame =
+    private fun createRecipeInv(
+        game: Game,
+        clickedCustomRecipe: CustomRecipe? = null,
+        clickedCustomSet: CustomRecipeSet? = null
+    ): InvFrame =
         InvFX.frame(5, text("조합법").decorate(TextDecoration.BOLD)) {
+            val setDisplayRecipes = game.customRecipeSets.map { it.displayRecipe }.toMutableList()
+
             list(0, 0, if (clickedCustomRecipe == null) 8 else 3, 3, true, {
-                val items = game.customRecipes
+                val setRecipes = game.customRecipeSets.map { it.recipes }.flatten()
+                val items = setDisplayRecipes.plus(game.customRecipes.filter { recipe -> recipe !in setRecipes })
 
                 val pageSlotCount = (if (clickedCustomRecipe == null) 9 else 4) * 4
 
@@ -106,19 +114,38 @@ object InvManager {
                 transform {
                     if (it == null) return@transform ItemStack(Material.AIR)
 
-                    if (it == clickedCustomRecipe) it.result.clone().apply {
-                        addUnsafeEnchantment(Enchantment.DURABILITY, 1)
-                        addItemFlags(ItemFlag.HIDE_ENCHANTS)
-                    } else it.result
+                    when (it) {
+                        in setDisplayRecipes -> {
+                            val recipe = game.customRecipeSets.find { set -> set.displayRecipe == it }!!
+                            it.result.clone().apply {
+                                itemMeta = itemMeta.apply {
+                                    displayName(
+                                        text("${recipe.displayName} 세트").decorate(TextDecoration.BOLD).decoration(TextDecoration.ITALIC, false)
+                                    )
+                                    lore()?.clear()
+                                }
+                            }
+                        }
+                        clickedCustomRecipe -> it.result.clone().apply {
+                            addUnsafeEnchantment(Enchantment.DURABILITY, 1)
+                            addItemFlags(ItemFlag.HIDE_ENCHANTS)
+                        }
+                        else -> it.result
+                    }
                 }
                 onClickItem { _, _, (recipe, _), event ->
                     if (recipe == null) return@onClickItem
 
                     (event.whoClicked as Player).playSound(event.whoClicked.location, Sound.UI_BUTTON_CLICK, 1f, 1f)
-                    if (clickedCustomRecipe == recipe) {
-                        (event.whoClicked as Player).openFrame(createRecipeInv(game))
+
+                    if (clickedCustomSet == null && recipe in setDisplayRecipes) {
+                        (event.whoClicked as Player).openFrame(createRecipeInv(game, null, game.customRecipeSets.find { set -> set.displayRecipe == recipe }))
                     } else {
-                        (event.whoClicked as Player).openFrame(createRecipeInv(game, recipe))
+                        (event.whoClicked as Player).openFrame(createRecipeInv(
+                            game,
+                            if (clickedCustomRecipe == recipe) null else recipe,
+                            clickedCustomSet
+                        ))
                     }
                 }
             }.let { list ->

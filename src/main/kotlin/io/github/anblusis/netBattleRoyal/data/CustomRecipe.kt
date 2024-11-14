@@ -3,7 +3,6 @@ package io.github.anblusis.netBattleRoyal.data
 import io.github.anblusis.netBattleRoyal.main.NetBattleRoyal.Companion.plugin
 import org.bukkit.Material
 import org.bukkit.NamespacedKey
-import org.bukkit.World
 import org.bukkit.inventory.*
 
 enum class CustomRecipe(
@@ -14,7 +13,6 @@ enum class CustomRecipe(
     private val ingredients: Map<Char, Any>,
     private val counts: Map<Char, Int>,
     private val type: CustomRecipeType,
-    val worlds: List<World>,
     val resultFunction: (Array<ItemStack?>) -> ItemStack? = { result }
 ) {
     RAIN_HELMET(
@@ -24,18 +22,16 @@ enum class CustomRecipe(
         listOf("ABA", "A A", "   "),
         mapOf('A' to ItemStack(Material.LEATHER), 'B' to ItemStack(Material.WATER_BUCKET)),
         mapOf(),
-        CustomRecipeType.SHAPED,
-        listOf()
+        CustomRecipeType.SHAPED
     ),
-    RAIN_ARMOR(
+    RAIN_CHESTPLATE(
         "rain_armor",
-        CustomEquipment.RAIN_ARMOR.item,
+        CustomEquipment.RAIN_CHESTPLATE.item,
         listOf("A A", "ABA", "AAA"),
         listOf("A A", "ABA", "AAA"),
         mapOf('A' to ItemStack(Material.LEATHER), 'B' to ItemStack(Material.WATER_BUCKET)),
         mapOf(),
-        CustomRecipeType.SHAPED,
-        listOf()
+        CustomRecipeType.SHAPED
     ),
     RAIN_LEGGINGS(
         "rain_leggings",
@@ -44,8 +40,7 @@ enum class CustomRecipe(
         listOf("ABA", "A A", "A A"),
         mapOf('A' to ItemStack(Material.LEATHER), 'B' to ItemStack(Material.WATER_BUCKET)),
         mapOf(),
-        CustomRecipeType.SHAPED,
-        listOf()
+        CustomRecipeType.SHAPED
     ),
     RAIN_BOOTS(
         "rain_boots",
@@ -54,8 +49,7 @@ enum class CustomRecipe(
         listOf("A A", "A A", "B B"),
         mapOf('A' to ItemStack(Material.LEATHER), 'B' to ItemStack(Material.WATER_BUCKET)),
         mapOf(),
-        CustomRecipeType.SHAPED,
-        listOf()
+        CustomRecipeType.SHAPED
     ),
     RAIN_DROP(
         "rain_drop",
@@ -64,8 +58,7 @@ enum class CustomRecipe(
         listOf(" A ", "ABA", " A "),
         mapOf('A' to ItemStack(Material.WATER_BUCKET), 'B' to ItemStack(Material.DIAMOND)),
         mapOf(),
-        CustomRecipeType.SHAPED,
-        listOf()
+        CustomRecipeType.SHAPED
     ),
     BONE_HELMET(
         "bone_helmet",
@@ -74,8 +67,7 @@ enum class CustomRecipe(
         listOf("AAA", "A A", "   "),
         mapOf('A' to ItemStack(Material.BONE)),
         mapOf(),
-        CustomRecipeType.SHAPED,
-        listOf()
+        CustomRecipeType.SHAPED
     ),
     BONE_CHESTPLATE(
         "bone_chestplate",
@@ -84,8 +76,7 @@ enum class CustomRecipe(
         listOf("A A", "AAA", "AAA"),
         mapOf('A' to ItemStack(Material.BONE)),
         mapOf(),
-        CustomRecipeType.SHAPED,
-        listOf()
+        CustomRecipeType.SHAPED
     ),
     BONE_LEGGINGS(
         "bone_leggings",
@@ -94,8 +85,7 @@ enum class CustomRecipe(
         listOf("AAA", "A A", "A A"),
         mapOf('A' to ItemStack(Material.BONE)),
         mapOf(),
-        CustomRecipeType.SHAPED,
-        listOf()
+        CustomRecipeType.SHAPED
     ),
     BONE_BOOTS(
         "bone_boots",
@@ -104,13 +94,13 @@ enum class CustomRecipe(
         listOf("A A", "A A", "   "),
         mapOf('A' to ItemStack(Material.BONE)),
         mapOf(),
-        CustomRecipeType.SHAPED,
-        listOf()
+        CustomRecipeType.SHAPED
     ),
     EXPLOSION_ARROW(
         "explosion_arrow",
         ItemStack(Material.ARROW).apply {
             hasExplosionPower = 1
+            amount = 2
         },
         listOf(" A ", "ABA", " A "),
         listOf(" A ", "ABA", " A "),
@@ -119,17 +109,17 @@ enum class CustomRecipe(
         )),
         mapOf(),
         CustomRecipeType.SHAPED,
-        listOf(),
         {
             val arrow = it[4]!!.clone()
             if (arrow.hasExplosionPower >= 3) null
-            else arrow.apply { amount = 1; hasExplosionPower += 1 }
+            else arrow.apply { amount = 2; hasExplosionPower += 1 }
         }
     ),
     MAGNETIC_ARROW(
         "magnetic_arrow",
         ItemStack(Material.ARROW).apply {
             hasMagneticPower = true
+            amount = 2
         },
         listOf(" A ", "ABA", " A "),
         listOf(" A ", "ABA", " A "),
@@ -138,11 +128,10 @@ enum class CustomRecipe(
         )),
         mapOf(),
         CustomRecipeType.SHAPED,
-        listOf(),
         {
             val arrow = it[4]!!.clone()
             if (arrow.hasMagneticPower) null
-            else arrow.apply { amount = 1; hasMagneticPower = true }
+            else arrow.apply { amount = 2; hasMagneticPower = true }
         }
     ),
     SLIME_HELMET(
@@ -152,8 +141,7 @@ enum class CustomRecipe(
         listOf("AAA", "A A", "   "),
         mapOf('A' to ItemStack(Material.SLIME_BALL)),
         mapOf(),
-        CustomRecipeType.SHAPED,
-        listOf()
+        CustomRecipeType.SHAPED
     ),
     SLIME_CHESTPLATE(
         "slime_chestplate",
@@ -162,8 +150,7 @@ enum class CustomRecipe(
         listOf("A A", "AAA", "AAA"),
         mapOf('A' to ItemStack(Material.SLIME_BALL)),
         mapOf(),
-        CustomRecipeType.SHAPED,
-        listOf()
+        CustomRecipeType.SHAPED
     ),
     SLIME_LEGGINGS(
         "slime_leggings",
@@ -172,8 +159,7 @@ enum class CustomRecipe(
         listOf("AAA", "A A", "A A"),
         mapOf('A' to ItemStack(Material.SLIME_BALL)),
         mapOf(),
-        CustomRecipeType.SHAPED,
-        listOf()
+        CustomRecipeType.SHAPED
     ),
     SLIME_BOOTS(
         "slime_boots",
@@ -182,8 +168,7 @@ enum class CustomRecipe(
         listOf("A A", "A A", "   "),
         mapOf('A' to ItemStack(Material.SLIME_BALL)),
         mapOf(),
-        CustomRecipeType.SHAPED,
-        listOf()
+        CustomRecipeType.SHAPED
     ),
     ALLOY_HELMET(
         "alloy_helmet",
@@ -192,8 +177,7 @@ enum class CustomRecipe(
         listOf("BCB", "A A", "   "),
         mapOf('A' to ItemStack(Material.COPPER_INGOT), 'B' to ItemStack(Material.IRON_INGOT), 'C' to ItemStack(Material.GOLD_INGOT)),
         mapOf(),
-        CustomRecipeType.SHAPED,
-        listOf()
+        CustomRecipeType.SHAPED
     ),
     ALLOY_CHESTPLATE(
         "alloy_chestplate",
@@ -203,7 +187,6 @@ enum class CustomRecipe(
         mapOf('A' to ItemStack(Material.COPPER_INGOT), 'B' to ItemStack(Material.IRON_INGOT), 'C' to ItemStack(Material.GOLD_INGOT)),
         mapOf(),
         CustomRecipeType.SHAPED,
-        listOf()
     ),
     ALLOY_LEGGINGS(
         "alloy_leggings",
@@ -212,8 +195,7 @@ enum class CustomRecipe(
         listOf("ACA", "B B", "A A"),
         mapOf('A' to ItemStack(Material.COPPER_INGOT), 'B' to ItemStack(Material.IRON_INGOT), 'C' to ItemStack(Material.GOLD_INGOT)),
         mapOf(),
-        CustomRecipeType.SHAPED,
-        listOf()
+        CustomRecipeType.SHAPED
     ),
     ALLOY_BOOTS(
         "alloy_boots",
@@ -222,8 +204,7 @@ enum class CustomRecipe(
         listOf("B B", "A A", "   "),
         mapOf('A' to ItemStack(Material.COPPER_INGOT), 'B' to ItemStack(Material.IRON_INGOT)),
         mapOf(),
-        CustomRecipeType.SHAPED,
-        listOf()
+        CustomRecipeType.SHAPED
     ),
     ;
 
@@ -269,4 +250,52 @@ enum class CustomRecipe(
 
 enum class CustomRecipeType {
     SHAPED, SHAPELESS
+}
+
+enum class CustomRecipeSet(
+    val displayName: String,
+    val displayRecipe: CustomRecipe,
+    val recipes: List<CustomRecipe>
+) {
+    RAIN(
+        "비",
+        CustomRecipe.RAIN_CHESTPLATE,
+        listOf(
+            CustomRecipe.RAIN_HELMET,
+            CustomRecipe.RAIN_CHESTPLATE,
+            CustomRecipe.RAIN_LEGGINGS,
+            CustomRecipe.RAIN_BOOTS,
+            CustomRecipe.RAIN_DROP
+        )
+    ),
+    BONE(
+        "뼈",
+        CustomRecipe.BONE_CHESTPLATE,
+        listOf(
+            CustomRecipe.BONE_HELMET,
+            CustomRecipe.BONE_CHESTPLATE,
+            CustomRecipe.BONE_LEGGINGS,
+            CustomRecipe.BONE_BOOTS
+        )
+    ),
+    SLIME(
+        "슬라임",
+        CustomRecipe.SLIME_CHESTPLATE,
+        listOf(
+            CustomRecipe.SLIME_HELMET,
+            CustomRecipe.SLIME_CHESTPLATE,
+            CustomRecipe.SLIME_LEGGINGS,
+            CustomRecipe.SLIME_BOOTS
+        )
+    ),
+    ALLOY(
+        "합금",
+        CustomRecipe.ALLOY_CHESTPLATE,
+        listOf(
+            CustomRecipe.ALLOY_HELMET,
+            CustomRecipe.ALLOY_CHESTPLATE,
+            CustomRecipe.ALLOY_LEGGINGS,
+            CustomRecipe.ALLOY_BOOTS
+        )
+    )
 }
