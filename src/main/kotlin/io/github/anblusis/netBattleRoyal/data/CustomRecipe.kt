@@ -264,8 +264,7 @@ enum class CustomRecipeSet(
             CustomRecipe.RAIN_HELMET,
             CustomRecipe.RAIN_CHESTPLATE,
             CustomRecipe.RAIN_LEGGINGS,
-            CustomRecipe.RAIN_BOOTS,
-            CustomRecipe.RAIN_DROP
+            CustomRecipe.RAIN_BOOTS
         )
     ),
     BONE(

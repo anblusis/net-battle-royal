@@ -95,11 +95,12 @@ object InvManager {
     private fun createRecipeInv(
         game: Game,
         clickedCustomRecipe: CustomRecipe? = null,
-        clickedCustomSet: CustomRecipeSet? = null
+        clickedCustomSet: CustomRecipeSet? = null,
+        targetCustomRecipe: CustomRecipe? = clickedCustomRecipe
     ): InvFrame =
         InvFX.frame(5, text("조합법").decorate(TextDecoration.BOLD)) {
             val setDisplayRecipes = game.customRecipeSets.map { it.displayRecipe }.toMutableList()
-
+            val pageSlotCount = (if (clickedCustomRecipe == null) 9 else 4) * 4
 
             list(0, 0, if (clickedCustomRecipe == null) 8 else 3, 3, true, {
                 lateinit var items: List<CustomRecipe>
@@ -112,34 +113,30 @@ object InvManager {
                         clickedCustomSet.recipes
                     }
 
-                val pageSlotCount = (if (clickedCustomRecipe == null) 9 else 4) * 4
-
                 if (items.count() <= pageSlotCount)
                     items
                 else
                     items.plus(List(pageSlotCount - items.count() % pageSlotCount) { null })
             }) {
                 transform {
-                    if (it == null) return@transform ItemStack(Material.AIR)
+                    if (it == null) return@transform ItemStack( Material.AIR)
 
-                    when (it) {
-                        clickedCustomSet != null && it in setDisplayRecipes -> {
-                            val recipe = game.customRecipeSets.find { set -> set.displayRecipe == it }!!
-                            it.result.clone().apply {
-                                itemMeta = itemMeta.apply {
-                                    displayName(
-                                        text("${recipe.displayName} 세트").decorate(TextDecoration.BOLD).decoration(TextDecoration.ITALIC, false)
-                                    )
-                                    lore()?.clear()
-                                }
+                    if (clickedCustomSet == null && it in setDisplayRecipes) {
+                        val recipe = game.customRecipeSets.find { set -> set.displayRecipe == it }!!
+                        it.result.clone().apply {
+                            itemMeta = itemMeta.apply {
+                                displayName(
+                                    text("${recipe.displayName} 세트").decorate(TextDecoration.BOLD).decoration(TextDecoration.ITALIC, false)
+                                )
+                                lore(listOf(text("클릭하여 세트 목록 확인").color(NamedTextColor.GRAY).decoration(TextDecoration.ITALIC, false)))
                             }
                         }
-                        clickedCustomRecipe -> it.result.clone().apply {
-                            addUnsafeEnchantment(Enchantment.DURABILITY, 1)
-                            addItemFlags(ItemFlag.HIDE_ENCHANTS)
-                        }
-                        else -> it.result
                     }
+                    else if (it == clickedCustomRecipe) it.result.clone().apply {
+                        addUnsafeEnchantment(Enchantment.DURABILITY, 1)
+                        addItemFlags(ItemFlag.HIDE_ENCHANTS)
+                    }
+                    else it.result
                 }
                 onClickItem { _, _, (recipe, _), event ->
                     if (recipe == null) return@onClickItem
@@ -157,8 +154,8 @@ object InvManager {
                     }
                 }
             }.let { list ->
-                if (clickedCustomRecipe != null) {
-                    list.page = (game.customRecipes.indexOf(clickedCustomRecipe) / 16).toDouble()
+                if (targetCustomRecipe != null) {
+                    list.page = (game.customRecipes.indexOf(targetCustomRecipe) / pageSlotCount).toDouble()
                 }
 
                 slot(if (clickedCustomRecipe == null) 3 else 0, 4) {
@@ -179,7 +176,8 @@ object InvManager {
                     item = returnItem
                     onClick { event ->
                         (event.whoClicked as Player).playSound(event.whoClicked.location, Sound.UI_BUTTON_CLICK, 1f, 1f)
-                        (event.whoClicked as Player).openFrame(game.mainInv)
+                        if (clickedCustomSet == null) (event.whoClicked as Player).openFrame(game.mainInv)
+                        else (event.whoClicked as Player).openFrame(createRecipeInv(game, null, null, clickedCustomSet.displayRecipe))
                     }
                 }
             }
