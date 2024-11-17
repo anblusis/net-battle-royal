@@ -100,9 +100,17 @@ object InvManager {
         InvFX.frame(5, text("조합법").decorate(TextDecoration.BOLD)) {
             val setDisplayRecipes = game.customRecipeSets.map { it.displayRecipe }.toMutableList()
 
+
             list(0, 0, if (clickedCustomRecipe == null) 8 else 3, 3, true, {
+                lateinit var items: List<CustomRecipe>
+
                 val setRecipes = game.customRecipeSets.map { it.recipes }.flatten()
-                val items = setDisplayRecipes.plus(game.customRecipes.filter { recipe -> recipe !in setRecipes })
+                items =
+                    if (clickedCustomSet == null) {
+                        setDisplayRecipes.plus(game.customRecipes.filter { recipe -> recipe !in setRecipes })
+                    } else {
+                        clickedCustomSet.recipes
+                    }
 
                 val pageSlotCount = (if (clickedCustomRecipe == null) 9 else 4) * 4
 
@@ -115,7 +123,7 @@ object InvManager {
                     if (it == null) return@transform ItemStack(Material.AIR)
 
                     when (it) {
-                        in setDisplayRecipes -> {
+                        clickedCustomSet != null && it in setDisplayRecipes -> {
                             val recipe = game.customRecipeSets.find { set -> set.displayRecipe == it }!!
                             it.result.clone().apply {
                                 itemMeta = itemMeta.apply {
