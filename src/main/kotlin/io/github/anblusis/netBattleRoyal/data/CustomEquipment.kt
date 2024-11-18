@@ -458,6 +458,106 @@ enum class CustomEquipment(
             CustomAttribute.MOVEMENT_SPEED to -0.01
         ), EquipmentSlot.FEET
     ),
+    COMET_HELMET(
+        ItemStack(Material.IRON_HELMET).apply item@{
+            itemMeta = (itemMeta as ArmorMeta).apply {
+                displayName(
+                    text().color(NamedTextColor.WHITE).content("혜성 투구").decoration(TextDecoration.ITALIC, false)
+                        .build()
+                )
+                trim = ArmorTrim(TrimMaterial.AMETHYST, TrimPattern.EYE)
+                makeAttribute(
+                    mapOf(
+                        CustomAttribute.ARMOR to 5.0,
+                        CustomAttribute.ARMOR_TOUGH to 2.0,
+                        CustomAttribute.MANA_REGEN to 0.1
+                    ), EquipmentSlot.HEAD
+                )
+                addItemFlags(ItemFlag.HIDE_ARMOR_TRIM)
+            }
+        },
+        mapOf(
+            CustomAttribute.ARMOR to 5.0,
+            CustomAttribute.ARMOR_TOUGH to 2.0,
+            CustomAttribute.MANA_REGEN to 0.1
+        ), EquipmentSlot.HEAD
+    ),
+    COMET_CHESTPLATE(
+        ItemStack(Material.IRON_CHESTPLATE).apply item@{
+            itemMeta = (itemMeta as ArmorMeta).apply {
+                displayName(
+                    text().color(NamedTextColor.WHITE).content("혜성 흉갑").decoration(TextDecoration.ITALIC, false)
+                        .build()
+                )
+                trim = ArmorTrim(TrimMaterial.AMETHYST, TrimPattern.EYE)
+                makeAttribute(
+                    mapOf(
+                        CustomAttribute.ARMOR to 9.0,
+                        CustomAttribute.ARMOR_TOUGH to 2.0,
+                        CustomAttribute.MANA_REGEN to 0.3,
+                        CustomAttribute.HEALTH_REGEN to 0.2
+                    ), EquipmentSlot.CHEST
+                )
+                addItemFlags(ItemFlag.HIDE_ARMOR_TRIM)
+            }
+        },
+        mapOf(
+            CustomAttribute.ARMOR to 9.0,
+            CustomAttribute.ARMOR_TOUGH to 2.0,
+            CustomAttribute.MANA_REGEN to 0.3,
+            CustomAttribute.HEALTH_REGEN to 0.2
+        ), EquipmentSlot.CHEST
+    ),
+    COMET_LEGGINGS(
+        ItemStack(Material.IRON_LEGGINGS).apply item@{
+            itemMeta = (itemMeta as ArmorMeta).apply {
+                displayName(
+                    text().color(NamedTextColor.WHITE).content("혜성 레깅스").decoration(TextDecoration.ITALIC, false)
+                        .build()
+                )
+                trim = ArmorTrim(TrimMaterial.AMETHYST, TrimPattern.EYE)
+                makeAttribute(
+                    mapOf(
+                        CustomAttribute.ARMOR to 7.0,
+                        CustomAttribute.ARMOR_TOUGH to 2.0,
+                        CustomAttribute.MANA_REGEN to 0.2,
+                        CustomAttribute.HEALTH_REGEN to 0.1
+                    ), EquipmentSlot.LEGS
+                )
+                addItemFlags(ItemFlag.HIDE_ARMOR_TRIM)
+            }
+        },
+        mapOf(
+            CustomAttribute.ARMOR to 7.0,
+            CustomAttribute.ARMOR_TOUGH to 2.0,
+            CustomAttribute.MANA_REGEN to 0.2,
+            CustomAttribute.HEALTH_REGEN to 0.1
+        ), EquipmentSlot.LEGS
+    ),
+    COMET_BOOTS(
+        ItemStack(Material.IRON_BOOTS).apply item@{
+            itemMeta = (itemMeta as ArmorMeta).apply {
+                displayName(
+                    text().color(NamedTextColor.WHITE).content("혜성 부츠").decoration(TextDecoration.ITALIC, false)
+                        .build()
+                )
+                trim = ArmorTrim(TrimMaterial.AMETHYST, TrimPattern.EYE)
+                makeAttribute(
+                    mapOf(
+                        CustomAttribute.ARMOR to 5.0,
+                        CustomAttribute.ARMOR_TOUGH to 2.0,
+                        CustomAttribute.HEALTH_REGEN to 0.1
+                    ), EquipmentSlot.FEET
+                )
+                addItemFlags(ItemFlag.HIDE_ARMOR_TRIM)
+            }
+        },
+        mapOf(
+            CustomAttribute.ARMOR to 5.0,
+            CustomAttribute.ARMOR_TOUGH to 2.0,
+            CustomAttribute.HEALTH_REGEN to 0.1
+        ), EquipmentSlot.FEET
+    ),
 }
 
 fun ItemMeta.makeAttribute(stat: Map<CustomAttribute, Double>, itemSlot: EquipmentSlot) {
@@ -536,6 +636,7 @@ enum class CustomAttribute(
     MOVEMENT_SPEED("이동 속도", Attribute.GENERIC_MOVEMENT_SPEED, false, false),
     KNOCKBACK_RESISTANCE("밀치기 저항", Attribute.GENERIC_KNOCKBACK_RESISTANCE, false, false),
     MANA_REGEN("마나 재생", null, false, false),
+    HEALTH_REGEN("체력 재생", null, false, false),
     HEALTH_STEAL("흡혈", null, false, false),
     DEFENSE_PENETRATION("방어 관통", null, true, false),
 }
