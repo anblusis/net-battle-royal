@@ -8,6 +8,7 @@ import io.github.anblusis.netBattleRoyal.main.NetBattleRoyal.Companion.plugin
 import io.github.anblusis.netBattleRoyal.tool.equalsDisplayName
 import org.bukkit.Bukkit
 import org.bukkit.Material
+import org.bukkit.attribute.Attribute
 import org.bukkit.boss.BarColor
 import org.bukkit.boss.BarStyle
 import org.bukkit.boss.BossBar
@@ -83,6 +84,8 @@ data class Marmotte(val player: Player, val game: Game) {
                 plugin.server.consoleSender,
                 "psychics mana ${player.name} add ${stat[CustomAttribute.MANA_REGEN]}"
             )
+            val maxHealth = player.getAttribute(Attribute.GENERIC_MAX_HEALTH)!!.value
+            player.health = (player.health + (stat[CustomAttribute.HEALTH_REGEN] ?: 0.0)).coerceAtMost(maxHealth)
         }
     }
 

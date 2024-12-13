@@ -206,6 +206,15 @@ enum class CustomRecipe(
         mapOf(),
         CustomRecipeType.SHAPED
     ),
+    COMET_CHESTPLATE(
+        "comet_chestplate",
+        CustomEquipment.COMET_CHESTPLATE.item,
+        listOf("A A", "BCB", "AAA"),
+        listOf("A A", "BCB", "AAA"),
+        mapOf('A' to ItemStack(Material.IRON_INGOT), 'B' to ItemStack(Material.AMETHYST_SHARD), 'C' to ItemStack(Material.NETHER_STAR)),
+        mapOf(),
+        CustomRecipeType.SHAPED
+    ),
     ;
 
     private val key = NamespacedKey(plugin, recipeName)
