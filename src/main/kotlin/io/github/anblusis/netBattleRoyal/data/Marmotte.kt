@@ -34,6 +34,8 @@ data class Marmotte(val player: Player, val game: Game) {
     init {
         // player.sendMessage("게임에 참가했습니다.")
         CustomAttribute.values().filter { it.attribute == null }.forEach { stat[it] = 0.0 }
+        player.exp = 0f
+        player.level = 0
 
         /* 이거 가끔 버그 걸렸을 때 Attribute 초기화용
         for (attribute in Attribute.values()) {
