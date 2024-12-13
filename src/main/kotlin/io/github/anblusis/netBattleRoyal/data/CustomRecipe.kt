@@ -206,12 +206,39 @@ enum class CustomRecipe(
         mapOf(),
         CustomRecipeType.SHAPED
     ),
+    COMET_HELMET(
+        "comet_helmet",
+        CustomEquipment.COMET_HELMET.item,
+        listOf("AAA", "B B"),
+        listOf("AAA", "B B", "   "),
+        mapOf('A' to ItemStack(Material.IRON_INGOT), 'B' to ItemStack(Material.AMETHYST_SHARD)),
+        mapOf(),
+        CustomRecipeType.SHAPED
+    ),
     COMET_CHESTPLATE(
         "comet_chestplate",
         CustomEquipment.COMET_CHESTPLATE.item,
         listOf("A A", "BCB", "AAA"),
         listOf("A A", "BCB", "AAA"),
         mapOf('A' to ItemStack(Material.IRON_INGOT), 'B' to ItemStack(Material.AMETHYST_SHARD), 'C' to ItemStack(Material.NETHER_STAR)),
+        mapOf(),
+        CustomRecipeType.SHAPED
+    ),
+    COMET_LEGGINGS(
+        "comet_leggings",
+        CustomEquipment.COMET_LEGGINGS.item,
+        listOf("ACA", "B B", "A A"),
+        listOf("ACA", "B B", "A A"),
+        mapOf('A' to ItemStack(Material.IRON_INGOT), 'B' to ItemStack(Material.AMETHYST_SHARD), 'C' to ItemStack(Material.QUARTZ)),
+        mapOf(),
+        CustomRecipeType.SHAPED
+    ),
+    COMET_BOOTS(
+        "comet_boots",
+        CustomEquipment.COMET_BOOTS.item,
+        listOf("B B", "A A"),
+        listOf("B B", "A A", "   "),
+        mapOf('A' to ItemStack(Material.IRON_INGOT), 'B' to ItemStack(Material.AMETHYST_SHARD)),
         mapOf(),
         CustomRecipeType.SHAPED
     ),
@@ -304,6 +331,16 @@ enum class CustomRecipeSet(
             CustomRecipe.ALLOY_CHESTPLATE,
             CustomRecipe.ALLOY_LEGGINGS,
             CustomRecipe.ALLOY_BOOTS
+        )
+    ),
+    COMET(
+        "혜성",
+        CustomRecipe.COMET_CHESTPLATE,
+        listOf(
+            CustomRecipe.COMET_HELMET,
+            CustomRecipe.COMET_CHESTPLATE,
+            CustomRecipe.COMET_LEGGINGS,
+            CustomRecipe.COMET_BOOTS
         )
     )
 }
