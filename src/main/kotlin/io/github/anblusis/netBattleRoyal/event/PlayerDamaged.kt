@@ -6,9 +6,10 @@ import org.bukkit.entity.Player
 import org.bukkit.event.entity.EntityDamageEvent
 
 fun playerDamaged(listener: EventManager, event: EntityDamageEvent) {
-    DataManager.getMarmotte(event.entity as Player)?.game?.let {
-        if (it.state == GameState.READYING) {
+    DataManager.getMarmotte(event.entity as Player)?.let { marmotte ->
+        if (marmotte.game.state == GameState.READYING) {
             event.isCancelled = true
+            return
         }
     }
 }

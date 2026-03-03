@@ -7,7 +7,7 @@ import org.bukkit.event.inventory.PrepareItemCraftEvent
 
 fun playerPrepareCrafting(listener: EventManager, event: PrepareItemCraftEvent) {
     val recipe = event.recipe ?: return
-    val customRecipe = CustomRecipe.values().find {
+    val customRecipe = CustomRecipe.entries.find {
         it.toBukkitRecipe().result == recipe.result
     } ?: return
     val marmotte = DataManager.getMarmotte(event.view.player as Player)

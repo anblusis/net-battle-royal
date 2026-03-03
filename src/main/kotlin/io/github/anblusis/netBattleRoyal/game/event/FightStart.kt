@@ -33,8 +33,8 @@ class FightStart(
                     this,
                     WorldBorderDecrease(this, 1200),
                     "월드보더 감소",
-                    4800,
-                    4800,
+                    4200,
+                    4200,
                     0,
                     true
                 )
@@ -44,7 +44,7 @@ class FightStart(
                     this,
                     CreateRandomEvent(this, 1200, RandomGameEvent.values()),
                     "무작위 사건 타이머",
-                    3400,
+                    2400,
                     2800,
                     -999,
                     true

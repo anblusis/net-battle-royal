@@ -5,15 +5,16 @@ import io.github.anblusis.netBattleRoyal.game.event.FightStart
 import io.github.anblusis.netBattleRoyal.inv.InvManager
 import io.github.anblusis.netBattleRoyal.main.NetBattleRoyal.Companion.plugin
 import io.github.anblusis.netBattleRoyal.world.City
-import io.github.monun.invfx.frame.InvFrame
+import xyz.icetang.lib.invfx.frame.InvFrame
 import io.github.monun.tap.task.TickerTask
-import org.bukkit.GameRule
+import org.bukkit.GameRules
 import org.bukkit.Location
 import org.bukkit.World
 import org.bukkit.WorldBorder
 import org.bukkit.entity.Entity
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
+import org.bukkit.util.Vector
 import java.awt.Color
 import kotlin.math.abs
 import kotlin.random.Random
@@ -24,6 +25,11 @@ class Game(
     val mode: Int,
     players: MutableList<Player>
 ) {
+    companion object {
+        const val RANDOM_CHEST_QUALITY = true
+        const val NO_READY_TIME = false
+    }
+
     internal lateinit var chests: MutableList<RoyalChest>
     internal lateinit var regions: List<Region>
     internal lateinit var world: World
@@ -37,6 +43,7 @@ class Game(
     internal lateinit var customRecipes: List<CustomRecipe>
     internal lateinit var customEquipments: List<CustomEquipment>
     internal lateinit var customRecipeSets: List<CustomRecipeSet>
+    internal lateinit var dropItems: List<ItemStack>
     private lateinit var chestLocations: List<ChestData>
     private val tickTask: TickerTask
     internal val mainInv: InvFrame
@@ -114,11 +121,11 @@ class Game(
             repeat(chestCount) {
                 if (leftChestLocations.isEmpty()) return@run
 
-                val type = when (leftChestLocations.first().type) {
-                    ChestType.NORMAL -> if (Random.nextDouble() <= 0.08) ChestType.RARE else ChestType.NORMAL
-                    ChestType.RARE -> if (Random.nextDouble() <= 0.2) ChestType.NORMAL else ChestType.RARE
+                val type = if (RANDOM_CHEST_QUALITY) when (leftChestLocations.first().type) {
+                    ChestType.NORMAL -> if (Random.nextDouble() <= 0.1) ChestType.RARE else ChestType.NORMAL
+                    ChestType.RARE -> if (Random.nextDouble() <= 0.25) ChestType.NORMAL else ChestType.RARE
                     ChestType.EPIC -> if (Random.nextDouble() <= 0.5) ChestType.RARE else ChestType.EPIC
-                }
+                } else leftChestLocations.first().type
 
                 val chest = RoyalChest(this, leftChestLocations.first().apply { this.type = type }, chestTables[type]!!)
                 chests.add(chest)
@@ -137,13 +144,14 @@ class Game(
         world = playWorld
         worldBorder = world.worldBorder
 
-        world.setGameRule(GameRule.DO_INSOMNIA, false)
-        world.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, false)
-        world.setGameRule(GameRule.DO_WEATHER_CYCLE, false)
-        world.setGameRule(GameRule.DO_MOB_SPAWNING, false)
-        world.setGameRule(GameRule.DO_PATROL_SPAWNING, false)
-        world.setGameRule(GameRule.DO_TRADER_SPAWNING, false)
-        world.setGameRule(GameRule.DO_IMMEDIATE_RESPAWN, true)
+        world.setGameRule(GameRules.SPAWN_PHANTOMS, false)
+        world.setGameRule(GameRules.ADVANCE_TIME, false)
+        world.setGameRule(GameRules.ADVANCE_WEATHER, false)
+        world.setGameRule(GameRules.SPAWN_MOBS, false)
+        world.setGameRule(GameRules.SPAWN_PATROLS, false)
+        world.setGameRule(GameRules.SPAWN_WANDERING_TRADERS, false)
+        world.setGameRule(GameRules.IMMEDIATE_RESPAWN, true)
+        world.setGameRule(GameRules.FIRE_SPREAD_RADIUS_AROUND_PLAYER, 32)
 
         when (mapName) {
             "school" -> {
@@ -165,22 +173,40 @@ class Game(
         }
 
         val armors = mutableListOf<CustomEquipment>()
-        CustomRecipe.values().map { it.result }.plus(
-            chestTables.values
-                .map { table -> table.loots.map { loot -> loot.item } }.flatten()
+        CustomRecipe.entries.map { it.result }.plus(
+            chestTables.values.flatMap { table -> table.loots.map { loot -> loot.item } }
         )
             .forEach { item ->
-                if (item in CustomEquipment.values().map { armor -> armor.item }) {
-                    armors.add(CustomEquipment.values().find { it.item == item }!!)
+                if (item in CustomEquipment.entries.map { armor -> armor.item }) {
+                    armors.add(CustomEquipment.entries.find { it.item == item }!!)
                 }
             }
         customEquipments = armors
 
+        // 드랍 전용 아이템 계산: 레시피/상자에 없는 장비 아이템들
+        run {
+            val recipeItems = customRecipes.map { it.result }
+            val chestItems = chestTables.values.flatMap { table -> table.loots.map { it.item } }
+            val equipmentItems = CustomEquipment.entries.map { it.item }
+            dropItems = equipmentItems.filter { it !in recipeItems && it !in chestItems }
+        }
+
         worldBorder.center = center
         worldBorder.damageAmount = 1.0
         worldBorder.damageBuffer = 0.0
-        worldBorder.warningTime = 0
+        worldBorder.warningTimeTicks = 0
         worldBorder.warningDistance = 5
+
+        val playerCount = marmottes.size.coerceIn(4..20)
+        val sizeDecrease = worldBorderSize * (0.4 - playerCount * 0.02)
+        worldBorder.size = worldBorderSize - sizeDecrease
+        val randomVector = Vector(
+            Random.nextDouble(-sizeDecrease / 2, sizeDecrease / 2),
+            0.0,
+            Random.nextDouble(-sizeDecrease / 2, sizeDecrease / 2)
+        )
+        worldBorder.center = worldBorderCenter.add(randomVector)
+
         targetWorldBorderCenter = worldBorderCenter
         targetWorldBorderSize = worldBorderSize
     }
@@ -193,7 +219,7 @@ class Game(
     }
 
     private fun registerEvent() {
-        tasks.add(GameTask(this, FightStart(this), "무적 해제", 3600, 3600, 1, false))
+        tasks.add(GameTask(this, FightStart(this), "무적 해제", if (NO_READY_TIME) 30 else 4800, 1, false))
     }
 
     fun isInRegion(region: Region, spot: Location): Boolean {

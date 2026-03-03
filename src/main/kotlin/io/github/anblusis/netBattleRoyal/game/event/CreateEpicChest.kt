@@ -19,32 +19,50 @@ import org.joml.Matrix4f
 import java.time.Duration
 import kotlin.random.Random
 
-class CreateEpicChest(
+class CreateEpicChest private constructor(
     private val game: Game,
-    private val region: Region
+    private val region: Region?,
+    private val specificLocation: Location?
 ) : Runnable {
+    constructor(game: Game, region: Region) : this(game, region, null)
+    constructor(game: Game, location: Location) : this(game, null, location)
+
     override fun run() {
-        game.marmottes.filter { it.region == region }.forEach {
-            val player = it.player
-            player.showTitle(
-                Title.title(
-                    text(""),
-                    text("낙하").color(NamedTextColor.GOLD),
-                    Title.Times.times(
-                        Duration.ofMillis(500),
-                        Duration.ofSeconds(2),
-                        Duration.ofMillis(500)
+        if (region != null) {
+            game.marmottes.filter { it.region == region }.forEach {
+                val player = it.player
+                player.showTitle(
+                    Title.title(
+                        text(""),
+                        text("낙하").color(NamedTextColor.GOLD),
+                        Title.Times.times(
+                            Duration.ofMillis(500),
+                            Duration.ofSeconds(2),
+                            Duration.ofMillis(500)
+                        )
                     )
                 )
-            )
+            }
+        } else {
+            // 신호 폭죽으로 호출된 경우 모든 플레이어에게 메시지
+            game.marmottes.forEach {
+                it.player.sendMessage(text("보급 상자가 투하되었습니다!").color(NamedTextColor.GOLD))
+            }
         }
 
         val world = game.world
-        val spawnLocation = region.center.clone().apply {
-            x += (Random.nextDouble() - 0.5) * region.width
+
+        val spawnLocation = specificLocation?.clone()?.apply {
             y = world.maxHeight.toDouble()
-            z += (Random.nextDouble() - 0.5) * region.height
-        }.toBlockLocation()
+            yaw = 0f
+            pitch = 0f
+        }?.toBlockLocation()
+            ?: region!!.center.clone().apply {
+                x += (Random.nextDouble() - 0.5) * region.width
+                y = world.maxHeight.toDouble()
+                z += (Random.nextDouble() - 0.5) * region.height
+            }.toBlockLocation()
+
         val displays = mutableListOf<BlockDisplay>()
 
         val blockDisplay = world.spawn(spawnLocation, BlockDisplay::class.java).apply {
@@ -114,7 +132,7 @@ class CreateEpicChest(
         }, BlockDisplay::class.java).apply {
             block = Material.WHITE_CONCRETE.createBlockData()
             setTransformationMatrix(Matrix4f().scale(0.3f, (world.maxHeight - world.minHeight).toFloat(), 0.3f))
-            viewRange = 10f
+            viewRange = 100f
             brightness = Display.Brightness(15, 0)
             game.entities.add(this)
             beamDisplays.add(this)
@@ -126,7 +144,7 @@ class CreateEpicChest(
         }, BlockDisplay::class.java).apply {
             block = Material.WHITE_STAINED_GLASS.createBlockData()
             setTransformationMatrix(Matrix4f().scale(0.5f, (world.maxHeight - world.minHeight).toFloat(), 0.5f))
-            viewRange = 10f
+            viewRange = 100f
             brightness = Display.Brightness(15, 0)
             game.entities.add(this)
             beamDisplays.add(this)
@@ -149,7 +167,7 @@ class CreateEpicChest(
                 }
                 world.playSound(blockDisplay.location, Sound.BLOCK_GLASS_BREAK, 1f, 1f)
                 world.spawnParticle(
-                    Particle.BLOCK_CRACK,
+                    Particle.BLOCK,
                     blockDisplay.location.toCenterLocation(),
                     10,
                     0.75,
@@ -163,7 +181,7 @@ class CreateEpicChest(
                 return@runTaskTimer
             }
             displays.forEach {
-                it.teleport(it.location.add(0.0, -0.5, 0.0))
+                it.teleport(it.location.add(0.0, -0.35, 0.0))
             }
 
             rotationAngle += 0.1f

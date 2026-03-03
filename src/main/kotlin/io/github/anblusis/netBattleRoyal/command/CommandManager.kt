@@ -2,8 +2,11 @@ package io.github.anblusis.netBattleRoyal.command
 
 import io.github.anblusis.netBattleRoyal.data.*
 import io.github.anblusis.netBattleRoyal.game.Game
+import io.github.anblusis.netBattleRoyal.game.event.CreateRandomEvent
+import io.github.anblusis.netBattleRoyal.game.event.FightStart
+import io.github.anblusis.netBattleRoyal.game.event.RandomGameEvent
 import io.github.anblusis.netBattleRoyal.main.NetBattleRoyal.Companion.plugin
-import io.github.monun.invfx.openFrame
+import xyz.icetang.lib.invfx.openFrame
 import io.github.monun.kommand.PluginKommand
 import net.kyori.adventure.text.Component.text
 import org.bukkit.Particle
@@ -14,19 +17,20 @@ import java.io.File
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.nio.file.StandardOpenOption
+import java.util.Random
 
 object CommandManager {
     fun register(kommand: PluginKommand) {
         kommand.register("netbattleroyal", "netbr") {
             val battleRoyalItemArgument = dynamic { _, input ->
-                if (input in BattleRoyalItemData.values()
+                if (input in BattleRoyalItemData.entries
                         .map { it.name }
                 ) BattleRoyalItemData.valueOf(input).item.clone()
                 else CustomEquipment.valueOf(input).item.clone()
             }.apply {
                 suggests {
-                    suggest(BattleRoyalItemData.values().map { it.name })
-                    suggest(CustomEquipment.values().map { it.name })
+                    suggest(BattleRoyalItemData.entries.map { it.name })
+                    suggest(CustomEquipment.entries.map { it.name })
                 }
             }
             val worldArgument = dynamic { _, input ->
@@ -34,6 +38,25 @@ object CommandManager {
             }.apply {
                 suggests {
                     suggest(plugin.server.worlds.map { it.name })
+                }
+            }
+
+            then("debug") {
+                requires { isOp }
+                then("createRandomEvent") {
+                    executes {
+                        plugin.games.forEach { game ->
+                            CreateRandomEvent(game, 100, RandomGameEvent.entries.toTypedArray()).run()
+                        }
+                    }
+                }
+                then("stopInvincibleTime") {
+                    executes {
+                        plugin.games.forEach { game ->
+                            game.tasks.removeIf { it.task is FightStart }
+                            FightStart(game).run()
+                        }
+                    }
                 }
             }
 
@@ -240,7 +263,7 @@ object CommandManager {
                     ChestType.RARE -> Particle.DustOptions(org.bukkit.Color.GREEN, 5.0f)
                     ChestType.EPIC -> Particle.DustOptions(org.bukkit.Color.PURPLE, 5.0f)
                 }
-                location.world.spawnParticle(Particle.REDSTONE, location, 1, 0.0, 0.0, 0.0, 0.0, dustOptions)
+                location.world.spawnParticle(Particle.DUST, location, 1, 0.0, 0.0, 0.0, 0.0, dustOptions)
             }
         }
     }

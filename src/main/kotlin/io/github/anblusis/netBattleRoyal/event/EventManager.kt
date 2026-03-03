@@ -1,11 +1,13 @@
 package io.github.anblusis.netBattleRoyal.event
 
 import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent
+import com.destroystokyo.paper.event.player.PlayerElytraBoostEvent
 import com.destroystokyo.paper.event.player.PlayerLaunchProjectileEvent
 import io.github.anblusis.netBattleRoyal.data.BattleRoyalItemData
 import io.github.anblusis.netBattleRoyal.data.transcendBook
+import io.github.anblusis.netBattleRoyal.game.event.BossType
 import io.github.anblusis.netBattleRoyal.main.NetBattleRoyal.Companion.plugin
-import org.bukkit.Tag
+import org.bukkit.NamespacedKey
 import org.bukkit.block.Chest
 import org.bukkit.entity.Animals
 import org.bukkit.entity.Arrow
@@ -13,18 +15,21 @@ import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
-import org.bukkit.event.block.BlockBreakEvent
 import org.bukkit.event.entity.CreatureSpawnEvent
 import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.EntityDamageEvent
+import org.bukkit.event.entity.EntityDeathEvent
 import org.bukkit.event.entity.EntityShootBowEvent
 import org.bukkit.event.entity.ExpBottleEvent
+import org.bukkit.event.entity.ItemSpawnEvent
 import org.bukkit.event.entity.ProjectileHitEvent
 import org.bukkit.event.inventory.InventoryOpenEvent
 import org.bukkit.event.inventory.PrepareItemCraftEvent
+import org.bukkit.event.inventory.PrepareAnvilEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.event.world.PortalCreateEvent
+import org.bukkit.persistence.PersistentDataType
 
 object EventManager : Listener {
 
@@ -47,6 +52,7 @@ object EventManager : Listener {
         when {
             event.item == null -> return
             event.item!!.isSimilar(BattleRoyalItemData.MAGIC_STICK.item) -> playerInteractWithMagicStick(this, event)
+            event.item!!.isSimilar(BattleRoyalItemData.SIGNAL_FIREWORK.item) -> playerUseSignalFirework(this, event)
             transcendBook.content() in event.item!!.displayName().toString() -> playerInteractWithTranscendBook(
                 this,
                 event
@@ -90,11 +96,6 @@ object EventManager : Listener {
     }
 
     @EventHandler
-    private fun onPlayerBreakBlock(event: BlockBreakEvent) {
-        playerBreakBlock(this, event)
-    }
-
-    @EventHandler
     private fun onPlayerChangeArmor(event: PlayerArmorChangeEvent) {
         playerChangeArmor(this, event)
     }
@@ -111,8 +112,11 @@ object EventManager : Listener {
     }
 
     @EventHandler
-    fun onPlayerShootArrow(event: EntityShootBowEvent) {
+    fun onShootArrow(event: EntityShootBowEvent) {
         if (event.entity is Player) playerShootArrow(this, event)
+        else if (event.entity.persistentDataContainer.has(NamespacedKey(plugin, "boss"), PersistentDataType.BYTE) &&
+            event.entity.persistentDataContainer.get(NamespacedKey(plugin, "boss_type"), PersistentDataType.STRING) == BossType.SKELETON_KNIGHT.name)
+            skeletonBossShootArrow(this, event)
     }
 
     /*
@@ -136,5 +140,30 @@ object EventManager : Listener {
     @EventHandler
     fun onArrowHit(event: ProjectileHitEvent) {
         if (event.entity is Arrow) arrowHit(this, event)
+    }
+
+    @EventHandler
+    fun onItemSpawn(event: ItemSpawnEvent) {
+        itemSpawn(this, event)
+    }
+
+    @EventHandler(priority = EventPriority.LOWEST)
+    fun onEntityDeath(event: EntityDeathEvent) {
+        val entity = event.entity
+        val pdc = entity.persistentDataContainer
+        val bossKey = NamespacedKey(plugin, "boss")
+        if (!pdc.has(bossKey, PersistentDataType.BYTE)) return
+
+        bossDeath(this, event)
+    }
+
+    @EventHandler
+    fun onPlayerUseFireworkRocket(event: PlayerElytraBoostEvent) {
+        playerElytraBoost(this, event)
+    }
+
+    @EventHandler
+    fun onPrepareAnvil(event: PrepareAnvilEvent) {
+        prepareAnvil(this, event)
     }
 }

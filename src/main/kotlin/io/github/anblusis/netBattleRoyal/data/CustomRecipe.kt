@@ -104,9 +104,7 @@ enum class CustomRecipe(
         },
         listOf(" A ", "ABA", " A "),
         listOf(" A ", "ABA", " A "),
-        mapOf('A' to ItemStack(Material.GUNPOWDER), 'B' to RecipeChoice.MaterialChoice(
-            Material.ARROW, Material.TIPPED_ARROW, Material.SPECTRAL_ARROW
-        )),
+        mapOf('A' to ItemStack(Material.GUNPOWDER), 'B' to RecipeChoice.ExactChoice(ItemStack(Material.ARROW, 1), ItemStack(Material.TIPPED_ARROW, 1), ItemStack(Material.SPECTRAL_ARROW, 1))),
         mapOf(),
         CustomRecipeType.SHAPED,
         {
@@ -123,9 +121,7 @@ enum class CustomRecipe(
         },
         listOf(" A ", "ABA", " A "),
         listOf(" A ", "ABA", " A "),
-        mapOf('A' to ItemStack(Material.REDSTONE), 'B' to RecipeChoice.MaterialChoice(
-            Material.ARROW, Material.TIPPED_ARROW, Material.SPECTRAL_ARROW
-        )),
+        mapOf('A' to ItemStack(Material.REDSTONE), 'B' to RecipeChoice.ExactChoice(ItemStack(Material.ARROW, 1), ItemStack(Material.TIPPED_ARROW, 1), ItemStack(Material.SPECTRAL_ARROW, 1))),
         mapOf(),
         CustomRecipeType.SHAPED,
         {
@@ -242,6 +238,182 @@ enum class CustomRecipe(
         mapOf(),
         CustomRecipeType.SHAPED
     ),
+    PHOENIX_HELMET(
+        "phoenix_helmet",
+        CustomEquipment.PHOENIX_HELMET.item,
+        listOf("BAB", "A A"),
+        listOf("BAB", "A A", "   "),
+        mapOf('A' to ItemStack(Material.GOLD_INGOT), 'B' to ItemStack(Material.GLOWSTONE_DUST)),
+        mapOf(),
+        CustomRecipeType.SHAPED
+    ),
+    PHOENIX_CHESTPLATE(
+        "phoenix_chestplate",
+        CustomEquipment.PHOENIX_CHESTPLATE.item,
+        listOf("A A", "BAB", "ABA"),
+        listOf("A A", "BAB", "ABA"),
+        mapOf('A' to ItemStack(Material.GOLD_INGOT), 'B' to ItemStack(Material.GLOWSTONE_DUST)),
+        mapOf(),
+        CustomRecipeType.SHAPED
+    ),
+    PHOENIX_LEGGINGS(
+        "phoenix_leggings",
+        CustomEquipment.PHOENIX_LEGGINGS.item,
+        listOf("ABA", "B B", "A A"),
+        listOf("ABA", "B B", "A A"),
+        mapOf('A' to ItemStack(Material.GOLD_INGOT), 'B' to ItemStack(Material.GLOWSTONE_DUST)),
+        mapOf(),
+        CustomRecipeType.SHAPED
+    ),
+    PHOENIX_BOOTS(
+        "phoenix_boots",
+        CustomEquipment.PHOENIX_BOOTS.item,
+        listOf("B B", "A A"),
+        listOf("B B", "A A", "   "),
+        mapOf('A' to ItemStack(Material.GOLD_INGOT), 'B' to ItemStack(Material.GLOWSTONE_DUST)),
+        mapOf(),
+        CustomRecipeType.SHAPED
+    ),
+    IRON_GOLEM_HELMET(
+        "iron_golem_helmet",
+        CustomEquipment.IRON_GOLEM_HELMET.item,
+        listOf("ABA", "A A"),
+        listOf("ABA", "A A", "   "),
+        mapOf('A' to ItemStack(Material.IRON_INGOT), 'B' to ItemStack(Material.IRON_BLOCK)),
+        mapOf(),
+        CustomRecipeType.SHAPED
+    ),
+    IRON_GOLEM_CHESTPLATE(
+        "iron_golem_chestplate",
+        CustomEquipment.IRON_GOLEM_CHESTPLATE.item,
+        listOf("A A", "ABA", "AAA"),
+        listOf("A A", "ABA", "AAA"),
+        mapOf('A' to ItemStack(Material.IRON_INGOT), 'B' to ItemStack(Material.IRON_BLOCK)),
+        mapOf(),
+        CustomRecipeType.SHAPED
+    ),
+    IRON_GOLEM_LEGGINGS(
+        "iron_golem_leggings",
+        CustomEquipment.IRON_GOLEM_LEGGINGS.item,
+        listOf("ABA", "A A", "A A"),
+        listOf("ABA", "A A", "A A"),
+        mapOf('A' to ItemStack(Material.IRON_INGOT), 'B' to ItemStack(Material.IRON_BLOCK)),
+        mapOf(),
+        CustomRecipeType.SHAPED
+    ),
+    IRON_GOLEM_BOOTS(
+        "iron_golem_boots",
+        CustomEquipment.IRON_GOLEM_BOOTS.item,
+        listOf("A A", "B B"),
+        listOf("A A", "B B", "   "),
+        mapOf('A' to ItemStack(Material.IRON_INGOT), 'B' to ItemStack(Material.IRON_BLOCK)),
+        mapOf(),
+        CustomRecipeType.SHAPED
+    ),
+    TRANSCEND_BOOK(
+        "transcend_book",
+        BattleRoyalItemData.TRANSCEND_BOOK.item.clone().apply {
+            transcendLevel = 1
+        },
+        listOf(),
+        listOf("ABB", "BCC", "C  "),
+        mapOf('A' to ItemStack(Material.BOOK), 'B' to ItemStack(Material.LAPIS_LAZULI), 'C' to ItemStack(Material.EMERALD)),
+        mapOf('A' to 1, 'B' to 3, 'C' to 3),
+        CustomRecipeType.SHAPELESS
+    ),
+    AMETHYST_SHARD(
+        "amethyst_shard",
+        ItemStack(Material.AMETHYST_SHARD, 2),
+        listOf(),
+        listOf("ABB", "BB ", "   "),
+        mapOf('A' to ItemStack(Material.EMERALD), 'B' to ItemStack(Material.GLOWSTONE_DUST)),
+        mapOf('A' to 1, 'B' to 4),
+        CustomRecipeType.SHAPELESS
+    ),
+    NETHER_STAR(
+        "nether_star",
+        ItemStack(Material.NETHER_STAR),
+        listOf("ABA", "BCB", "ABA"),
+        listOf("ABA", "BCB", "ABA"),
+        mapOf('A' to ItemStack(Material.DIAMOND), 'B' to ItemStack(Material.EMERALD), 'C' to ItemStack(Material.QUARTZ)),
+        mapOf(),
+        CustomRecipeType.SHAPED
+    ),
+    BINOCULARS_HELMET(
+        "binoculars_helmet",
+        CustomEquipment.BINOCULARS_HELMET.item,
+        listOf("ABA", "ACA"),
+        listOf("ABA", "ACA", "   "),
+        mapOf('A' to ItemStack(Material.IRON_INGOT), 'B' to ItemStack(Material.ECHO_SHARD), 'C' to ItemStack(Material.GLASS)),
+        mapOf(),
+        CustomRecipeType.SHAPED
+    ),
+    ASSASSIN_LEGGINGS(
+        "assassin_leggings",
+        CustomEquipment.ASSASSIN_LEGGINGS.item,
+        listOf("CBC", "A A", "A A"),
+        listOf("CBC", "A A", "A A"),
+        mapOf('A' to ItemStack(Material.IRON_INGOT), 'B' to ItemStack(Material.ECHO_SHARD), 'C' to ItemStack(Material.REDSTONE)),
+        mapOf(),
+        CustomRecipeType.SHAPED
+    ),
+    ECHO_SHARD(
+        "echo_shard",
+        ItemStack(Material.ECHO_SHARD, 2),
+        listOf(),
+        listOf("ABB", "BB ", "   "),
+        mapOf('A' to ItemStack(Material.EMERALD), 'B' to ItemStack(Material.QUARTZ)),
+        mapOf('A' to 1, 'B' to 4),
+        CustomRecipeType.SHAPELESS
+    ),
+    SIGNAL_FIREWORK(
+        "signal_firework",
+        BattleRoyalItemData.SIGNAL_FIREWORK.item.clone(),
+        listOf(),
+        listOf("ABB", "BCC", "CD "),
+        mapOf(
+            'A' to BattleRoyalItemData.SIGNAL_GENERATOR.item,
+            'B' to ItemStack(Material.GLOWSTONE_DUST),
+            'C' to ItemStack(Material.GUNPOWDER),
+            'D' to ItemStack(Material.PAPER)
+        ),
+        mapOf('A' to 1, 'B' to 3, 'C' to 3, 'D' to 1),
+        CustomRecipeType.SHAPELESS
+    ),
+    CALORIE_COMPRESSED_POTION(
+        "calorie_compressed_potion",
+        BattleRoyalItemData.CALORIE_COMPRESSED_POTION.item.clone(),
+        listOf(),
+        listOf("ABB", "BCC", "C  "),
+        mapOf(
+            'A' to ItemStack(Material.GLASS_BOTTLE),
+            'B' to ItemStack(Material.BREAD),
+            'C' to ItemStack(Material.COOKED_BEEF)
+            ),
+        mapOf('A' to 1, 'B' to 3, 'C' to 3),
+        CustomRecipeType.SHAPELESS
+    ),
+    MANA_ACCELERATOR(
+        "mana_accelerator",
+        CustomEquipment.MANA_ACCELERATOR.item.clone(),
+        listOf("ABA", "BAB", "ABA"),
+        listOf("ABA", "BAB", "ABA"),
+        mapOf('A' to ItemStack(Material.DIAMOND), 'B' to ItemStack(Material.LAPIS_LAZULI)),
+        mapOf(),
+        CustomRecipeType.SHAPED
+    ),
+    NETHERITE_UPGRADE_SMITHING_TEMPLATE(
+        "netherite_upgrade_smithing_template",
+        ItemStack(Material.NETHERITE_UPGRADE_SMITHING_TEMPLATE, 1),
+        listOf("AAA", "ABA", "AAA"),
+        listOf("AAA", "ABA", "AAA"),
+        mapOf(
+            'A' to ItemStack(Material.COBBLESTONE),
+            'B' to ItemStack(Material.DIAMOND),
+        ),
+        mapOf(),
+        CustomRecipeType.SHAPED
+    )
     ;
 
     private val key = NamespacedKey(plugin, recipeName)
@@ -341,6 +513,26 @@ enum class CustomRecipeSet(
             CustomRecipe.COMET_CHESTPLATE,
             CustomRecipe.COMET_LEGGINGS,
             CustomRecipe.COMET_BOOTS
+        )
+    ),
+    PHOENIX(
+        "피닉스",
+        CustomRecipe.PHOENIX_CHESTPLATE,
+        listOf(
+            CustomRecipe.PHOENIX_HELMET,
+            CustomRecipe.PHOENIX_CHESTPLATE,
+            CustomRecipe.PHOENIX_LEGGINGS,
+            CustomRecipe.PHOENIX_BOOTS
+        )
+    ),
+    IRON_GOLEM(
+        "철골렘",
+        CustomRecipe.IRON_GOLEM_CHESTPLATE,
+        listOf(
+            CustomRecipe.IRON_GOLEM_HELMET,
+            CustomRecipe.IRON_GOLEM_CHESTPLATE,
+            CustomRecipe.IRON_GOLEM_LEGGINGS,
+            CustomRecipe.IRON_GOLEM_BOOTS
         )
     )
 }

@@ -11,6 +11,10 @@ class CreateTntRain(
     private val game: Game,
     private val region: Region
 ) : Runnable {
+
+    init {
+
+    }
     override fun run() {
         // sqrt(200) m^2당 tnt 1개
         repeat((region.height * region.width / 400).toInt()) {
@@ -21,7 +25,7 @@ class CreateTntRain(
                 z += (Random.nextDouble() - 0.5) * region.height
             }
 
-            (game.world.spawnEntity(spawnLocation, EntityType.PRIMED_TNT) as TNTPrimed).apply {
+            (game.world.spawnEntity(spawnLocation, EntityType.TNT) as TNTPrimed).apply {
                 // 중력 가속도 0.08, 공기 저항 0.98: 0.08 = 0.02v, v = 4
                 val finalVelocity = 4
                 val distance = maxY - world.getHighestBlockYAt(spawnLocation)

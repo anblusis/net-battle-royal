@@ -6,6 +6,8 @@ import io.github.anblusis.netBattleRoyal.game.GameTask
 import net.kyori.adventure.text.Component.text
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.TextDecoration
+import net.kyori.adventure.text.event.HoverEvent
+import org.bukkit.Location
 import org.bukkit.Sound
 import kotlin.random.Random
 
@@ -15,6 +17,9 @@ class CreateRandomEvent(
     private val events: Array<RandomGameEvent>
 ) : Runnable {
     override fun run() {
+        game.marmottes.forEach {
+            it.player.playSound(it.player.location, Sound.BLOCK_NOTE_BLOCK_HARP, 1f, 2.0f)
+        }
         val randomEvent = events.random()
         when (randomEvent) {
             RandomGameEvent.EPIC_CHEST -> {
@@ -28,7 +33,15 @@ class CreateRandomEvent(
                             text(randomRegion.displayName).decorate(
                                 TextDecoration.BOLD
                             )
-                        ).append(text(" 지역에 상자가 떨어집니다.")).color(NamedTextColor.GOLD)
+                        ).append(text(" 지역에 "))
+                            .append(
+                                text("상자")
+                                    .color(NamedTextColor.LIGHT_PURPLE)
+                                    .decorate(TextDecoration.BOLD)
+                                    .hoverEvent(HoverEvent.showText(text("에픽 상자가 해당 지역에 떨어집니다.\n낙하 지점은 빔으로 표시됩니다.")))
+                            )
+                            .append(text("가 떨어집니다."))
+                            .color(NamedTextColor.GOLD)
                     )
                     player.playSound(player.location, Sound.BLOCK_NOTE_BLOCK_HARP, 1f, 2.0f)
                 }
@@ -49,6 +62,7 @@ class CreateRandomEvent(
                 val regions = game.regions.filter { game.isInWorldBorder(it.center, true) }.shuffled()
                 if (regions.isEmpty()) return
                 val selectedRegions = mutableListOf<Region>()
+                selectedRegions.add(Region("default", "기본", game.worldBorderCenter, 0.0, 0.0, 0))
                 repeat(Random.nextInt(1, 6)) {
                     selectedRegions.add(regions[it])
                 }
@@ -80,10 +94,10 @@ class CreateRandomEvent(
                 val regions = game.regions.filter { game.isInWorldBorder(it.center, true) }.shuffled()
                 if (regions.isEmpty()) return
                 val selectedRegions = mutableListOf<Region>()
-                repeat(Random.nextInt(1, 4)) {
+                repeat(Random.nextInt(2, 5)) {
                     selectedRegions.add(regions[it])
                 }
-                val selectedWave = MonsterWave.values().random()
+                val selectedWave = MonsterWave.entries.random()
                 game.marmottes.forEach { marmotte ->
                     val player = marmotte.player
                     player.sendMessage(
@@ -91,7 +105,13 @@ class CreateRandomEvent(
                             text(selectedRegions.joinToString(", ") { it.displayName }).decorate(
                                 TextDecoration.BOLD
                             )
-                        ).append(text(" 지역에 ${selectedWave.displayName}들이 소환됩니다.")).color(NamedTextColor.GOLD)
+                        ).append(text(" 지역에 "))
+                            .append(
+                                text(selectedWave.displayName)
+                                    .color(NamedTextColor.LIGHT_PURPLE)
+                                    .decorate(TextDecoration.BOLD)
+                                    .hoverEvent(HoverEvent.showText(text("해당 지역에 몬스터들을 소환합니다.\n몬스터들은 스폰 후 일정 시간이 지나면 사라집니다.")))
+                            ).append(text("들이 소환됩니다.")).color(NamedTextColor.GOLD)
                     )
                     player.playSound(player.location, Sound.BLOCK_NOTE_BLOCK_HARP, 1f, 2.0f)
                 }
@@ -123,7 +143,13 @@ class CreateRandomEvent(
                             text(selectedRegions.joinToString(", ") { it.displayName }).decorate(
                                 TextDecoration.BOLD
                             )
-                        ).append(text(" 지역에 TNT 비가 내립니다.")).color(NamedTextColor.GOLD)
+                        ).append(text(" 지역에 "))
+                            .append(
+                                text("TNT 비")
+                                    .color(NamedTextColor.LIGHT_PURPLE)
+                                    .decorate(TextDecoration.BOLD)
+                                    .hoverEvent(HoverEvent.showText(text("잠시동안 하늘에서 TNT가 떨어집니다.")))
+                            ).append(text("가 내립니다.")).color(NamedTextColor.GOLD)
                     )
                     player.playSound(player.location, Sound.BLOCK_NOTE_BLOCK_HARP, 1f, 2.0f)
                 }
@@ -136,6 +162,74 @@ class CreateRandomEvent(
                         1,
                         false,
                         selectedRegions
+                    )
+                )
+            }
+
+            RandomGameEvent.WANDERING_TRADER -> {
+                val regions = game.regions.filter { game.isInWorldBorder(it.center, true) }.shuffled()
+                if (regions.isEmpty()) return
+                val selectedRegions = mutableListOf<Region>()
+                repeat(Random.nextInt(1, 4)) {
+                    selectedRegions.add(regions[it])
+                }
+                game.marmottes.forEach { marmotte ->
+                    val player = marmotte.player
+                    player.sendMessage(
+                        text("${tick / 20}초 후에 ").append(
+                            text(selectedRegions.joinToString(", ") { it.displayName }).decorate(
+                                TextDecoration.BOLD
+                            )
+                        ).append(text(" 지역에 "))
+                            .append(
+                                text("떠돌이 상인")
+                                    .color(NamedTextColor.LIGHT_PURPLE)
+                                    .decorate(TextDecoration.BOLD)
+                                    .hoverEvent(HoverEvent.showText(text("해당 지역에 떠돌이 상인이 출현합니다.\n떠돌이 상인은 여러 재료를 에메랄드와 교환합니다.\n떠돌이 상인은 스폰 후 일정 시간이 지나면 사라집니다.")))
+                            ).append(text("이 출현합니다.")).color(NamedTextColor.GOLD)
+                    )
+                }
+                game.tasks.add(
+                    GameTask(
+                        game,
+                        CreateWanderingTrader(game, selectedRegions),
+                        "떠돌이 상인",
+                        tick,
+                        1,
+                        false,
+                        selectedRegions
+                    )
+                )
+            }
+
+            RandomGameEvent.BOSS_SPAWN -> {
+                val regions = game.regions.filter { game.isInWorldBorder(it.center, true) }.shuffled()
+                if (regions.isEmpty()) return
+                val selectedRegion = regions.first()
+                val boss = BossType.entries.random()
+                game.marmottes.forEach { marmotte ->
+                    val player = marmotte.player
+                    player.sendMessage(
+                        text("${tick / 20}초 후에 ").append(
+                            text(selectedRegion.displayName).decorate(TextDecoration.BOLD)
+                        ).append(text(" 지역에 "))
+                            .append(
+                                text(boss.displayName)
+                                    .color(NamedTextColor.LIGHT_PURPLE)
+                                    .decorate(TextDecoration.BOLD)
+                                    .hoverEvent(HoverEvent.showText(text("해당 지역에 보스가 등장합니다.\n보스는 죽을 시 희귀 아이템을 드랍합니다.")))
+                            ).append(text("가 등장합니다.")).color(NamedTextColor.GOLD)
+                    )
+                }
+                game.tasks.add(
+                    GameTask(
+                        game,
+                        SpawnBoss(game, selectedRegion, boss),
+                        "보스 등장",
+                        tick,
+                        1,
+                        false,
+                        listOf(selectedRegion)
                     )
                 )
             }

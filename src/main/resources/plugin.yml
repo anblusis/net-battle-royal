@@ -1,10 +1,10 @@
 name: NetBattleRoyal
-version: '1.0-SNAPSHOT'
+version: $version
 author: anblusis
 main: io.github.anblusis.netBattleRoyal.main.NetBattleRoyal
-api-version: '1.20'
+api-version: '1.21'
 libraries:
-  - io.github.monun:kommand-core:3.1.7
-  - io.github.monun:tap-core:4.9.8
-  - io.github.monun:invfx-core:3.3.2
+  - io.github.anblusis:tap-core:1.0.3
+  - xyz.icetang.lib:invfx-core:3.3.3
+  - io.github.anblusis:kommand-core:1.0.1
 

@@ -52,7 +52,7 @@ class WorldBorderDecrease(
             )
         }
 
-        game.worldBorder.setSize(size, (tick.toDouble() / 20).toLong())
+        game.worldBorder.changeSize(size, tick.toLong())
         val offSetLocation = center.subtract(game.worldBorderCenter).multiply(1.0 / tick)
         var moveTick = 0
         lateinit var task: TickerTask

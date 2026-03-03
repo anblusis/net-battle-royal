@@ -5,9 +5,10 @@ import io.github.anblusis.netBattleRoyal.data.CustomRecipeSet
 import io.github.anblusis.netBattleRoyal.data.CustomRecipe
 import io.github.anblusis.netBattleRoyal.data.Region
 import io.github.anblusis.netBattleRoyal.game.Game
-import io.github.monun.invfx.InvFX
-import io.github.monun.invfx.frame.InvFrame
-import io.github.monun.invfx.openFrame
+import io.github.anblusis.netBattleRoyal.game.event.BossType
+import xyz.icetang.lib.invfx.InvFX
+import xyz.icetang.lib.invfx.frame.InvFrame
+import xyz.icetang.lib.invfx.openFrame
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.Component.text
 import net.kyori.adventure.text.format.NamedTextColor
@@ -45,12 +46,12 @@ object InvManager {
             displayName(text("→").decoration(TextDecoration.ITALIC, false))
         }
     }
-    private val upWheelItem = ItemStack(Material.CHAIN).apply {
+    private val upWheelItem = ItemStack(Material.IRON_CHAIN).apply {
         itemMeta = itemMeta.apply {
             displayName(text("↑").decoration(TextDecoration.ITALIC, false))
         }
     }
-    private val downWheelItem = ItemStack(Material.CHAIN).apply {
+    private val downWheelItem = ItemStack(Material.IRON_CHAIN).apply {
         itemMeta = itemMeta.apply {
             displayName(text("↓").decoration(TextDecoration.ITALIC, false))
         }
@@ -99,20 +100,16 @@ object InvManager {
         targetCustomRecipe: CustomRecipe? = clickedCustomRecipe
     ): InvFrame =
         InvFX.frame(5, text("조합법").decorate(TextDecoration.BOLD)) {
-            val setDisplayRecipes = game.customRecipeSets.map { it.displayRecipe }.toMutableList()
             val pageSlotCount = (if (clickedCustomRecipe == null) 9 else 4) * 4
 
+            val setDisplayRecipes = game.customRecipeSets.map { it.displayRecipe }.toMutableList()
+            val setRecipes = game.customRecipeSets.flatMap { it.recipes }
+
+            val items = clickedCustomSet?.recipes
+                ?: if (clickedCustomRecipe != null && clickedCustomRecipe in setRecipes) game.customRecipeSets.find { set -> set.recipes.contains(clickedCustomRecipe) }!!.recipes
+                else setDisplayRecipes.plus(game.customRecipes.filter { recipe -> recipe !in setRecipes })
+
             list(0, 0, if (clickedCustomRecipe == null) 8 else 3, 3, true, {
-                lateinit var items: List<CustomRecipe>
-
-                val setRecipes = game.customRecipeSets.map { it.recipes }.flatten()
-                items =
-                    if (clickedCustomSet == null) {
-                        setDisplayRecipes.plus(game.customRecipes.filter { recipe -> recipe !in setRecipes })
-                    } else {
-                        clickedCustomSet.recipes
-                    }
-
                 if (items.count() <= pageSlotCount)
                     items
                 else
@@ -130,10 +127,13 @@ object InvManager {
                                 )
                                 lore(listOf(text("클릭하여 세트 목록 확인").color(NamedTextColor.GRAY).decoration(TextDecoration.ITALIC, false)))
                             }
+                            for (e in enchantments.keys) {
+                                removeEnchantment(e)
+                            }
                         }
                     }
                     else if (it == clickedCustomRecipe) it.result.clone().apply {
-                        addUnsafeEnchantment(Enchantment.DURABILITY, 1)
+                        addUnsafeEnchantment(Enchantment.UNBREAKING, 1)
                         addItemFlags(ItemFlag.HIDE_ENCHANTS)
                     }
                     else it.result
@@ -155,7 +155,7 @@ object InvManager {
                 }
             }.let { list ->
                 if (targetCustomRecipe != null) {
-                    list.page = (game.customRecipes.indexOf(targetCustomRecipe) / pageSlotCount).toDouble()
+                    list.page = (items.indexOf(targetCustomRecipe) / pageSlotCount).toDouble()
                 }
 
                 slot(if (clickedCustomRecipe == null) 3 else 0, 4) {
@@ -186,7 +186,8 @@ object InvManager {
                 list(5, 1, 7, 3, true, { clickedCustomRecipe.toItemShape() }) {
                     transform {
                         val explain = mutableListOf<Component>()
-                        if (it in CustomRecipe.values().map { recipe -> recipe.result }) {
+
+                        if (CustomRecipe.entries.map { recipe -> recipe.result }.any { item -> item.isSimilar(it) }) {
                             explain.add(text("").decoration(TextDecoration.ITALIC, false))
                             explain.add(
                                 text("조합 아이템").decoration(TextDecoration.ITALIC, false).color(NamedTextColor.GOLD)
@@ -195,44 +196,56 @@ object InvManager {
                                 text(" - 클릭하여 조합법 확인").decoration(TextDecoration.ITALIC, false)
                                     .color(NamedTextColor.GRAY)
                             )
-                        } else {
-                            explain.add(text("").decoration(TextDecoration.ITALIC, false))
-                            explain.add(
-                                text("상자 아이템").decoration(TextDecoration.ITALIC, false).color(NamedTextColor.GOLD)
-                            )
+                        }
 
-                            var haveRegion = false
+                        BossType.entries.forEach { bossType ->
+                            if (bossType.drops.any { drop -> drop.isSimilar(it) }) {
+                                explain.add(text("").decoration(TextDecoration.ITALIC, false))
+                                explain.add(
+                                    text("드랍 아이템").decoration(TextDecoration.ITALIC, false).color(NamedTextColor.GOLD)
+                                )
+                                explain.add(
+                                    text(" - ${bossType.displayName} 처치 시 획득").decoration(TextDecoration.ITALIC, false)
+                                        .color(NamedTextColor.GRAY)
+                                )
+                                return@forEach
+                            }
+                        }
 
-                            game.chestTables.forEach { (type, table) ->
-                                val loot = table.loots.find { loot -> loot.item == it }
-                                loot?.run {
-                                    haveRegion = true
-                                    if (regions.isEmpty()) {
+                        // 상자 아이템 섹션
+                        var isChestItem = false
+                        game.chestTables.forEach { (type, table) ->
+                            val loot = table.loots.find { loot -> loot.item.isSimilar(it) }
+                            loot?.run {
+                                if (!isChestItem) {
+                                    explain.add(text("").decoration(TextDecoration.ITALIC, false))
+                                    explain.add(
+                                        text("상자 아이템").decoration(TextDecoration.ITALIC, false).color(NamedTextColor.GOLD)
+                                    )
+                                    isChestItem = true
+                                }
+                                if (regions.isEmpty()) {
+                                    explain.add(
+                                        text(" - ${type.rating} 상자 (모든 지역)").decoration(
+                                            TextDecoration.ITALIC,
+                                            false
+                                        ).color(NamedTextColor.GRAY)
+                                    )
+                                } else {
+                                    val regions =
+                                        regions.mapNotNull { name -> game.regions.find { region -> region.name == name } }
+                                    regions.forEach { region ->
                                         explain.add(
-                                            text(" - ${type.rating} 상자 (모든 지역)").decoration(
+                                            text(" - ${type.rating} 상자 (${region.displayName})").decoration(
                                                 TextDecoration.ITALIC,
                                                 false
                                             ).color(NamedTextColor.GRAY)
                                         )
-                                    } else {
-                                        val regions =
-                                            regions.mapNotNull { name -> game.regions.find { region -> region.name == name } }
-                                        regions.forEach { region ->
-                                            explain.add(
-                                                text(" - ${type.rating} 상자 (${region.displayName})").decoration(
-                                                    TextDecoration.ITALIC,
-                                                    false
-                                                ).color(NamedTextColor.GRAY)
-                                            )
-                                        }
                                     }
                                 }
                             }
-
-                            if (!haveRegion) {
-                                explain.clear()
-                            }
                         }
+
                         it?.clone()?.apply {
                             itemMeta = itemMeta.apply {
                                 lore(lore()?.plus(explain) ?: explain)
@@ -240,7 +253,7 @@ object InvManager {
                         } ?: ItemStack(Material.AIR)
                     }
                     onClickItem { _, _, (item, _), event ->
-                        if (item in CustomRecipe.values().map { recipe -> recipe.result }) {
+                        if (CustomRecipe.entries.map { recipe -> recipe.result }.any { result -> result.isSimilar(item) }) {
                             (event.whoClicked as Player).playSound(
                                 event.whoClicked.location,
                                 Sound.UI_BUTTON_CLICK,
@@ -250,7 +263,7 @@ object InvManager {
                             (event.whoClicked as Player).openFrame(
                                 createRecipeInv(
                                     game,
-                                    CustomRecipe.values().find { recipe -> recipe.result == item })
+                                    CustomRecipe.entries.find { recipe -> recipe.result.isSimilar(item)})
                             )
                         }
                     }
@@ -370,7 +383,7 @@ object InvManager {
                     item(0, it, nothing)
                 }
             }
-            list(0, 1, 0, 3, true, { ChestType.values().toList() }) {
+            list(0, 1, 0, 3, true, { ChestType.entries.toList() }) {
                 transform {
                     ItemStack(it.material).apply {
                         itemMeta = itemMeta.apply {
@@ -386,7 +399,7 @@ object InvManager {
                             )
                         }
                         if (it == type) {
-                            addUnsafeEnchantment(Enchantment.DURABILITY, 1)
+                            addUnsafeEnchantment(Enchantment.UNBREAKING, 1)
                             addItemFlags(ItemFlag.HIDE_ENCHANTS)
                         }
                     }
@@ -415,8 +428,13 @@ object InvManager {
 
     fun createItemInv(game: Game): InvFrame = InvFX.frame(5, text("아이템 목록").decorate(TextDecoration.BOLD)) {
         list(0, 0, 8, 3, true, {
-            val items = CustomRecipe.values().map { it.result }
-                .plus(game.chestTables.values.map { table -> table.loots.map { loot -> loot.item } }.flatten().toSet())
+            val dropItems = game.dropItems
+            val makeItems = CustomRecipe.entries.map { it.result }
+            val chestItems = game.chestTables.values.flatMap { table -> table.loots.map { loot -> loot.item } }
+
+            val items = dropItems
+                .plus(makeItems.filter { it !in dropItems })
+                .plus(chestItems.filter { it !in makeItems && it !in dropItems })
 
             val pageSlotCount = 9 * 4
 
@@ -428,41 +446,66 @@ object InvManager {
             transform {
                 if (it == ItemStack(Material.AIR)) return@transform ItemStack(Material.AIR)
                 val explain = mutableListOf<Component>()
-                if (it in CustomRecipe.values().map { recipe -> recipe.result }) {
-                    explain.add(text("").decoration(TextDecoration.ITALIC, false))
-                    explain.add(text("조합 아이템").decoration(TextDecoration.ITALIC, false).color(NamedTextColor.GOLD))
-                    explain.add(
-                        text(" - 클릭하여 조합법 확인").decoration(TextDecoration.ITALIC, false).color(NamedTextColor.GRAY)
-                    )
-                } else {
-                    explain.add(text("").decoration(TextDecoration.ITALIC, false))
-                    explain.add(text("상자 아이템").decoration(TextDecoration.ITALIC, false).color(NamedTextColor.GOLD))
 
-                    game.chestTables.forEach { (type, table) ->
-                        val loot = table.loots.find { loot -> loot.item == it }
-                        loot?.run {
-                            if (regions.isEmpty()) {
+                if (it in CustomRecipe.entries.map { recipe -> recipe.result }) {
+                    explain.add(text("").decoration(TextDecoration.ITALIC, false))
+                    explain.add(
+                        text("조합 아이템").decoration(TextDecoration.ITALIC, false).color(NamedTextColor.GOLD)
+                    )
+                    explain.add(
+                        text(" - 클릭하여 조합법 확인").decoration(TextDecoration.ITALIC, false)
+                            .color(NamedTextColor.GRAY)
+                    )
+                }
+
+                BossType.entries.forEach { bossType ->
+                    if (bossType.drops.any { drop -> drop.isSimilar(it) }) {
+                        explain.add(text("").decoration(TextDecoration.ITALIC, false))
+                        explain.add(
+                            text("드랍 아이템").decoration(TextDecoration.ITALIC, false).color(NamedTextColor.GOLD)
+                        )
+                        explain.add(
+                            text(" - ${bossType.displayName} 처치 시 획득").decoration(TextDecoration.ITALIC, false)
+                                .color(NamedTextColor.GRAY)
+                        )
+                        return@forEach
+                    }
+                }
+
+                // 상자 아이템 섹션
+                var isChestItem = false
+                game.chestTables.forEach { (type, table) ->
+                    val loot = table.loots.find { loot -> loot.item == it }
+                    loot?.run {
+                        if (!isChestItem) {
+                            explain.add(text("").decoration(TextDecoration.ITALIC, false))
+                            explain.add(
+                                text("상자 아이템").decoration(TextDecoration.ITALIC, false).color(NamedTextColor.GOLD)
+                            )
+                            isChestItem = true
+                        }
+                        if (regions.isEmpty()) {
+                            explain.add(
+                                text(" - ${type.rating} 상자 (모든 지역)").decoration(
+                                    TextDecoration.ITALIC,
+                                    false
+                                ).color(NamedTextColor.GRAY)
+                            )
+                        } else {
+                            val regions =
+                                regions.mapNotNull { name -> game.regions.find { region -> region.name == name } }
+                            regions.forEach { region ->
                                 explain.add(
-                                    text(" - ${type.rating} 상자 (모든 지역)").decoration(
+                                    text(" - ${type.rating} 상자 (${region.displayName})").decoration(
                                         TextDecoration.ITALIC,
                                         false
                                     ).color(NamedTextColor.GRAY)
                                 )
-                            } else {
-                                val regions =
-                                    regions.mapNotNull { name -> game.regions.find { region -> region.name == name } }
-                                regions.forEach { region ->
-                                    explain.add(
-                                        text(" - ${type.rating} 상자 (${region.displayName})").decoration(
-                                            TextDecoration.ITALIC,
-                                            false
-                                        ).color(NamedTextColor.GRAY)
-                                    )
-                                }
                             }
                         }
                     }
                 }
+
                 it.clone().apply {
                     itemMeta = itemMeta.apply {
                         lore((lore() ?: listOf()).plus(explain))
@@ -471,12 +514,12 @@ object InvManager {
             }
 
             onClickItem { _, _, (item, _), event ->
-                if (item in CustomRecipe.values().map { recipe -> recipe.result }) {
+                if (item in CustomRecipe.entries.map { recipe -> recipe.result }) {
                     (event.whoClicked as Player).playSound(event.whoClicked.location, Sound.UI_BUTTON_CLICK, 1f, 1f)
                     (event.whoClicked as Player).openFrame(
                         createRecipeInv(
                             game,
-                            CustomRecipe.values().find { recipe -> recipe.result == item })
+                            CustomRecipe.entries.find { recipe -> recipe.result == item })
                     )
                 }
             }

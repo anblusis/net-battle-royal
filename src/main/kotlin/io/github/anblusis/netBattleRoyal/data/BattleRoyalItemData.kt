@@ -9,6 +9,7 @@ import net.kyori.adventure.text.format.TextColor
 import net.kyori.adventure.text.format.TextDecoration
 import org.bukkit.Color
 import org.bukkit.Material
+import org.bukkit.inventory.ItemFlag
 import org.bukkit.inventory.ItemStack
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
@@ -32,12 +33,21 @@ enum class BattleRoyalItemData(val item: ItemStack) {
             )
             listOf(
                 PotionEffectType.SPEED,
-                PotionEffectType.JUMP,
+                PotionEffectType.JUMP_BOOST,
                 PotionEffectType.REGENERATION
             ).forEach {
                 addCustomEffect(PotionEffect(it, 400, 1), true)
             }
             color = Color.LIME
+        }
+    }),
+    CALORIE_COMPRESSED_POTION(ItemStack(Material.POTION).apply {
+        itemMeta = (itemMeta as org.bukkit.inventory.meta.PotionMeta).apply {
+            displayName(
+                text().color(NamedTextColor.WHITE).content("열랑 압축 포션").decoration(TextDecoration.ITALIC, false).build()
+            )
+            addCustomEffect(PotionEffect(PotionEffectType.SATURATION, 100, 0), true)
+            color = Color.RED
         }
     }),
     BATTLE_ROYAL_MAP(ItemStack(Material.FILLED_MAP).apply {
@@ -56,7 +66,7 @@ enum class BattleRoyalItemData(val item: ItemStack) {
                 listOf(
                     text().color(NamedTextColor.GRAY)
                         .decoration(TextDecoration.ITALIC, false)
-                        .content("초월 시키고자 하는 장비를 반대 손에 두고 우클릭 시").build(),
+                        .content("초월 시키고자 하는 장비를 반대 손에 두고 좌클릭 시").build(),
                     text().color(NamedTextColor.GRAY)
                         .decoration(TextDecoration.ITALIC, false)
                         .content("책을 사용해 장비에 초월 인첸트를 부여합니다.").build()
@@ -69,6 +79,29 @@ enum class BattleRoyalItemData(val item: ItemStack) {
             displayName(
                 text().color(NamedTextColor.GREEN).content("슈퍼 경험치 병").decoration(TextDecoration.ITALIC, false).build()
             )
+        }
+    }),
+    SIGNAL_GENERATOR(ItemStack(Material.YELLOW_DYE).apply {
+        itemMeta = itemMeta.apply {
+            displayName(
+                text().color(NamedTextColor.GOLD).content("신호 발생기").decoration(TextDecoration.ITALIC, false).build()
+            )
+        }
+    }),
+    SIGNAL_FIREWORK(ItemStack(Material.FIREWORK_ROCKET).apply {
+        itemMeta = itemMeta.apply {
+            displayName(
+                text().color(NamedTextColor.YELLOW).content("신호 폭죽").decoration(TextDecoration.ITALIC, false).build()
+            )
+            lore(
+                listOf(
+                    text().color(NamedTextColor.GOLD)
+                        .decoration(TextDecoration.ITALIC, false)
+                        .content("해당 위치에 보급 투하").build()
+                )
+            )
+
+            addItemFlags(ItemFlag.HIDE_ADDITIONAL_TOOLTIP)
         }
     }),
 }

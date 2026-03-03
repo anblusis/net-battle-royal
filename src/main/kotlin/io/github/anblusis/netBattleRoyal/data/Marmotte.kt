@@ -6,8 +6,7 @@ import io.github.anblusis.netBattleRoyal.game.Game
 import io.github.anblusis.netBattleRoyal.game.GameState
 import io.github.anblusis.netBattleRoyal.main.NetBattleRoyal.Companion.plugin
 import io.github.anblusis.netBattleRoyal.tool.equalsDisplayName
-import org.bukkit.Bukkit
-import org.bukkit.Material
+import org.bukkit.*
 import org.bukkit.attribute.Attribute
 import org.bukkit.boss.BarColor
 import org.bukkit.boss.BarStyle
@@ -34,7 +33,7 @@ data class Marmotte(val player: Player, val game: Game) {
 
     init {
         // player.sendMessage("게임에 참가했습니다.")
-        CustomAttribute.values().filter { it.attribute == null }.forEach { stat[it] = 0.0 }
+        CustomAttribute.entries.filter { it.attribute == null }.forEach { stat[it] = 0.0 }
         player.exp = 0f
         player.level = 0
 
@@ -53,19 +52,17 @@ data class Marmotte(val player: Player, val game: Game) {
          */
     }
 
-
     private fun updateBossBar() {
-        val allChestCount = game.chestRegionCount[region] ?: 0
-        val leftChestCount = game.chests.count { it.region == region && !it.isOpened }
+        val regionPlayerCount = game.marmottes.count { it.region == region } - 1
 
         val tasks = game.tasks.filter { it.regions.isEmpty() || it.regions.contains(region) }
         val firstTask = tasks.minByOrNull { it.tick - it.priority * 1200 }
 
         if (firstTask != null) {
-            bossBar.setTitle("${region?.displayName ?: "지역 없음"} ($leftChestCount / $allChestCount) | ${firstTask.displayName}")
+            bossBar.setTitle("${region?.displayName ?: "지역 없음"} (${regionPlayerCount}명) | ${firstTask.displayName}")
             bossBar.progress = firstTask.tick.toDouble() / firstTask.maxTick
         } else {
-            bossBar.setTitle("${region?.displayName ?: "지역 없음"} ($leftChestCount / $allChestCount)")
+            bossBar.setTitle("${region?.displayName ?: "지역 없음"} (${regionPlayerCount}명)")
             bossBar.progress = 1.0
         }
     }
@@ -73,6 +70,7 @@ data class Marmotte(val player: Player, val game: Game) {
     fun update() {
         updateBossBar()
         updateWeather()
+        if (player.gameMode == GameMode.SPECTATOR) return
         updateHandItem()
 
         if (game.state == GameState.READYING)
@@ -84,7 +82,7 @@ data class Marmotte(val player: Player, val game: Game) {
                 plugin.server.consoleSender,
                 "psychics mana ${player.name} add ${stat[CustomAttribute.MANA_REGEN]}"
             )
-            val maxHealth = player.getAttribute(Attribute.GENERIC_MAX_HEALTH)!!.value
+            val maxHealth = player.getAttribute(Attribute.MAX_HEALTH)!!.value
             player.health = (player.health + (stat[CustomAttribute.HEALTH_REGEN] ?: 0.0)).coerceAtMost(maxHealth)
         }
     }
@@ -110,7 +108,6 @@ data class Marmotte(val player: Player, val game: Game) {
     }
 
     fun remove() {
-        // player.sendMessage("게임을 나갔습니다.")
         bossBar.removeAll()
         game.marmottes.remove(this)
         DataManager.removeMarmotte(this)

@@ -42,7 +42,6 @@ class CreateMonsterWave(
                     spawnLocation.y = ableHeightNumbers[it].toDouble()
                     (game.world.spawnEntity(spawnLocation, wave.type) as Monster).apply {
                         customName(text(wave.displayName).color(NamedTextColor.RED))
-                        isCustomNameVisible = true
                         removeWhenFarAway = false
 
                         game.entities.add(this)
@@ -50,7 +49,7 @@ class CreateMonsterWave(
                         plugin.ticker.runTask({
                             game.entities.remove(this)
                             if (!isDead) {
-                                world.spawnParticle(Particle.SMOKE_NORMAL, location, 10, 0.5, 0.5, 0.5, 0.1)
+                                world.spawnParticle(Particle.SMOKE, location, 10, 0.5, 0.5, 0.5, 0.1)
                                 world.playSound(location, Sound.ENTITY_ENDERMAN_TELEPORT, 1f, 0.1f)
                                 remove()
                             }

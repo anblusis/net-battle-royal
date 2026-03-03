@@ -4,5 +4,7 @@ enum class RandomGameEvent {
     EPIC_CHEST,
     CHANGE_WEATHER,
     MONSTER_WAVE,
-    TNT_RAIN
+    TNT_RAIN,
+    WANDERING_TRADER,
+    BOSS_SPAWN
 }

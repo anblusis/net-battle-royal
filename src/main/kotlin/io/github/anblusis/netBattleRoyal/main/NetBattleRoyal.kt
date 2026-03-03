@@ -34,7 +34,7 @@ class NetBattleRoyal : JavaPlugin() {
     }
 
     private fun registerRecipe() {
-        CustomRecipe.values().forEach {
+        CustomRecipe.entries.forEach {
             it.addToServer()
         }
     }
@@ -49,7 +49,7 @@ class NetBattleRoyal : JavaPlugin() {
         ticker.cancelAll()
         val willRemovedGames = games.toList()
         willRemovedGames.forEach { it.remove() }
-        CustomRecipe.values().forEach { it.removeFromServer() }
+        CustomRecipe.entries.forEach { it.removeFromServer() }
         server.scheduler.cancelTasks(this)
     }
 }

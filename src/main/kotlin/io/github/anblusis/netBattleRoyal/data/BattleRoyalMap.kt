@@ -113,7 +113,7 @@ object RegionRenderer : MapRenderer() {
         }
         val direction = ((player.location.yaw % 360 + 360) % 360 / 22.5).toInt().toByte()
 
-        mapCanvas.cursors.addCursor(MapCursor(playerX.toByte(), playerZ.toByte(), direction, MapCursor.Type.WHITE_POINTER, true))
+        mapCanvas.cursors.addCursor(MapCursor(playerX.toByte(), playerZ.toByte(), direction, MapCursor.Type.PLAYER, true))
 
         player.scoreboard.getEntryTeam(player.name)?.entries?.forEach { teamMemberName ->
             val teamMember = player.server.getPlayer(teamMemberName) ?: return@forEach
@@ -125,7 +125,7 @@ object RegionRenderer : MapRenderer() {
                 teamMemberZ = (teamMemberZ * 2) - 128
             }
             val teamDirection = ((teamMember.location.yaw % 360 + 360) % 360 / 22.5).toInt().toByte()
-            mapCanvas.cursors.addCursor(MapCursor(teamMemberX.toByte(), teamMemberZ.toByte(), teamDirection, MapCursor.Type.GREEN_POINTER, true))
+            mapCanvas.cursors.addCursor(MapCursor(teamMemberX.toByte(), teamMemberZ.toByte(), teamDirection, MapCursor.Type.TARGET_POINT, true))
         }
 
 
@@ -143,7 +143,7 @@ object RegionRenderer : MapRenderer() {
                             relativeX.toByte(),
                             relativeZ.toByte(),
                             0,
-                            MapCursor.Type.BLUE_POINTER,
+                            MapCursor.Type.BLUE_MARKER,
                             true,
                             text(region.displayName).color(
                                 if (region.isTntRaining) NamedTextColor.RED
@@ -155,7 +155,7 @@ object RegionRenderer : MapRenderer() {
                             relativeX.toByte(),
                             relativeZ.toByte(),
                             0,
-                            MapCursor.Type.RED_POINTER,
+                            MapCursor.Type.RED_MARKER,
                             true
                         )
                     }

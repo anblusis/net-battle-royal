@@ -27,7 +27,7 @@ object RainDrop : CustomEquipmentSystem() {
         players.forEach { player ->
             if (player.playerWeather == WeatherType.DOWNFALL) player.addPotionEffect(
                 PotionEffect(
-                    PotionEffectType.INCREASE_DAMAGE,
+                    PotionEffectType.STRENGTH,
                     5,
                     0
                 )
