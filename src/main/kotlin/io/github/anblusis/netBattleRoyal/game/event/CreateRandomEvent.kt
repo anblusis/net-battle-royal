@@ -7,7 +7,6 @@ import net.kyori.adventure.text.Component.text
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.TextDecoration
 import net.kyori.adventure.text.event.HoverEvent
-import org.bukkit.Location
 import org.bukkit.Sound
 import kotlin.random.Random
 
@@ -20,7 +19,7 @@ class CreateRandomEvent(
         game.marmottes.forEach {
             it.player.playSound(it.player.location, Sound.BLOCK_NOTE_BLOCK_HARP, 1f, 2.0f)
         }
-        val randomEvent = events.random()
+        val randomEvent = RandomGameEvent.weightedRandom(events) ?: return
         when (randomEvent) {
             RandomGameEvent.EPIC_CHEST -> {
                 val regions = game.regions.filter { game.isInWorldBorder(it.center, true) }
@@ -63,9 +62,7 @@ class CreateRandomEvent(
                 if (regions.isEmpty()) return
                 val selectedRegions = mutableListOf<Region>()
                 selectedRegions.add(Region("default", "기본", game.worldBorderCenter, 0.0, 0.0, 0))
-                repeat(Random.nextInt(1, 6)) {
-                    selectedRegions.add(regions[it])
-                }
+                selectedRegions.addAll(selectRegions(regions, 1, 5))
                 game.marmottes.forEach { marmotte ->
                     val player = marmotte.player
                     player.sendMessage(
@@ -93,10 +90,7 @@ class CreateRandomEvent(
             RandomGameEvent.MONSTER_WAVE -> {
                 val regions = game.regions.filter { game.isInWorldBorder(it.center, true) }.shuffled()
                 if (regions.isEmpty()) return
-                val selectedRegions = mutableListOf<Region>()
-                repeat(Random.nextInt(2, 5)) {
-                    selectedRegions.add(regions[it])
-                }
+                val selectedRegions = selectRegions(regions, 2, 4)
                 val selectedWave = MonsterWave.entries.random()
                 game.marmottes.forEach { marmotte ->
                     val player = marmotte.player
@@ -132,10 +126,7 @@ class CreateRandomEvent(
                 val regions =
                     game.regions.filter { game.isInWorldBorder(it.center, true) && !it.isTntRaining }.shuffled()
                 if (regions.isEmpty()) return
-                val selectedRegions = mutableListOf<Region>()
-                repeat(Random.nextInt(1, 3)) {
-                    selectedRegions.add(regions[it])
-                }
+                val selectedRegions = selectRegions(regions, 1, 2)
                 game.marmottes.forEach { marmotte ->
                     val player = marmotte.player
                     player.sendMessage(
@@ -169,10 +160,7 @@ class CreateRandomEvent(
             RandomGameEvent.WANDERING_TRADER -> {
                 val regions = game.regions.filter { game.isInWorldBorder(it.center, true) }.shuffled()
                 if (regions.isEmpty()) return
-                val selectedRegions = mutableListOf<Region>()
-                repeat(Random.nextInt(1, 4)) {
-                    selectedRegions.add(regions[it])
-                }
+                val selectedRegions = selectRegions(regions, 1, 3)
                 game.marmottes.forEach { marmotte ->
                     val player = marmotte.player
                     player.sendMessage(
@@ -234,5 +222,12 @@ class CreateRandomEvent(
                 )
             }
         }
+    }
+
+    private fun selectRegions(regions: List<Region>, minCount: Int, maxCount: Int): List<Region> {
+        if (regions.isEmpty()) return listOf()
+
+        val count = Random.nextInt(minCount, maxCount + 1).coerceAtMost(regions.size)
+        return regions.take(count)
     }
 }

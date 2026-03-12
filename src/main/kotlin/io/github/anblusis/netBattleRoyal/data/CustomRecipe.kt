@@ -416,7 +416,7 @@ enum class CustomRecipe(
     )
     ;
 
-    private val key = NamespacedKey(plugin, recipeName)
+    val key = NamespacedKey(plugin, recipeName)
 
     fun toBukkitRecipe(): Recipe {
         when (type) {

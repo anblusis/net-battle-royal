@@ -6,6 +6,8 @@ import com.destroystokyo.paper.event.player.PlayerLaunchProjectileEvent
 import io.github.anblusis.netBattleRoyal.data.BattleRoyalItemData
 import io.github.anblusis.netBattleRoyal.data.transcendBook
 import io.github.anblusis.netBattleRoyal.game.event.BossType
+import io.github.anblusis.netBattleRoyal.game.event.getNightMonsterBonusExp
+import io.github.anblusis.netBattleRoyal.game.event.isNightMonster
 import io.github.anblusis.netBattleRoyal.main.NetBattleRoyal.Companion.plugin
 import org.bukkit.NamespacedKey
 import org.bukkit.block.Chest
@@ -152,9 +154,18 @@ object EventManager : Listener {
         val entity = event.entity
         val pdc = entity.persistentDataContainer
         val bossKey = NamespacedKey(plugin, "boss")
-        if (!pdc.has(bossKey, PersistentDataType.BYTE)) return
+        val isBoss = pdc.has(bossKey, PersistentDataType.BYTE)
+        val isNightMob = isNightMonster(entity)
+        if (!isBoss && !isNightMob) return
 
-        bossDeath(this, event)
+        if (isNightMob) {
+            plugin.games.find { entity in it.nightEntities }?.untrackNightEntity(entity)
+            event.droppedExp += getNightMonsterBonusExp(entity)
+        }
+
+        if (isBoss) {
+            bossDeath(this, event)
+        }
     }
 
     @EventHandler

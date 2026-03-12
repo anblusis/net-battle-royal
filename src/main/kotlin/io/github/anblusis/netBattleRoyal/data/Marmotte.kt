@@ -50,6 +50,10 @@ data class Marmotte(val player: Player, val game: Game) {
             }
         }
          */
+
+        CustomRecipe.entries.forEach {
+            player.discoverRecipe(it.key)
+        }
     }
 
     private fun updateBossBar() {
@@ -59,12 +63,13 @@ data class Marmotte(val player: Player, val game: Game) {
         val firstTask = tasks.minByOrNull { it.tick - it.priority * 1200 }
 
         if (firstTask != null) {
-            bossBar.setTitle("${region?.displayName ?: "지역 없음"} (${regionPlayerCount}명) | ${firstTask.displayName}")
+            bossBar.setTitle("${game.day}일차 ${game.phaseDisplayName} | ${region?.displayName ?: "지역 없음"} (${regionPlayerCount}명)  | ${firstTask.displayName}")
             bossBar.progress = firstTask.tick.toDouble() / firstTask.maxTick
         } else {
-            bossBar.setTitle("${region?.displayName ?: "지역 없음"} (${regionPlayerCount}명)")
-            bossBar.progress = 1.0
+            bossBar.setTitle("${game.day}일차 ${game.phaseDisplayName} | ${region?.displayName ?: "지역 없음"} (${regionPlayerCount}명)")
+            bossBar.progress = game.phaseProgress
         }
+        bossBar.color = game.phase.barColor
     }
 
     fun update() {

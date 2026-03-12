@@ -1,14 +1,20 @@
 package io.github.anblusis.netBattleRoyal.game
 
 import io.github.anblusis.netBattleRoyal.data.*
+import io.github.anblusis.netBattleRoyal.game.event.CreateNightMonsterWave
 import io.github.anblusis.netBattleRoyal.game.event.FightStart
+import io.github.anblusis.netBattleRoyal.game.event.WorldBorderDecrease
 import io.github.anblusis.netBattleRoyal.inv.InvManager
 import io.github.anblusis.netBattleRoyal.main.NetBattleRoyal.Companion.plugin
 import io.github.anblusis.netBattleRoyal.world.City
 import xyz.icetang.lib.invfx.frame.InvFrame
 import io.github.monun.tap.task.TickerTask
+import net.kyori.adventure.text.Component.text
+import net.kyori.adventure.text.format.NamedTextColor
 import org.bukkit.GameRules
 import org.bukkit.Location
+import org.bukkit.Particle
+import org.bukkit.Sound
 import org.bukkit.World
 import org.bukkit.WorldBorder
 import org.bukkit.entity.Entity
@@ -28,6 +34,9 @@ class Game(
     companion object {
         const val RANDOM_CHEST_QUALITY = true
         const val NO_READY_TIME = false
+        const val FIRST_DAY_TICKS = 180 * 20
+        const val NORMAL_PHASE_TICKS = 120 * 20
+        const val DAY_BORDER_DECREASE_TICKS = 40 * 20
     }
 
     internal lateinit var chests: MutableList<RoyalChest>
@@ -46,17 +55,28 @@ class Game(
     internal lateinit var dropItems: List<ItemStack>
     private lateinit var chestLocations: List<ChestData>
     private val tickTask: TickerTask
+    internal var worldBorderMoveTask: TickerTask? = null
     internal val mainInv: InvFrame
     internal val itemInv: InvFrame
     internal val mapItem: ItemStack
 
-    private var worldTime: Long = 12000L
+    private var worldTime: Long = 1000L
     private var chestCount: Int = 0
+    internal var day: Int = 1
+    internal var phase: GamePhase = GamePhase.DAY
+    internal var phaseMaxTick: Int = FIRST_DAY_TICKS
+    internal val phaseDisplayName
+        get() = phase.displayName
+    internal val phaseProgress
+        get() = if (phaseMaxTick <= 0) 1.0 else (currentPhaseTick.toDouble() / phaseMaxTick).coerceIn(0.0, 1.0)
+
+    private var currentPhaseTick: Int = FIRST_DAY_TICKS
     internal var targetWorldBorderSize: Double = 0.0
     internal val worldBorderDots: HashMap<Pair<Int, Int>, Color?> = hashMapOf()
     internal val chestRegionCount: HashMap<Region?, Int> = hashMapOf()
     internal val tasks: MutableList<GameTask> = mutableListOf()
     internal val entities: MutableList<Entity> = mutableListOf()
+    internal val nightEntities: MutableList<Entity> = mutableListOf()
     internal val marmottes: MutableList<Marmotte> = mutableListOf()
     internal val objects: MutableList<GameObject> = mutableListOf()
 
@@ -67,7 +87,7 @@ class Game(
         get() = worldBorder.size
 
     init {
-        registerGame(mapName, playWorld)
+        registerGame(mapName, playWorld, players.size)
         registerMarmotte(players)
         registerEvent()
 
@@ -106,8 +126,10 @@ class Game(
             task.run()
         }
 
-        if (state == GameState.PLAYING) worldTime += 3L
-        if (worldTime >= 24000L) worldTime = 0L
+        if (state == GameState.PLAYING) {
+            tickDayNightCycle()
+        }
+
         world.time = worldTime
     }
 
@@ -138,7 +160,7 @@ class Game(
         }
     }
 
-    private fun registerGame(mapName: String, playWorld: World) {
+    private fun registerGame(mapName: String, playWorld: World, playerCount: Int) {
         state = GameState.READYING
 
         world = playWorld
@@ -197,18 +219,19 @@ class Game(
         worldBorder.warningTimeTicks = 0
         worldBorder.warningDistance = 5
 
-        val playerCount = marmottes.size.coerceIn(4..20)
-        val sizeDecrease = worldBorderSize * (0.4 - playerCount * 0.02)
+        val clampedPlayerCount = playerCount.coerceIn(4..20)
+        val sizeDecrease = worldBorderSize * (0.4 - clampedPlayerCount * 0.02)
         worldBorder.size = worldBorderSize - sizeDecrease
         val randomVector = Vector(
             Random.nextDouble(-sizeDecrease / 2, sizeDecrease / 2),
             0.0,
             Random.nextDouble(-sizeDecrease / 2, sizeDecrease / 2)
         )
-        worldBorder.center = worldBorderCenter.add(randomVector)
+        worldBorder.center = worldBorderCenter.clone().add(randomVector)
 
-        targetWorldBorderCenter = worldBorderCenter
+        targetWorldBorderCenter = worldBorderCenter.clone()
         targetWorldBorderSize = worldBorderSize
+        updateWorldTime()
     }
 
     private fun registerMarmotte(players: MutableList<Player>) {
@@ -220,6 +243,91 @@ class Game(
 
     private fun registerEvent() {
         tasks.add(GameTask(this, FightStart(this), "무적 해제", if (NO_READY_TIME) 30 else 4800, 1, false))
+    }
+
+    internal fun startDayNightCycle() {
+        day = 1
+        phase = GamePhase.DAY
+        setPhaseTick(FIRST_DAY_TICKS)
+        targetWorldBorderCenter = worldBorderCenter.clone()
+        targetWorldBorderSize = worldBorderSize
+        updateWorldTime()
+
+        marmottes.forEach {
+            it.player.sendMessage(
+                text("1일차 낮이 시작되었습니다.")
+                    .color(NamedTextColor.GOLD)
+            )
+        }
+    }
+
+    internal fun trackNightEntity(entity: Entity) {
+        entities.add(entity)
+        nightEntities.add(entity)
+    }
+
+    internal fun untrackNightEntity(entity: Entity) {
+        nightEntities.remove(entity)
+        entities.remove(entity)
+    }
+
+    internal fun clearNightEntities() {
+        nightEntities.toList().forEach { entity ->
+            if (!entity.isDead && entity.isValid) {
+                entity.world.spawnParticle(Particle.SMOKE, entity.location, 10, 0.5, 0.5, 0.5, 0.1)
+                entity.world.playSound(entity.location, Sound.ENTITY_ENDERMAN_TELEPORT, 1f, 0.1f)
+                entity.remove()
+            }
+            entities.remove(entity)
+        }
+        nightEntities.clear()
+    }
+
+    private fun tickDayNightCycle() {
+        currentPhaseTick--
+        if (currentPhaseTick <= 0) {
+            if (phase == GamePhase.DAY) {
+                startNight()
+            } else {
+                startNextDay()
+            }
+            return
+        }
+
+        updateWorldTime()
+    }
+
+    private fun startNight() {
+        phase = GamePhase.NIGHT
+        setPhaseTick(NORMAL_PHASE_TICKS)
+        WorldBorderDecrease.planNext(this)
+        WorldBorderDecrease.announceNightPreview(this, DAY_BORDER_DECREASE_TICKS)
+        CreateNightMonsterWave(this, day).run()
+        updateWorldTime()
+    }
+
+    private fun startNextDay() {
+        clearNightEntities()
+        day++
+        phase = GamePhase.DAY
+        setPhaseTick(NORMAL_PHASE_TICKS)
+        WorldBorderDecrease.announceDayStart(this, DAY_BORDER_DECREASE_TICKS)
+        WorldBorderDecrease(this, DAY_BORDER_DECREASE_TICKS).run()
+        updateWorldTime()
+    }
+
+    private fun setPhaseTick(tick: Int) {
+        phaseMaxTick = tick
+        currentPhaseTick = tick
+    }
+
+    private fun updateWorldTime() {
+        val total = phaseMaxTick.coerceAtLeast(1)
+        val progress = 1.0 - currentPhaseTick.toDouble() / total
+        worldTime = (
+            phase.startWorldTime + ((phase.endWorldTime - phase.startWorldTime) * progress)
+            ).toLong()
+        if (worldTime >= 24000L) worldTime -= 24000L
     }
 
     fun isInRegion(region: Region, spot: Location): Boolean {
@@ -240,6 +348,7 @@ class Game(
 
     fun remove() {
         tickTask.cancel()
+        worldBorderMoveTask?.cancel()
 
         entities.forEach {
             it.remove()

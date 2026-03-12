@@ -27,18 +27,8 @@ class FightStart(
                 )
             )
         }
+        game.startDayNightCycle()
         game.run {
-            tasks.add(
-                GameTask(
-                    this,
-                    WorldBorderDecrease(this, 1200),
-                    "월드보더 감소",
-                    4200,
-                    4200,
-                    0,
-                    true
-                )
-            )
             tasks.add(
                 GameTask(
                     this,
