@@ -321,6 +321,24 @@ enum class CustomRecipe(
         mapOf('A' to 1, 'B' to 3, 'C' to 3),
         CustomRecipeType.SHAPELESS
     ),
+    RANDOM_ENCHANT_BOOK(
+        "random_enchant_book",
+        BattleRoyalItemData.RANDOM_ENCHANT_BOOK.item.clone(),
+        listOf(),
+        listOf("AB ", "   ", "   "),
+        mapOf('A' to ItemStack(Material.BOOK), 'B' to ItemStack(Material.GOLD_INGOT)),
+        mapOf('A' to 1, 'B' to 1),
+        CustomRecipeType.SHAPELESS,
+        {
+            val items = it.filterNotNull()
+            val bookCount = items.count { item -> item.type == Material.BOOK }
+            val goldCount = items.count { item -> item.type == Material.GOLD_INGOT }
+            val hasOther = items.any { item -> item.type != Material.BOOK && item.type != Material.GOLD_INGOT }
+
+            if (bookCount != 1 || goldCount < 1 || hasOther) null
+            else createRandomEnchantBook(goldCount)
+        }
+    ),
     AMETHYST_SHARD(
         "amethyst_shard",
         ItemStack(Material.AMETHYST_SHARD, 2),

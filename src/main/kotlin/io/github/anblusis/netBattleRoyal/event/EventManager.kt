@@ -4,6 +4,7 @@ import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent
 import com.destroystokyo.paper.event.player.PlayerElytraBoostEvent
 import com.destroystokyo.paper.event.player.PlayerLaunchProjectileEvent
 import io.github.anblusis.netBattleRoyal.data.BattleRoyalItemData
+import io.github.anblusis.netBattleRoyal.data.randomEnchantBook
 import io.github.anblusis.netBattleRoyal.data.transcendBook
 import io.github.anblusis.netBattleRoyal.game.event.BossType
 import io.github.anblusis.netBattleRoyal.game.event.getNightMonsterBonusExp
@@ -55,6 +56,10 @@ object EventManager : Listener {
             event.item == null -> return
             event.item!!.isSimilar(BattleRoyalItemData.MAGIC_STICK.item) -> playerInteractWithMagicStick(this, event)
             event.item!!.isSimilar(BattleRoyalItemData.SIGNAL_FIREWORK.item) -> playerUseSignalFirework(this, event)
+            randomEnchantBook.content() in event.item!!.displayName().toString() -> playerInteractWithRandomEnchantBook(
+                this,
+                event
+            )
             transcendBook.content() in event.item!!.displayName().toString() -> playerInteractWithTranscendBook(
                 this,
                 event

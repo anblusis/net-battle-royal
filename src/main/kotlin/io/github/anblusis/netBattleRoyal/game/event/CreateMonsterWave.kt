@@ -6,10 +6,12 @@ import io.github.anblusis.netBattleRoyal.main.NetBattleRoyal.Companion.plugin
 import net.kyori.adventure.text.Component.text
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.title.Title
+import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.NamespacedKey
 import org.bukkit.Particle
 import org.bukkit.Sound
+import org.bukkit.World
 import org.bukkit.entity.Entity
 import org.bukkit.entity.EntityType
 import org.bukkit.entity.Monster
@@ -64,62 +66,125 @@ class CreateNightMonsterWave(
     private val day: Int
 ) : Runnable {
     override fun run() {
-        val regions = game.regions.filter { game.isInWorldBorder(it.center, false) }
-        regions.forEach { region ->
-            val selectedWave = MonsterWave.pickNightWave(day) ?: return@forEach
-            MonsterWaveSpawner.spawnRegionWave(game, region, selectedWave, day)
-        }
+        MonsterWaveSpawner.spawnGlobalWave(game, day)
     }
 }
 
 private object MonsterWaveSpawner {
+    private data class SpawnBounds(
+        val minX: Double,
+        val maxX: Double,
+        val minZ: Double,
+        val maxZ: Double
+    )
+
+    fun spawnGlobalWave(game: Game, nightDay: Int) {
+        val border = game.world.worldBorder
+        val size = border.size
+        val center = border.center
+        val bounds = SpawnBounds(
+            minX = center.x - size / 2,
+            maxX = center.x + size / 2,
+            minZ = center.z - size / 2,
+            maxZ = center.z + size / 2
+        )
+
+        val area = size * size
+        val avgDensity = MonsterWave.entries.map { it.groupDensity }.average()
+        val groupCount = (area / avgDensity).toInt().coerceAtLeast(1)
+
+        spawnWaveGroups(game, bounds, groupCount, nightDay) {
+            MonsterWave.pickNightWave(nightDay)
+        }
+    }
+
     fun spawnRegionWave(game: Game, region: Region, wave: MonsterWave, nightDay: Int? = null) {
         val area = region.width * region.height
-        val maxGroupCount = if (nightDay == null) 2 else (2 + ((nightDay - 1) / 2)).coerceAtMost(4)
-        val groupCount = (area / wave.groupDensity).toInt().coerceIn(1, maxGroupCount)
+        val groupCount = (area / wave.groupDensity).toInt().coerceAtLeast(1)
+        val bounds = SpawnBounds(
+            minX = region.center.x - region.width / 2,
+            maxX = region.center.x + region.width / 2,
+            minZ = region.center.z - region.height / 2,
+            maxZ = region.center.z + region.height / 2
+        )
 
+        spawnWaveGroups(game, bounds, groupCount, nightDay) { wave }
+    }
+
+    private fun spawnWaveGroups(
+        game: Game,
+        bounds: SpawnBounds,
+        groupCount: Int,
+        nightDay: Int?,
+        waveSelector: () -> MonsterWave?
+    ) {
         repeat(groupCount) {
-            val anchor = randomSpawnLocation(region, wave) ?: return@repeat
+            val wave = waveSelector() ?: return@repeat
+            val anchor = randomGlobalSpawnLocation(game.world, bounds, wave) ?: return@repeat
             val groupSize = Random.nextInt(wave.minGroupSize, wave.maxGroupSize + 1)
 
             repeat(groupSize) {
-                val spawnLocation = randomClusterLocation(region, anchor, wave)
+                val spawnLocation = randomGlobalClusterLocation(game.world, anchor, bounds, wave)
                 val monster = game.world.spawnEntity(spawnLocation, wave.type) as? Monster ?: return@repeat
-
                 configureMonster(game, monster, wave, nightDay)
             }
         }
     }
 
-    private fun randomSpawnLocation(region: Region, wave: MonsterWave): org.bukkit.Location? {
+    private fun randomGlobalSpawnLocation(world: World, bounds: SpawnBounds, wave: MonsterWave): Location? {
         repeat(10) {
-            val x = region.center.x + (Random.nextDouble() - 0.5) * region.width
-            val z = region.center.z + (Random.nextDouble() - 0.5) * region.height
-            val y = region.center.world.getHighestBlockYAt(x.toInt(), z.toInt()) + 1
+            val x = Random.nextDouble(bounds.minX, bounds.maxX)
+            val z = Random.nextDouble(bounds.minZ, bounds.maxZ)
+            val blockX = x.toInt()
+            val blockZ = z.toInt()
+            val minY = world.minHeight + 1
+            val maxY = world.getHighestBlockYAt(blockX, blockZ) + 1
 
-            val location = region.center.world.getBlockAt(x.toInt(), y, z.toInt()).location.add(0.5, 0.0, 0.5)
-            if (!location.block.type.isSolid && !location.clone().add(0.0, 1.0, 0.0).block.type.isSolid) {
-                return if (wave.type == EntityType.PHANTOM) location.add(0.0, 12.0, 0.0) else location
+            if (maxY < minY) return@repeat
+
+            val yCandidates = (minY..maxY).filter { y ->
+                isSpawnableY(world, blockX, y, blockZ)
             }
+            val y = yCandidates.randomOrNull() ?: return@repeat
+            return buildSpawnLocation(world, x, y, z, wave)
         }
-
         return null
     }
 
-    private fun randomClusterLocation(region: Region, anchor: org.bukkit.Location, wave: MonsterWave): org.bukkit.Location {
-        val angle = Random.nextDouble(0.0, Math.PI * 2)
-        val distance = Random.nextDouble(0.0, wave.clusterRadius)
-        val minX = region.center.x - region.width / 2
-        val maxX = region.center.x + region.width / 2
-        val minZ = region.center.z - region.height / 2
-        val maxZ = region.center.z + region.height / 2
-        val x = (anchor.x + kotlin.math.cos(angle) * distance).coerceIn(minX, maxX)
-        val z = (anchor.z + kotlin.math.sin(angle) * distance).coerceIn(minZ, maxZ)
-        val y = region.center.world.getHighestBlockYAt(x.toInt(), z.toInt()) + 1
+    private fun randomGlobalClusterLocation(world: World, anchor: Location, bounds: SpawnBounds, wave: MonsterWave): Location {
+        val x = (anchor.x + Random.nextDouble(-wave.clusterRadius, wave.clusterRadius)).coerceIn(bounds.minX, bounds.maxX)
+        val z = (anchor.z + Random.nextDouble(-wave.clusterRadius, wave.clusterRadius)).coerceIn(bounds.minZ, bounds.maxZ)
+        val blockX = x.toInt()
+        val blockZ = z.toInt()
 
-        return region.center.world.getBlockAt(x.toInt(), y, z.toInt()).location.add(
+        val y = pickSpawnYNearAnchor(world, blockX, blockZ, anchor.blockY)
+            ?: anchor.blockY.coerceIn(world.minHeight + 1, world.maxHeight - 2)
+
+        return buildSpawnLocation(world, x, y, z, wave)
+    }
+
+    private fun pickSpawnYNearAnchor(world: World, blockX: Int, blockZ: Int, anchorY: Int): Int? {
+        val minY = (anchorY - 2).coerceAtLeast(world.minHeight + 1)
+        val maxY = (anchorY + 2).coerceAtMost(world.maxHeight - 2)
+        if (maxY < minY) return null
+
+        val yCandidates = (minY..maxY).filter { y ->
+            isSpawnableY(world, blockX, y, blockZ)
+        }
+        return yCandidates.randomOrNull()
+    }
+
+    private fun isSpawnableY(world: World, blockX: Int, y: Int, blockZ: Int): Boolean {
+        val below = world.getBlockAt(blockX, y - 1, blockZ).type
+        val feet = world.getBlockAt(blockX, y, blockZ).type
+        val head = world.getBlockAt(blockX, y + 1, blockZ).type
+        return below.isSolid && !feet.isSolid && !head.isSolid
+    }
+
+    private fun buildSpawnLocation(world: World, x: Double, y: Int, z: Double, wave: MonsterWave): Location {
+        return Location(world, x, y.toDouble(), z).add(
             0.5,
-            if (wave.type == EntityType.PHANTOM) 12.0 else 0.0,
+            0.0,
             0.5
         )
     }
@@ -200,8 +265,7 @@ enum class MonsterWave(
     CREEPER("크리퍼", EntityType.CREEPER, 4200, 2, 4, 5.5, 8, 2, 12),
     PILLAGER("약탈자", EntityType.PILLAGER, 4400, 3, 5, 6.0, 10, 2, 11),
     WITCH("마녀", EntityType.WITCH, 5200, 1, 3, 4.5, 14, 3, 8),
-    VINDICATOR("변명자", EntityType.VINDICATOR, 5000, 2, 4, 5.0, 16, 4, 7),
-    PHANTOM("팬텀", EntityType.PHANTOM, 6000, 2, 4, 8.0, 15, 4, 6);
+    VINDICATOR("변명자", EntityType.VINDICATOR, 5000, 2, 4, 5.0, 16, 4, 7);
 
     companion object {
         fun pickNightWave(day: Int): MonsterWave? {

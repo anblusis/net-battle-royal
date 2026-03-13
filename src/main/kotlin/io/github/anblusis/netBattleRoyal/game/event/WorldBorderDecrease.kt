@@ -62,7 +62,7 @@ class WorldBorderDecrease(
             )
             message.addAll(createBorderLines(game, game.targetWorldBorderCenter, game.targetWorldBorderSize))
             message.add(
-                text("현재 월드보더 내부 전역에 몬스터 무리가 출현합니다.")
+                text("밤 동안 몬스터가 출현합니다.")
                     .color(NamedTextColor.RED)
             )
             broadcast(game, message)

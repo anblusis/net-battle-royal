@@ -3,6 +3,7 @@ package io.github.anblusis.netBattleRoyal.data
 import io.github.anblusis.netBattleRoyal.event.playerChangeMainHandItem
 import io.github.anblusis.netBattleRoyal.event.playerChangeOffHandItem
 import io.github.anblusis.netBattleRoyal.game.Game
+import io.github.anblusis.netBattleRoyal.game.GamePhase
 import io.github.anblusis.netBattleRoyal.game.GameState
 import io.github.anblusis.netBattleRoyal.main.NetBattleRoyal.Companion.plugin
 import io.github.anblusis.netBattleRoyal.tool.equalsDisplayName
@@ -57,7 +58,8 @@ data class Marmotte(val player: Player, val game: Game) {
     }
 
     private fun updateBossBar() {
-        val regionPlayerCount = game.marmottes.count { it.region == region } - 1
+        val regionPlayerCount = if (game.phase == GamePhase.NIGHT) "?"
+            else (game.marmottes.count { it.region == region && it.player.gameMode != GameMode.SPECTATOR } - 1).toString()
 
         val tasks = game.tasks.filter { it.regions.isEmpty() || it.regions.contains(region) }
         val firstTask = tasks.minByOrNull { it.tick - it.priority * 1200 }

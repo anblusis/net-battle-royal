@@ -1,6 +1,5 @@
 package io.github.anblusis.netBattleRoyal.data
 
-import io.github.anblusis.netBattleRoyal.main.NetBattleRoyal.Companion.plugin
 import net.kyori.adventure.text.Component.space
 import net.kyori.adventure.text.Component.text
 import net.kyori.adventure.text.TextComponent
@@ -74,6 +73,7 @@ enum class BattleRoyalItemData(val item: ItemStack) {
             )
         }
     }),
+    RANDOM_ENCHANT_BOOK(createRandomEnchantBook(1)),
     SUPER_EXP_BOTTLE(ItemStack(Material.EXPERIENCE_BOTTLE).apply {
         itemMeta = itemMeta.apply {
             displayName(
@@ -109,6 +109,33 @@ enum class BattleRoyalItemData(val item: ItemStack) {
 val transcendBook = text().content("초월서")
     .decoration(TextDecoration.ITALIC, false)
     .color(NamedTextColor.YELLOW).build()
+
+val randomEnchantBook = text().content("랜덤 인첸트서")
+    .decoration(TextDecoration.ITALIC, false)
+    .color(NamedTextColor.AQUA).build()
+
+fun createRandomEnchantBook(goldCount: Int): ItemStack {
+    val level = ((goldCount - 1) * 4 + 2).coerceAtLeast(2)
+    return ItemStack(Material.BOOK).apply {
+        itemMeta = itemMeta.apply {
+            displayName(randomEnchantBook)
+            lore(
+                listOf(
+                    text().color(NamedTextColor.GRAY)
+                        .decoration(TextDecoration.ITALIC, false)
+                        .content("랜덤 인첸트 2").build(),
+                    text().color(NamedTextColor.GRAY)
+                        .decoration(TextDecoration.ITALIC, false)
+                        .content("금 주괴 1개당 인첸트 레벨 4 증가").build(),
+                    text().color(NamedTextColor.GRAY)
+                        .decoration(TextDecoration.ITALIC, false)
+                        .content("우클릭으로 사용").build()
+                )
+            )
+        }
+        enchantValue = level
+    }
+}
 
 val randomEnchantTag = text().content("랜덤 인첸트")
     .decoration(TextDecoration.ITALIC, false)
