@@ -9,8 +9,6 @@ import io.github.anblusis.netBattleRoyal.main.NetBattleRoyal.Companion.plugin
 import io.github.anblusis.netBattleRoyal.world.City
 import xyz.icetang.lib.invfx.frame.InvFrame
 import io.github.monun.tap.task.TickerTask
-import net.kyori.adventure.text.Component.text
-import net.kyori.adventure.text.format.NamedTextColor
 import org.bukkit.GameRules
 import org.bukkit.Location
 import org.bukkit.Particle
@@ -63,6 +61,7 @@ class Game(
     private var worldTime: Long = 1000L
     private var chestCount: Int = 0
     internal var day: Int = 1
+    internal var minY: Int = 0
     internal var phase: GamePhase = GamePhase.DAY
     internal var phaseMaxTick: Int = FIRST_DAY_TICKS
     internal val phaseDisplayName
@@ -80,10 +79,10 @@ class Game(
     internal val marmottes: MutableList<Marmotte> = mutableListOf()
     internal val objects: MutableList<GameObject> = mutableListOf()
 
-    val worldBorderCenter
+    internal val worldBorderCenter
         get() = worldBorder.center
 
-    val worldBorderSize
+    internal val worldBorderSize
         get() = worldBorder.size
 
     init {
@@ -126,11 +125,7 @@ class Game(
             task.run()
         }
 
-        if (state == GameState.PLAYING) {
-            tickDayNightCycle()
-        }
-
-        world.time = worldTime
+        tickDayNightCycle()
     }
 
     private fun setChests() {
@@ -187,6 +182,7 @@ class Game(
                 mapColors = City.getMapColors()
                 customRecipes = City.getCustomRecipes()
                 customRecipeSets = City.getCustomRecipeSets()
+                minY = City.getMinY()
             }
         }
 
@@ -194,6 +190,7 @@ class Game(
             region.gameWeather = worldDefaultWeather
         }
 
+        /* 그냥 전체 아이템 저장 하는 방식으로
         val armors = mutableListOf<CustomEquipment>()
         CustomRecipe.entries.map { it.result }.plus(
             chestTables.values.flatMap { table -> table.loots.map { loot -> loot.item } }
@@ -203,15 +200,15 @@ class Game(
                     armors.add(CustomEquipment.entries.find { it.item == item }!!)
                 }
             }
-        customEquipments = armors
+         */
 
         // 드랍 전용 아이템 계산: 레시피/상자에 없는 장비 아이템들
-        run {
-            val recipeItems = customRecipes.map { it.result }
-            val chestItems = chestTables.values.flatMap { table -> table.loots.map { it.item } }
-            val equipmentItems = CustomEquipment.entries.map { it.item }
-            dropItems = equipmentItems.filter { it !in recipeItems && it !in chestItems }
-        }
+        val recipeItems = customRecipes.map { it.result }
+        val chestItems = chestTables.values.flatMap { table -> table.loots.map { it.item } }
+        val equipmentItems = CustomEquipment.entries.map { it.item }
+        dropItems = equipmentItems.filter { it !in recipeItems && it !in chestItems }
+
+        customEquipments = CustomEquipment.entries
 
         worldBorder.center = center
         worldBorder.damageAmount = 1.0
@@ -242,23 +239,15 @@ class Game(
     }
 
     private fun registerEvent() {
-        tasks.add(GameTask(this, FightStart(this), "무적 해제", if (NO_READY_TIME) 30 else 4800, 1, false))
-    }
-
-    internal fun startDayNightCycle() {
-        day = 1
-        phase = GamePhase.DAY
-        setPhaseTick(FIRST_DAY_TICKS)
-        targetWorldBorderCenter = worldBorderCenter.clone()
-        targetWorldBorderSize = worldBorderSize
-        updateWorldTime()
-
-        marmottes.forEach {
-            it.player.sendMessage(
-                text("1일차 낮이 시작되었습니다.")
-                    .color(NamedTextColor.GOLD)
-            )
-        }
+        tasks.add(GameTask(
+            game = this,
+            task = FightStart(this),
+            displayName = "무적 해제",
+            tick = if (NO_READY_TIME) 30 else FIRST_DAY_TICKS,
+            priority = 1,
+            canRestart = false,
+            isVisible = true
+        ))
     }
 
     internal fun trackNightEntity(entity: Entity) {
@@ -297,6 +286,26 @@ class Game(
         updateWorldTime()
     }
 
+    internal fun skipToNextPhase(): Boolean {
+        if (state != GameState.PLAYING) return false
+
+        if (phase == GamePhase.DAY) {
+            completeCurrentBorderDecrease()
+            startNight()
+        } else {
+            startNextDay()
+        }
+
+        return true
+    }
+
+    private fun completeCurrentBorderDecrease() {
+        worldBorderMoveTask?.cancel()
+        worldBorderMoveTask = null
+        worldBorder.center = targetWorldBorderCenter.clone()
+        worldBorder.size = targetWorldBorderSize
+    }
+
     private fun startNight() {
         phase = GamePhase.NIGHT
         setPhaseTick(NORMAL_PHASE_TICKS)
@@ -328,6 +337,7 @@ class Game(
             phase.startWorldTime + ((phase.endWorldTime - phase.startWorldTime) * progress)
             ).toLong()
         if (worldTime >= 24000L) worldTime -= 24000L
+        world.time = worldTime
     }
 
     fun isInRegion(region: Region, spot: Location): Boolean {

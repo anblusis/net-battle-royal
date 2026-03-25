@@ -1,6 +1,7 @@
 package io.github.anblusis.netBattleRoyal.event
 
 import io.github.anblusis.netBattleRoyal.game.event.BossType
+import io.github.anblusis.netBattleRoyal.game.event.getBossType
 import io.github.anblusis.netBattleRoyal.main.NetBattleRoyal.Companion.plugin
 import net.kyori.adventure.text.Component.text
 import net.kyori.adventure.text.format.NamedTextColor
@@ -18,14 +19,12 @@ fun bossDeath(listener: EventManager, event: EntityDeathEvent) {
     game.marmottes.forEach { m ->
         m.player.sendMessage(bossName.append(text("(이)가 처치되었습니다!").color(NamedTextColor.GOLD)))
     }
-    game.world.playSound(boss.location, Sound.ENTITY_ENDER_DRAGON_DEATH, game.worldBorder.size.toFloat() / 32f, 1f)
+    game.world.playSound(boss.location, Sound.ENTITY_ENDER_DRAGON_DEATH, 100f / 16f, 1f)
 
     event.drops.clear()
     event.droppedExp = 300 + (0..200).random()
 
-    // 보스 타입 식별 후 보스별 드랍 풀에서 지급
-    val typeKey = NamespacedKey(plugin, "boss_type")
-    val typeName = boss.persistentDataContainer.get(typeKey, PersistentDataType.STRING)!!
+    val typeName = boss.getBossType()!!
     val pool = BossType.valueOf(typeName).drops
 
     pool.forEach { item ->

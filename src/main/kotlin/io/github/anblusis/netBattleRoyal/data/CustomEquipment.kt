@@ -29,9 +29,7 @@ enum class CustomEquipment(
     private val itemWithoutAttribute: ItemStack,
     val stat: Map<CustomAttribute, Double>,
     val itemSlot: EquipmentSlot,
-    val system: CustomEquipmentSystem = object : CustomEquipmentSystem() {
-        override val players = mutableListOf<Player>()
-    }
+    system: CustomEquipmentSystem? = null
 ) {
     RAIN_CHESTPLATE(
         ItemStack(Material.LEATHER_CHESTPLATE).apply item@{
@@ -134,7 +132,7 @@ enum class CustomEquipment(
         RainDrop
     ),
     MANA_ACCELERATOR(
-        ItemStack(Material.LIGHT_BLUE_DYE).apply item@{
+        ItemStack(Material.BLUE_DYE).apply item@{
             itemMeta = itemMeta.apply {
                 displayName(
                     text().color(NamedTextColor.WHITE).content("마나 가속기").decoration(TextDecoration.ITALIC, false).build()
@@ -158,7 +156,8 @@ enum class CustomEquipment(
             }
         },
         mapOf(
-            CustomAttribute.ARMOR_TOUGH to 5.0
+            CustomAttribute.ARMOR_TOUGH to 5.0,
+            CustomAttribute.DEFENSE_PENETRATION to 0.05
         ),
         EquipmentSlot.HEAD
     ),
@@ -174,7 +173,8 @@ enum class CustomEquipment(
             }
         },
         mapOf(
-            CustomAttribute.ARMOR_TOUGH to 10.0
+            CustomAttribute.ARMOR_TOUGH to 10.0,
+            CustomAttribute.DEFENSE_PENETRATION to 0.1
         ),
         EquipmentSlot.CHEST
     ),
@@ -190,7 +190,8 @@ enum class CustomEquipment(
             }
         },
         mapOf(
-            CustomAttribute.ARMOR_TOUGH to 8.0
+            CustomAttribute.ARMOR_TOUGH to 8.0,
+            CustomAttribute.DEFENSE_PENETRATION to 0.08
         ),
         EquipmentSlot.LEGS
     ),
@@ -206,7 +207,8 @@ enum class CustomEquipment(
             }
         },
         mapOf(
-            CustomAttribute.ARMOR_TOUGH to 5.0
+            CustomAttribute.ARMOR_TOUGH to 5.0,
+            CustomAttribute.DEFENSE_PENETRATION to 0.05
         ),
         EquipmentSlot.FEET
     ),
@@ -231,7 +233,7 @@ enum class CustomEquipment(
         },
         mapOf(
             CustomAttribute.ARMOR to 1.5,
-            CustomAttribute.HEALTH_STEAL to 1.0
+            CustomAttribute.HEALTH_STEAL to 0.05
         ), EquipmentSlot.HEAD, SlimeHelmet
     ),
     SLIME_CHESTPLATE(
@@ -255,7 +257,7 @@ enum class CustomEquipment(
         },
         mapOf(
             CustomAttribute.ARMOR to 4.0,
-            CustomAttribute.HEALTH_STEAL to 1.5
+            CustomAttribute.HEALTH_STEAL to 0.07
         ), EquipmentSlot.CHEST, SlimeChestplate
     ),
     SLIME_LEGGINGS(
@@ -279,7 +281,7 @@ enum class CustomEquipment(
         },
         mapOf(
             CustomAttribute.ARMOR to 3.0,
-            CustomAttribute.HEALTH_STEAL to 1.5
+            CustomAttribute.HEALTH_STEAL to 0.07
         ), EquipmentSlot.LEGS, SlimeLeggings
     ),
     SLIME_BOOTS(
@@ -307,7 +309,7 @@ enum class CustomEquipment(
         },
         mapOf(
             CustomAttribute.ARMOR to 1.5,
-            CustomAttribute.HEALTH_STEAL to 1.0
+            CustomAttribute.HEALTH_STEAL to 0.05
         ), EquipmentSlot.FEET, SlimeBoots
     ),
     ALLOY_HELMET(
@@ -661,7 +663,7 @@ enum class CustomEquipment(
         ItemStack(Material.ELYTRA).apply item@{
             itemMeta = itemMeta.apply {
                 displayName(
-                    text().content("기사의 망토").decoration(TextDecoration.ITALIC, false)
+                    text().content("기사의 망토").color(NamedTextColor.LIGHT_PURPLE).decoration(TextDecoration.ITALIC, false)
                         .build()
                 )
                 lore(listOf(
@@ -675,16 +677,75 @@ enum class CustomEquipment(
             CustomAttribute.ARMOR_TOUGH to 2.0,
             CustomAttribute.MOVEMENT_SPEED to 0.08
         ), EquipmentSlot.CHEST
+    ),
+    SLIME_OVERLORD_BOOTS(
+        ItemStack(Material.IRON_BOOTS).apply item@{
+            itemMeta = (itemMeta as ArmorMeta).apply {
+                displayName(
+                    text().content("고급 슬라임 장화").color(NamedTextColor.LIGHT_PURPLE).decoration(TextDecoration.ITALIC, false)
+                        .build()
+                )
+                trim = ArmorTrim(TrimMaterial.EMERALD, TrimPattern.FLOW)
+                addItemFlags(ItemFlag.HIDE_ARMOR_TRIM)
+                lore(
+                    listOf(
+                        text()
+                            .color(NamedTextColor.GOLD)
+                            .decoration(TextDecoration.ITALIC, false)
+                            .content("피격 시 때린 상대에게 구속 부여").build(),
+                        text()
+                            .color(NamedTextColor.GOLD)
+                            .decoration(TextDecoration.ITALIC, false)
+                            .content("낙하 시 튀어오름").build(),
+                        text("점프 강화 부여").color(NamedTextColor.GOLD).decoration(TextDecoration.ITALIC, false)
+                    )
+                )
+            }
+        },
+        mapOf(
+            CustomAttribute.ARMOR to 2.0,
+            CustomAttribute.HEALTH_STEAL to 0.12,
+            CustomAttribute.HEALTH_REGEN to 0.3
+        ), EquipmentSlot.FEET, SlimeOverlordBoots
+    ),
+    SENTINEL_SOUL(
+        ItemStack(Material.COAL).apply item@{
+            itemMeta = itemMeta.apply {
+                displayName(
+                    text().content("파수꾼의 영혼").color(NamedTextColor.LIGHT_PURPLE).decoration(TextDecoration.ITALIC, false).build()
+                )
+                lore(
+                    listOf(
+                        text()
+                            .color(NamedTextColor.GOLD)
+                            .decoration(TextDecoration.ITALIC, false)
+                            .content("타격 시 위더를 5초간 부여 (쿨타임 10초)").build(),
+                    )
+                )
+            }
+        },
+        mapOf(),
+        EquipmentSlot.OFF_HAND,
+        SentinelSoul
     )
-
-
     ;
+
+    val system: CustomEquipmentSystem by lazy {
+        (system ?: object : CustomEquipmentSystem() {
+            override val players = mutableSetOf<Player>()
+        }).apply {
+            this.equipment = this@CustomEquipment
+        }
+    }
 
     // by lazy와 =의 차이: by lazy는 처음 접근할 때 초기화, =는 즉시 초기화
     val item: ItemStack by lazy {
         itemWithoutAttribute.apply {
             itemMeta = itemMeta.apply {
                 makeAttribute(stat, itemSlot)
+
+                isUnbreakable = true
+                addItemFlags(ItemFlag.HIDE_UNBREAKABLE)
             }
         }
     }
@@ -733,7 +794,7 @@ fun ItemMeta.makeAttribute(stat: Map<CustomAttribute, Double>, itemSlot: Equipme
             )
         }
         if (key.attribute != null) {
-            val namespacedKey = NamespacedKey(plugin, key.name.lowercase())
+            val namespacedKey = NamespacedKey(plugin, "${itemSlot.name}_.${key.name}".lowercase())
             attributes.put(
                 key.attribute,
                 AttributeModifier(
@@ -773,6 +834,6 @@ enum class CustomAttribute(
     KNOCKBACK_RESISTANCE("밀치기 저항", Attribute.KNOCKBACK_RESISTANCE, false, false),
     MANA_REGEN("마나 재생", null, false, false),
     HEALTH_REGEN("체력 재생", null, false, false),
-    HEALTH_STEAL("흡혈", null, false, false),
+    HEALTH_STEAL("흡혈", null, true, false),
     DEFENSE_PENETRATION("방어 관통", null, true, false),
 }

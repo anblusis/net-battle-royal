@@ -6113,6 +6113,7 @@ object City : WorldData {
                             ChestItemData(ItemStack(Material.GOLDEN_APPLE), 1..1, 3..5, 3.0),
                             ChestItemData(ItemStack(Material.GOLDEN_CARROT), 3..6, 3..5, 5.5),
                             ChestItemData(ItemStack(Material.ENDER_PEARL), 1..2, 3..5, 4.0),
+                            ChestItemData(ItemStack(Material.WIND_CHARGE), 2..4, 3..5, 3.0),
                             *listOf(
                                 Material.GOLDEN_HELMET,
                                 Material.GOLDEN_CHESTPLATE,
@@ -6156,12 +6157,12 @@ object City : WorldData {
                             ChestItemData(ItemStack(Material.EMERALD), 2..6, 3..5, 6.0),
                             ChestItemData(ItemStack(Material.DIAMOND), 1..2, 3..5, 2.5),
                             ChestItemData(ItemStack(Material.LAPIS_LAZULI), 3..9, 3..5, 4.0),
-                            ChestItemData(ItemStack(Material.CHORUS_FRUIT), 1..3, 3..5, 3.0),
+                            ChestItemData(ItemStack(Material.CHORUS_FRUIT), 1..3, 3..5, 2.0),
                             ChestItemData(BattleRoyalItemData.SUPER_EXP_BOTTLE.item, 1..4, 3..5, 5.0),
-                            ChestItemData(ItemStack(Material.TNT), 2..6, 3..5, 3.0),
-                            ChestItemData(ItemStack(Material.OBSIDIAN), 3..5, 3..5, 2.0),
+                            ChestItemData(ItemStack(Material.TNT), 2..6, 3..5, 2.5),
+                            ChestItemData(ItemStack(Material.OBSIDIAN), 3..5, 3..5, 2.5),
 
-                            ChestItemData(ItemStack(Material.AMETHYST_SHARD), 2..4, 3..5, 3.0, listOf("mansion", "prison", "sandBeach")),
+                            ChestItemData(ItemStack(Material.AMETHYST_SHARD), 2..4, 3..5, 3.5, listOf("mansion", "prison", "sandBeach")),
                         )
                     ),
             ChestType.EPIC to
@@ -6181,6 +6182,7 @@ object City : WorldData {
                             ChestItemData(ItemStack(Material.ENCHANTING_TABLE), 1..1, 4..4, 3.0,
                                 subItems = hashMapOf(ItemStack(Material.BOOKSHELF) to 12..15, ItemStack(Material.LAPIS_LAZULI) to 12..20)
                             ),
+                            ChestItemData(ItemStack(Material.MACE), 1..1, 4..4, 2.0),
                             ChestItemData(ItemStack(Material.TRIDENT), 1..1, 4..4, 3.0),
                             ChestItemData(ItemStack(Material.TOTEM_OF_UNDYING), 1..2, 4..4, 2.5),
                             ChestItemData(ItemStack(Material.BOOK).apply {
@@ -6258,4 +6260,7 @@ object City : WorldData {
         val sets = CustomRecipeSet.entries.toList()
         return sets
     }
+
+    override fun getMinY(): Int =
+        0
 }

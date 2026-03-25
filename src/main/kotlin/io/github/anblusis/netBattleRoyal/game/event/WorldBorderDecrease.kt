@@ -6,7 +6,7 @@ import io.github.monun.tap.task.TickerTask
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.Component.text
 import net.kyori.adventure.text.format.NamedTextColor
-import org.bukkit.Location
+import net.kyori.adventure.text.format.TextDecoration
 import org.bukkit.util.Vector
 import kotlin.random.Random
 
@@ -57,13 +57,15 @@ class WorldBorderDecrease(
             val message = mutableListOf<Component>()
             message.add(
                 text("${game.day}일차 밤이 시작되었습니다. ")
+                    .decorate(TextDecoration.BOLD)
                     .color(NamedTextColor.DARK_AQUA)
-                    .append(text("다음 낮에 월드보더가 ${tick / 20}초에 걸쳐 감소합니다.").color(NamedTextColor.AQUA))
             )
-            message.addAll(createBorderLines(game, game.targetWorldBorderCenter, game.targetWorldBorderSize))
+            // message.addAll(createBorderLines(game, game.targetWorldBorderCenter, game.targetWorldBorderSize))
             message.add(
-                text("밤 동안 몬스터가 출현합니다.")
-                    .color(NamedTextColor.RED)
+                text("- 다음 낮에 월드보더가 감소합니다.")
+            )
+            message.add(
+                text("- 밤 동안 몬스터가 출현합니다.")
             )
             broadcast(game, message)
         }
@@ -72,13 +74,18 @@ class WorldBorderDecrease(
             val message = mutableListOf<Component>()
             message.add(
                 text("${game.day}일차 낮이 시작되었습니다. ")
+                    .decorate(TextDecoration.BOLD)
                     .color(NamedTextColor.GOLD)
-                    .append(text("월드보더가 ${tick / 20}초에 걸쳐 감소합니다.").color(NamedTextColor.YELLOW))
             )
-            message.addAll(createBorderLines(game, game.targetWorldBorderCenter, game.targetWorldBorderSize))
+            // message.addAll(createBorderLines(game, game.targetWorldBorderCenter, game.targetWorldBorderSize))
+            message.add(
+                text("- 월드보더가 ${tick / 20}초에 걸쳐 감소합니다.")
+            )
             broadcast(game, message)
         }
 
+        // UI가 너무 구림
+        /*
         private fun createBorderLines(game: Game, center: Location, size: Double): List<Component> {
             val movedDistance = center.distance(game.worldBorderCenter).toInt()
             val sizeDecrease = (game.worldBorderSize - size).toInt()
@@ -92,6 +99,7 @@ class WorldBorderDecrease(
                     .append(text("(현재 크기에서 ${sizeDecrease} 블록 감소)"))
             )
         }
+         */
 
         private fun broadcast(game: Game, messages: List<Component>) {
             game.marmottes.forEach { marmotte ->

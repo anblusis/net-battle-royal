@@ -12,7 +12,7 @@ fun playerAttackWithDefensePenetration(listener: EventManager, event: EntityDama
             if (event.finalDamage != 0.0) {
                 val protectedDamage = event.damage - event.finalDamage
                 val reducedDamage =
-                    protectedDamage * it.stat[CustomAttribute.DEFENSE_PENETRATION]!!.coerceAtMost(100.0) * 0.01
+                    protectedDamage * it.stat[CustomAttribute.DEFENSE_PENETRATION]!!.coerceAtMost(1.0)
                 event.damage += reducedDamage
             }
         }

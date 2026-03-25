@@ -27,17 +27,18 @@ class FightStart(
                 )
             )
         }
-        game.startDayNightCycle()
+
         game.run {
             tasks.add(
                 GameTask(
-                    this,
-                    CreateRandomEvent(this, 1200, RandomGameEvent.values()),
-                    "무작위 사건 타이머",
-                    2400,
-                    2800,
-                    -999,
-                    true
+                    game = this,
+                    task = CreateRandomEvent(this, 1200, RandomGameEvent.entries.toTypedArray()),
+                    displayName = "무작위 사건 타이머",
+                    tick = 2400,
+                    maxTick = 2800,
+                    priority = -999,
+                    canRestart = false,
+                    isVisible = false
                 )
             )
         }

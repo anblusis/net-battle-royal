@@ -25,4 +25,6 @@ internal interface WorldData {
     fun getCustomRecipes(): List<CustomRecipe>
 
     fun getCustomRecipeSets(): List<CustomRecipeSet>
+
+    fun getMinY(): Int
 }

@@ -11,6 +11,7 @@ import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.Particle
 import org.bukkit.Sound
+import org.bukkit.World
 import org.bukkit.block.Block
 import org.bukkit.entity.BlockDisplay
 import org.bukkit.entity.Display
@@ -21,15 +22,15 @@ import kotlin.random.Random
 
 class CreateEpicChest private constructor(
     private val game: Game,
-    private val region: Region?,
+    private val regions: List<Region>?,
     private val specificLocation: Location?
 ) : Runnable {
-    constructor(game: Game, region: Region) : this(game, region, null)
+    constructor(game: Game, regions: List<Region>) : this(game, regions, null)
     constructor(game: Game, location: Location) : this(game, null, location)
 
     override fun run() {
-        if (region != null) {
-            game.marmottes.filter { it.region == region }.forEach {
+        if (regions != null) {
+            game.marmottes.filter { it.region in regions }.forEach {
                 val player = it.player
                 player.showTitle(
                     Title.title(
@@ -43,26 +44,33 @@ class CreateEpicChest private constructor(
                     )
                 )
             }
-        } else {
-            // 신호 폭죽으로 호출된 경우 모든 플레이어에게 메시지
-            game.marmottes.forEach {
-                it.player.sendMessage(text("보급 상자가 투하되었습니다!").color(NamedTextColor.GOLD))
-            }
         }
 
         val world = game.world
 
-        val spawnLocation = specificLocation?.clone()?.apply {
-            y = world.maxHeight.toDouble()
-            yaw = 0f
-            pitch = 0f
-        }?.toBlockLocation()
-            ?: region!!.center.clone().apply {
+        val spawnLocations = mutableListOf<Location>()
+
+        if (specificLocation != null) {
+            spawnLocations.add(specificLocation.clone().apply {
+                y = world.maxHeight.toDouble()
+                yaw = 0f
+                pitch = 0f
+            }.toBlockLocation())
+        } else regions?.forEach { region ->
+            val loc = region.center.clone().apply {
                 x += (Random.nextDouble() - 0.5) * region.width
                 y = world.maxHeight.toDouble()
                 z += (Random.nextDouble() - 0.5) * region.height
             }.toBlockLocation()
+            spawnLocations.add(loc)
+        }
 
+        spawnLocations.forEach { spawnLocation ->
+            spawnEpicChest(world, spawnLocation)
+        }
+    }
+
+    private fun spawnEpicChest(world: World, spawnLocation: Location) {
         val displays = mutableListOf<BlockDisplay>()
 
         val blockDisplay = world.spawn(spawnLocation, BlockDisplay::class.java).apply {
@@ -181,7 +189,7 @@ class CreateEpicChest private constructor(
                 return@runTaskTimer
             }
             displays.forEach {
-                it.teleport(it.location.add(0.0, -0.35, 0.0))
+                it.teleport(it.location.add(0.0, -0.25, 0.0))
             }
 
             rotationAngle += 0.1f

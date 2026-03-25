@@ -4,13 +4,16 @@ import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent
 import com.destroystokyo.paper.event.player.PlayerElytraBoostEvent
 import com.destroystokyo.paper.event.player.PlayerLaunchProjectileEvent
 import io.github.anblusis.netBattleRoyal.data.BattleRoyalItemData
-import io.github.anblusis.netBattleRoyal.data.randomEnchantBook
+import io.github.anblusis.netBattleRoyal.data.DataManager
 import io.github.anblusis.netBattleRoyal.data.transcendBook
 import io.github.anblusis.netBattleRoyal.game.event.BossType
+import io.github.anblusis.netBattleRoyal.game.event.getBossType
 import io.github.anblusis.netBattleRoyal.game.event.getNightMonsterBonusExp
+import io.github.anblusis.netBattleRoyal.game.event.isBoss
 import io.github.anblusis.netBattleRoyal.game.event.isNightMonster
 import io.github.anblusis.netBattleRoyal.main.NetBattleRoyal.Companion.plugin
-import org.bukkit.NamespacedKey
+import io.github.anblusis.netBattleRoyal.tool.equalsDisplayName
+import org.bukkit.Tag
 import org.bukkit.block.Chest
 import org.bukkit.entity.Animals
 import org.bukkit.entity.Arrow
@@ -21,18 +24,23 @@ import org.bukkit.event.Listener
 import org.bukkit.event.entity.CreatureSpawnEvent
 import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.EntityDamageEvent
+import org.bukkit.event.entity.EntityDamageEvent.DamageCause
 import org.bukkit.event.entity.EntityDeathEvent
 import org.bukkit.event.entity.EntityShootBowEvent
 import org.bukkit.event.entity.ExpBottleEvent
+import org.bukkit.event.entity.FireworkExplodeEvent
 import org.bukkit.event.entity.ItemSpawnEvent
 import org.bukkit.event.entity.ProjectileHitEvent
+import org.bukkit.event.inventory.CraftItemEvent
+import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.inventory.InventoryOpenEvent
-import org.bukkit.event.inventory.PrepareItemCraftEvent
 import org.bukkit.event.inventory.PrepareAnvilEvent
+import org.bukkit.event.inventory.PrepareItemCraftEvent
 import org.bukkit.event.player.PlayerInteractEvent
+import org.bukkit.event.player.PlayerItemConsumeEvent
 import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.event.world.PortalCreateEvent
-import org.bukkit.persistence.PersistentDataType
+import org.bukkit.event.entity.SlimeSplitEvent
 
 object EventManager : Listener {
 
@@ -46,6 +54,18 @@ object EventManager : Listener {
     }
 
     @EventHandler
+    private fun onSlimeSplit(event: SlimeSplitEvent) {
+        if (event.entity.isBoss()) {
+            event.isCancelled = true
+        }
+    }
+
+    @EventHandler
+    private fun onPlayerConsumeItem(event: PlayerItemConsumeEvent) {
+        playerConsumeItem(this, event)
+    }
+
+    @EventHandler
     private fun onPlayerQuit(event: PlayerQuitEvent) {
         playerQuit(this, event)
     }
@@ -56,7 +76,7 @@ object EventManager : Listener {
             event.item == null -> return
             event.item!!.isSimilar(BattleRoyalItemData.MAGIC_STICK.item) -> playerInteractWithMagicStick(this, event)
             event.item!!.isSimilar(BattleRoyalItemData.SIGNAL_FIREWORK.item) -> playerUseSignalFirework(this, event)
-            randomEnchantBook.content() in event.item!!.displayName().toString() -> playerInteractWithRandomEnchantBook(
+            event.item!!.equalsDisplayName(BattleRoyalItemData.RANDOM_ENCHANT_BOOK.item) -> playerInteractWithRandomEnchantBook(
                 this,
                 event
             )
@@ -78,11 +98,25 @@ object EventManager : Listener {
     }
 
     @EventHandler
+    private fun onInventoryClick(event: InventoryClickEvent) {
+        if (event.whoClicked !is Player) return
+        inventoryClick(this, event)
+    }
+
+    @EventHandler
     private fun onPlayerDamaged(event: EntityDamageEvent) {
         if (event.entity is Player) playerDamaged(this, event)
     }
 
-    @EventHandler(priority = EventPriority.LOW)
+    @EventHandler(priority = EventPriority.HIGHEST)
+    private fun onPlayerAttackWithSpear(event: EntityDamageByEntityEvent) {
+        val player = event.damager as? Player ?: return
+        DataManager.getMarmotte(player) ?: return
+        if (event.cause != DamageCause.ENTITY_ATTACK || !Tag.ITEMS_SPEARS.isTagged(player.inventory.itemInMainHand.type)) return
+        event.damage = event.damage.coerceAtMost(10.0)
+    }
+
+    @EventHandler(priority = EventPriority.LOWEST)
     private fun onPlayerAttackWithHealthSteal(event: EntityDamageByEntityEvent) {
         if (event.damager is Player) {
             playerAttackWithHealthSteal(this, event)
@@ -100,6 +134,11 @@ object EventManager : Listener {
     private fun onPlayerPrepareCrafting(event: PrepareItemCraftEvent) {
         if (event.view.player !is Player) return
         playerPrepareCrafting(this, event)
+    }
+
+    @EventHandler
+    private fun onPlayerCraftItem(event: CraftItemEvent) {
+        playerCraftItem(this, event)
     }
 
     @EventHandler
@@ -121,8 +160,8 @@ object EventManager : Listener {
     @EventHandler
     fun onShootArrow(event: EntityShootBowEvent) {
         if (event.entity is Player) playerShootArrow(this, event)
-        else if (event.entity.persistentDataContainer.has(NamespacedKey(plugin, "boss"), PersistentDataType.BYTE) &&
-            event.entity.persistentDataContainer.get(NamespacedKey(plugin, "boss_type"), PersistentDataType.STRING) == BossType.SKELETON_KNIGHT.name)
+        else if (event.entity.isBoss() &&
+            event.entity.getBossType() == BossType.SKELETON_KNIGHT.name)
             skeletonBossShootArrow(this, event)
     }
 
@@ -157,18 +196,13 @@ object EventManager : Listener {
     @EventHandler(priority = EventPriority.LOWEST)
     fun onEntityDeath(event: EntityDeathEvent) {
         val entity = event.entity
-        val pdc = entity.persistentDataContainer
-        val bossKey = NamespacedKey(plugin, "boss")
-        val isBoss = pdc.has(bossKey, PersistentDataType.BYTE)
-        val isNightMob = isNightMonster(entity)
-        if (!isBoss && !isNightMob) return
 
-        if (isNightMob) {
+        if (entity.isNightMonster()) {
             plugin.games.find { entity in it.nightEntities }?.untrackNightEntity(entity)
-            event.droppedExp += getNightMonsterBonusExp(entity)
+            event.droppedExp += entity.getNightMonsterBonusExp()
         }
 
-        if (isBoss) {
+        if (entity.isBoss()) {
             bossDeath(this, event)
         }
     }
@@ -181,5 +215,10 @@ object EventManager : Listener {
     @EventHandler
     fun onPrepareAnvil(event: PrepareAnvilEvent) {
         prepareAnvil(this, event)
+    }
+
+    @EventHandler
+    fun onFireworkExplode(event: FireworkExplodeEvent) {
+        fireworkExplode(this, event)
     }
 }

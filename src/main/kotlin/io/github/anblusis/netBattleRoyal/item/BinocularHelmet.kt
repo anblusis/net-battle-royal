@@ -1,6 +1,5 @@
 package io.github.anblusis.netBattleRoyal.item
 
-import io.github.anblusis.netBattleRoyal.data.CustomEquipment
 import io.github.anblusis.netBattleRoyal.main.NetBattleRoyal.Companion.plugin
 import org.bukkit.entity.LivingEntity
 import org.bukkit.entity.Player
@@ -9,25 +8,24 @@ import org.bukkit.event.EventHandler
 import org.bukkit.event.HandlerList
 import org.bukkit.event.Listener
 import org.bukkit.event.entity.EntityDamageByEntityEvent
-import kotlin.math.min
 
 object BinocularHelmet : CustomEquipmentSystem() {
     private val listeners = hashMapOf<Player, Listener>()
-    override val players = mutableListOf<Player>()
+    override val players = mutableSetOf<Player>()
 
-    override fun onEnable(player: Player, equipment: CustomEquipment?) {
-        if (player in players) return
-        super.onEnable(player, CustomEquipment.BINOCULARS_HELMET)
+    override fun onEnable(player: Player): Boolean {
+        if (!super.onEnable(player)) return false
         val listener = BinocularListener(player)
         player.server.pluginManager.registerEvents(listener, plugin)
         listeners[player] = listener
+        return true
     }
 
-    override fun onDisable(player: Player, equipment: CustomEquipment?) {
-        if (player !in players) return
-        super.onDisable(player, CustomEquipment.BINOCULARS_HELMET)
+    override fun onDisable(player: Player): Boolean {
+        if (!super.onDisable(player)) return false
         HandlerList.unregisterAll(listeners[player]!!)
         listeners.remove(player)
+        return true
     }
 
     private class BinocularListener(val player: Player) : Listener {
@@ -43,10 +41,10 @@ object BinocularHelmet : CustomEquipmentSystem() {
 
             val distance = sourcePlayer.location.distance(victim.location)
             if (distance < 10.0) return
-            val bonusPercent = min(distance, 30.0) / 100.0
+            // 10m 이상일 때 1m당 1% 증가 (최대 20%)
+            val bonusPercent = ((distance - 10.0) * 0.01).coerceAtMost(0.20)
 
-            event.damage *= 0.9 + bonusPercent
+            event.damage *= (1.0 + bonusPercent)
         }
     }
 }
-

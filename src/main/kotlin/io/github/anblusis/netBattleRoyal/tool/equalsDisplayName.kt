@@ -1,5 +1,7 @@
 package io.github.anblusis.netBattleRoyal.tool
 
+import io.github.anblusis.netBattleRoyal.main.NetBattleRoyal.Companion.plugin
+import net.kyori.adventure.text.Component.text
 import net.kyori.adventure.text.TextComponent
 import org.bukkit.inventory.ItemStack
 

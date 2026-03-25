@@ -1,116 +1,140 @@
 package io.github.anblusis.netBattleRoyal.item
 
-import io.github.anblusis.netBattleRoyal.data.CustomEquipment
 import io.github.anblusis.netBattleRoyal.main.NetBattleRoyal.Companion.plugin
-import org.bukkit.WeatherType
+import org.bukkit.NamespacedKey
 import org.bukkit.entity.LivingEntity
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
-import org.bukkit.event.EventPriority
 import org.bukkit.event.HandlerList
 import org.bukkit.event.Listener
 import org.bukkit.event.entity.EntityDamageByEntityEvent
-import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause
-import org.bukkit.potion.PotionEffect
-import org.bukkit.potion.PotionEffectType
+import org.bukkit.persistence.PersistentDataType
+
+private val PHOENIX_ARMOR_KEY = NamespacedKey(plugin, "phoenix_armor_count")
 
 private class PhoenixListener(val player: Player) : Listener {
+    val armorCount: Byte
+        get() = player.persistentDataContainer.getOrDefault(PHOENIX_ARMOR_KEY, PersistentDataType.BYTE, 0)
+
+    fun plusArmorCount() {
+        player.persistentDataContainer.set(PHOENIX_ARMOR_KEY, PersistentDataType.BYTE, (armorCount + 1).toByte())
+    }
+
+    fun minusArmorCount() {
+        armorCount.run {
+            if (this <= 1) player.persistentDataContainer.remove(PHOENIX_ARMOR_KEY)
+            else player.persistentDataContainer.set(PHOENIX_ARMOR_KEY, PersistentDataType.BYTE, (this - 1).toByte())
+        }
+    }
+
     @EventHandler(ignoreCancelled = true)
     fun onPlayerReceiveDamage(event: EntityDamageByEntityEvent) {
         if (event.entity == player && event.damager is LivingEntity) {
             if (event.cause != DamageCause.ENTITY_ATTACK) return
             val damager = event.damager as LivingEntity
-            damager.fireTicks = (damager.fireTicks + 20).coerceAtMost(80)
+            val ticks = armorCount * 20
+            damager.fireTicks = ticks.coerceAtMost(damager.fireTicks)
         }
     }
 }
 
 object PhoenixHelmet : CustomEquipmentSystem() {
-    private val listeners = hashMapOf<Player, Listener>()
-    override val players = mutableListOf<Player>()
+    private val listeners = hashMapOf<Player, PhoenixListener>()
+    override val players = mutableSetOf<Player>()
 
-    override fun onEnable(player: Player, equipment: CustomEquipment?) {
-        if (player in players) return
+    override fun onEnable(player: Player): Boolean {
+        if (!super.onEnable(player)) return false
 
-        super.onEnable(player, CustomEquipment.PHOENIX_HELMET)
         val listener = PhoenixListener(player)
+        listener.plusArmorCount()
         player.server.pluginManager.registerEvents(listener, plugin)
         listeners[player] = listener
+        return true
     }
 
-    override fun onDisable(player: Player, equipment: CustomEquipment?) {
-        if (player !in players) return
+    override fun onDisable(player: Player): Boolean {
+        if (!super.onDisable(player)) return false
 
-        super.onDisable(player, CustomEquipment.PHOENIX_HELMET)
-        HandlerList.unregisterAll(listeners[player]!!)
+        val listener = listeners[player]!!
+        listener.minusArmorCount()
+        HandlerList.unregisterAll(listener)
         listeners.remove(player)
+        return true
     }
 }
 
 object PhoenixChestplate : CustomEquipmentSystem() {
-    private val listeners = hashMapOf<Player, Listener>()
-    override val players = mutableListOf<Player>()
+    private val listeners = hashMapOf<Player, PhoenixListener>()
+    override val players = mutableSetOf<Player>()
 
-    override fun onEnable(player: Player, equipment: CustomEquipment?) {
-        if (player in players) return
+    override fun onEnable(player: Player): Boolean {
+        if (!super.onEnable(player)) return false
 
-        super.onEnable(player, CustomEquipment.PHOENIX_CHESTPLATE)
         val listener = PhoenixListener(player)
+        listener.plusArmorCount()
         player.server.pluginManager.registerEvents(listener, plugin)
         listeners[player] = listener
+        return true
     }
 
-    override fun onDisable(player: Player, equipment: CustomEquipment?) {
-        if (player !in players) return
+    override fun onDisable(player: Player): Boolean {
+        if (!super.onDisable(player)) return false
 
-        super.onDisable(player, CustomEquipment.PHOENIX_CHESTPLATE)
-        HandlerList.unregisterAll(listeners[player]!!)
+        val listener = listeners[player]!!
+        listener.minusArmorCount()
+        HandlerList.unregisterAll(listener)
         listeners.remove(player)
+        return true
     }
 }
 
 object PhoenixLeggings : CustomEquipmentSystem() {
-    private val listeners = hashMapOf<Player, Listener>()
-    override val players = mutableListOf<Player>()
+    private val listeners = hashMapOf<Player, PhoenixListener>()
+    override val players = mutableSetOf<Player>()
 
-    override fun onEnable(player: Player, equipment: CustomEquipment?) {
-        if (player in players) return
+    override fun onEnable(player: Player): Boolean {
+        if (!super.onEnable(player)) return false
 
-        super.onEnable(player, CustomEquipment.PHOENIX_LEGGINGS)
         val listener = PhoenixListener(player)
+        listener.plusArmorCount()
         player.server.pluginManager.registerEvents(listener, plugin)
         listeners[player] = listener
+        return true
     }
 
-    override fun onDisable(player: Player, equipment: CustomEquipment?) {
-        if (player !in players) return
+    override fun onDisable(player: Player): Boolean {
+        if (!super.onDisable(player)) return false
 
-        super.onDisable(player, CustomEquipment.PHOENIX_LEGGINGS)
-        HandlerList.unregisterAll(listeners[player]!!)
+        val listener = listeners[player]!!
+        listener.minusArmorCount()
+        HandlerList.unregisterAll(listener)
         listeners.remove(player)
+        return true
     }
 }
 
 object PhoenixBoots : CustomEquipmentSystem() {
-    private val listeners = hashMapOf<Player, Listener>()
-    override val players = mutableListOf<Player>()
+    private val listeners = hashMapOf<Player, PhoenixListener>()
+    override val players = mutableSetOf<Player>()
 
-    override fun onEnable(player: Player, equipment: CustomEquipment?) {
-        if (player in players) return
+    override fun onEnable(player: Player): Boolean {
+        if (!super.onEnable(player)) return false
 
-        super.onEnable(player, CustomEquipment.PHOENIX_BOOTS)
         val listener = PhoenixListener(player)
+        listener.plusArmorCount()
         player.server.pluginManager.registerEvents(listener, plugin)
         listeners[player] = listener
+        return true
     }
 
-    override fun onDisable(player: Player, equipment: CustomEquipment?) {
-        if (player !in players) return
+    override fun onDisable(player: Player): Boolean {
+        if (!super.onDisable(player)) return false
 
-        super.onDisable(player, CustomEquipment.PHOENIX_BOOTS)
-        HandlerList.unregisterAll(listeners[player]!!)
+        val listener = listeners[player]!!
+        listener.minusArmorCount()
+        HandlerList.unregisterAll(listener)
         listeners.remove(player)
+        return true
     }
 }
-

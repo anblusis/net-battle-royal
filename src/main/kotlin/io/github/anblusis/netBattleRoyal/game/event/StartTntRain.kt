@@ -19,22 +19,24 @@ class StartTntRain(
             game.tasks.plusAssign(
                 listOf(
                     GameTask(
-                        game,
-                        StopTntRain(game, region),
-                        "TNT 비 종료",
-                        Random.nextInt(800, 1200),
-                        0,
-                        false,
-                        listOf(region)
+                        game = game,
+                        task = StopTntRain(game, region),
+                        displayName = "TNT 비 종료",
+                        tick = Random.nextInt(800, 1200),
+                        priority = 0,
+                        canRestart = false,
+                        isVisible = true,
+                        regions = listOf(region)
                     ),
                     GameTask(
-                        game,
-                        CreateTntRain(game, region),
-                        "TNT 비 생성",
-                        100,
-                        -999,
-                        true,
-                        listOf(region)
+                        game = game,
+                        task = CreateTntRain(game, region),
+                        displayName = "TNT 비 생성",
+                        tick = 100,
+                        priority = -999,
+                        canRestart = true,
+                        isVisible = false,
+                        regions = listOf(region)
                     )
                 )
             )

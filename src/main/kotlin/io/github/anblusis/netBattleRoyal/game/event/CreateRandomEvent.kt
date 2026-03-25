@@ -24,12 +24,12 @@ class CreateRandomEvent(
             RandomGameEvent.EPIC_CHEST -> {
                 val regions = game.regions.filter { game.isInWorldBorder(it.center, true) }
                 if (regions.isEmpty()) return
-                val randomRegion = regions.random()
+                val selectedRegions = selectRegions(regions, 0.08, 0.16)
                 game.marmottes.forEach { marmotte ->
                     val player = marmotte.player
                     player.sendMessage(
                         text("${tick / 20}초 후에 ").append(
-                            text(randomRegion.displayName).decorate(
+                            text(selectedRegions.joinToString(", ") { it.displayName }).decorate(
                                 TextDecoration.BOLD
                             )
                         ).append(text(" 지역에 "))
@@ -37,7 +37,7 @@ class CreateRandomEvent(
                                 text("상자")
                                     .color(NamedTextColor.LIGHT_PURPLE)
                                     .decorate(TextDecoration.BOLD)
-                                    .hoverEvent(HoverEvent.showText(text("에픽 상자가 해당 지역에 떨어집니다.\n낙하 지점은 빔으로 표시됩니다.")))
+                                    .hoverEvent(HoverEvent.showText(text("에픽 상자가 해당 지역에 떨어집니다.\n낙하 지점은 광선으로 표시됩니다.")))
                             )
                             .append(text("가 떨어집니다."))
                             .color(NamedTextColor.GOLD)
@@ -46,13 +46,14 @@ class CreateRandomEvent(
                 }
                 game.tasks.add(
                     GameTask(
-                        game,
-                        CreateEpicChest(game, randomRegion),
-                        "에픽 상자",
-                        tick,
-                        2,
-                        false,
-                        listOf(randomRegion)
+                        game = game,
+                        task = CreateEpicChest(game, selectedRegions),
+                        displayName = "에픽 상자",
+                        tick = tick,
+                        priority = 2,
+                        canRestart = false,
+                        isVisible = true,
+                        regions = selectedRegions
                     )
                 )
             }
@@ -62,7 +63,7 @@ class CreateRandomEvent(
                 if (regions.isEmpty()) return
                 val selectedRegions = mutableListOf<Region>()
                 selectedRegions.add(Region("default", "기본", game.worldBorderCenter, 0.0, 0.0, 0))
-                selectedRegions.addAll(selectRegions(regions, 1, 5))
+                selectedRegions.addAll(selectRegions(regions, 0.08, 0.38))
                 game.marmottes.forEach { marmotte ->
                     val player = marmotte.player
                     player.sendMessage(
@@ -76,13 +77,14 @@ class CreateRandomEvent(
                 }
                 game.tasks.add(
                     GameTask(
-                        game,
-                        ChangeWeather(game, selectedRegions),
-                        "날씨 변경",
-                        tick,
-                        1,
-                        false,
-                        selectedRegions
+                        game = game,
+                        task = ChangeWeather(game, selectedRegions),
+                        displayName = "날씨 변경",
+                        tick = tick,
+                        priority = 1,
+                        canRestart = false,
+                        isVisible = true,
+                        regions = selectedRegions
                     )
                 )
             }
@@ -90,7 +92,7 @@ class CreateRandomEvent(
             RandomGameEvent.MONSTER_WAVE -> {
                 val regions = game.regions.filter { game.isInWorldBorder(it.center, true) }.shuffled()
                 if (regions.isEmpty()) return
-                val selectedRegions = selectRegions(regions, 2, 4)
+                val selectedRegions = selectRegions(regions, 0.15, 0.31)
                 val selectedWave = MonsterWave.entries.random()
                 game.marmottes.forEach { marmotte ->
                     val player = marmotte.player
@@ -111,13 +113,14 @@ class CreateRandomEvent(
                 }
                 game.tasks.add(
                     GameTask(
-                        game,
-                        CreateMonsterWave(game, selectedRegions, selectedWave),
-                        "${selectedWave.displayName} 웨이브",
-                        tick,
-                        1,
-                        false,
-                        selectedRegions
+                        game = game,
+                        task = CreateMonsterWave(game, selectedRegions, selectedWave),
+                        displayName = "${selectedWave.displayName} 웨이브",
+                        tick = tick,
+                        priority = 1,
+                        canRestart = false,
+                        isVisible = true,
+                        regions = selectedRegions
                     )
                 )
             }
@@ -126,7 +129,7 @@ class CreateRandomEvent(
                 val regions =
                     game.regions.filter { game.isInWorldBorder(it.center, true) && !it.isTntRaining }.shuffled()
                 if (regions.isEmpty()) return
-                val selectedRegions = selectRegions(regions, 1, 2)
+                val selectedRegions = selectRegions(regions, 0.08, 0.15)
                 game.marmottes.forEach { marmotte ->
                     val player = marmotte.player
                     player.sendMessage(
@@ -146,13 +149,14 @@ class CreateRandomEvent(
                 }
                 game.tasks.add(
                     GameTask(
-                        game,
-                        StartTntRain(game, selectedRegions),
-                        "TNT 비",
-                        tick,
-                        1,
-                        false,
-                        selectedRegions
+                        game = game,
+                        task = StartTntRain(game, selectedRegions),
+                        displayName = "TNT 비",
+                        tick = tick,
+                        priority = 1,
+                        canRestart = false,
+                        isVisible = true,
+                        regions = selectedRegions
                     )
                 )
             }
@@ -160,7 +164,7 @@ class CreateRandomEvent(
             RandomGameEvent.WANDERING_TRADER -> {
                 val regions = game.regions.filter { game.isInWorldBorder(it.center, true) }.shuffled()
                 if (regions.isEmpty()) return
-                val selectedRegions = selectRegions(regions, 1, 3)
+                val selectedRegions = selectRegions(regions, 0.08, 0.23)
                 game.marmottes.forEach { marmotte ->
                     val player = marmotte.player
                     player.sendMessage(
@@ -179,13 +183,14 @@ class CreateRandomEvent(
                 }
                 game.tasks.add(
                     GameTask(
-                        game,
-                        CreateWanderingTrader(game, selectedRegions),
-                        "떠돌이 상인",
-                        tick,
-                        1,
-                        false,
-                        selectedRegions
+                        game = game,
+                        task = CreateWanderingTrader(game, selectedRegions),
+                        displayName = "떠돌이 상인",
+                        tick = tick,
+                        priority = 1,
+                        canRestart = false,
+                        isVisible = true,
+                        regions = selectedRegions
                     )
                 )
             }
@@ -206,26 +211,30 @@ class CreateRandomEvent(
                                     .color(NamedTextColor.LIGHT_PURPLE)
                                     .decorate(TextDecoration.BOLD)
                                     .hoverEvent(HoverEvent.showText(text("해당 지역에 보스가 등장합니다.\n보스는 죽을 시 희귀 아이템을 드랍합니다.")))
-                            ).append(text("가 등장합니다.")).color(NamedTextColor.GOLD)
+                            ).append(text("(이)가 등장합니다.")).color(NamedTextColor.GOLD)
                     )
                 }
                 game.tasks.add(
                     GameTask(
-                        game,
-                        SpawnBoss(game, selectedRegion, boss),
-                        "보스 등장",
-                        tick,
-                        1,
-                        false,
-                        listOf(selectedRegion)
+                        game = game,
+                        task = SpawnBoss(game, selectedRegion, boss),
+                        displayName = "보스 등장",
+                        tick = tick,
+                        priority = 1,
+                        canRestart = false,
+                        isVisible = true,
+                        regions = listOf(selectedRegion)
                     )
                 )
             }
         }
     }
 
-    private fun selectRegions(regions: List<Region>, minCount: Int, maxCount: Int): List<Region> {
+    private fun selectRegions(regions: List<Region>, minRatio: Double, maxRatio: Double): List<Region> {
         if (regions.isEmpty()) return listOf()
+
+        val minCount = (regions.size * minRatio).toInt().coerceAtLeast(1)
+        val maxCount = (regions.size * maxRatio).toInt().coerceAtLeast(minCount)
 
         val count = Random.nextInt(minCount, maxCount + 1).coerceAtMost(regions.size)
         return regions.take(count)

@@ -13,6 +13,7 @@ import org.bukkit.entity.WanderingTrader
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.MerchantRecipe
 import java.time.Duration
+import kotlin.collections.filter
 import kotlin.random.Random
 
 class CreateWanderingTrader(
@@ -69,14 +70,16 @@ class CreateWanderingTrader(
             }
 
             val ableHeightNumbers = mutableListOf<Int>()
-            val maxY = region.center.world.getHighestBlockYAt(spawnLocation) + 1
+            val maxY = region.center.world.getHighestBlockYAt(spawnLocation)
             var isAboveBlock = false
-            repeat(maxY) {
-                val currentLocation = spawnLocation.clone().apply { y = (it + 1).toDouble() }
+
+            for (i in game.minY..maxY) {
+                val y = i + 1
+                val currentLocation = spawnLocation.clone().apply { this.y = y.toDouble() }
                 if (currentLocation.block.type.isSolid) {
                     isAboveBlock = true
                 } else if (isAboveBlock) {
-                    ableHeightNumbers.add(it + 1)
+                    ableHeightNumbers.add(y)
                     isAboveBlock = false
                 }
             }

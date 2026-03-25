@@ -9,6 +9,7 @@ import io.github.anblusis.netBattleRoyal.main.NetBattleRoyal.Companion.plugin
 import xyz.icetang.lib.invfx.openFrame
 import io.github.monun.kommand.PluginKommand
 import net.kyori.adventure.text.Component.text
+import net.kyori.adventure.text.format.NamedTextColor
 import org.bukkit.Particle
 import org.bukkit.World
 import org.bukkit.entity.Player
@@ -17,7 +18,6 @@ import java.io.File
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.nio.file.StandardOpenOption
-import java.util.Random
 
 object CommandManager {
     fun register(kommand: PluginKommand) {
@@ -55,6 +55,13 @@ object CommandManager {
                         plugin.games.forEach { game ->
                             game.tasks.removeIf { it.task is FightStart }
                             FightStart(game).run()
+                        }
+                    }
+                }
+                then("skipGamePhase") {
+                    executes {
+                        plugin.games.forEach { game ->
+                            game.skipToNextPhase()
                         }
                     }
                 }

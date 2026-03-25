@@ -59,18 +59,18 @@ data class Marmotte(val player: Player, val game: Game) {
 
     private fun updateBossBar() {
         val regionPlayerCount = if (game.phase == GamePhase.NIGHT) "?"
-            else (game.marmottes.count { it.region == region && it.player.gameMode != GameMode.SPECTATOR } - 1).toString()
+            else (game.marmottes.count { it.region == region && it.player.gameMode != GameMode.SPECTATOR && it != this }).toString()
 
-        val tasks = game.tasks.filter { it.regions.isEmpty() || it.regions.contains(region) }
-        val firstTask = tasks.minByOrNull { it.tick - it.priority * 1200 }
+        val tasks = game.tasks.filter { it.isVisible && (it.regions.isEmpty() || it.regions.contains(region)) }
+        val firstTask = tasks.minByOrNull { it.tick }
 
         if (firstTask != null) {
-            bossBar.setTitle("${game.day}일차 ${game.phaseDisplayName} | ${region?.displayName ?: "지역 없음"} (${regionPlayerCount}명)  | ${firstTask.displayName}")
-            bossBar.progress = firstTask.tick.toDouble() / firstTask.maxTick
+            bossBar.setTitle("${game.day}일차 ${game.phaseDisplayName} | ${region?.displayName ?: "지역 없음"} (${regionPlayerCount}명)  | ${firstTask.displayName}: ${firstTask.tick / 20}초 후")
+            // bossBar.progress = firstTask.tick.toDouble() / firstTask.maxTick
         } else {
             bossBar.setTitle("${game.day}일차 ${game.phaseDisplayName} | ${region?.displayName ?: "지역 없음"} (${regionPlayerCount}명)")
-            bossBar.progress = game.phaseProgress
         }
+        bossBar.progress = game.phaseProgress
         bossBar.color = game.phase.barColor
     }
 
@@ -85,12 +85,18 @@ data class Marmotte(val player: Player, val game: Game) {
 
         if (tick++ >= 20) {
             tick = 0
-            plugin.server.dispatchCommand(
-                plugin.server.consoleSender,
-                "psychics mana ${player.name} add ${stat[CustomAttribute.MANA_REGEN]}"
-            )
-            val maxHealth = player.getAttribute(Attribute.MAX_HEALTH)!!.value
-            player.health = (player.health + (stat[CustomAttribute.HEALTH_REGEN] ?: 0.0)).coerceAtMost(maxHealth)
+            val manaRegen = stat[CustomAttribute.MANA_REGEN]
+            if (manaRegen != null) {
+                plugin.server.dispatchCommand(
+                    plugin.server.consoleSender,
+                    "psychics mana ${player.name} add $manaRegen",
+                )
+            }
+            val healthRegen = stat[CustomAttribute.HEALTH_REGEN]
+            if (healthRegen != null) {
+                val maxHealth = player.getAttribute(Attribute.MAX_HEALTH)!!.value
+                player.health = (player.health + healthRegen).coerceAtMost(maxHealth)
+            }
         }
     }
 
