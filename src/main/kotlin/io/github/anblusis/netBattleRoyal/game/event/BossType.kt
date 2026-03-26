@@ -319,7 +319,7 @@ private fun addBoneSentinelChargeGoal(game: Game, sentinel: WitherSkeleton) {
 
             val forward = direction.clone().setY(0.0)
             game.marmottes.map { it.player }
-                .filter { it.isValid && !it.isDead }
+                .filter { it.isValid && !it.isDead && it.gameMode == GameMode.SURVIVAL }
                 .filter { it.uniqueId !in hitPlayers }
                 .filter { it.location.distanceSquared(sentinel.location) <= 3.2 * 3.2 }
                 .forEach { player ->

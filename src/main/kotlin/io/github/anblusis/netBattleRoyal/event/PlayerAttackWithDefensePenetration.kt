@@ -10,10 +10,9 @@ fun playerAttackWithDefensePenetration(listener: EventManager, event: EntityDama
     DataManager.getMarmotte(event.damager as Player)?.let {
         if (it.game.state == GameState.PLAYING) {
             if (event.finalDamage != 0.0) {
-                val protectedDamage = event.damage - event.finalDamage
-                val reducedDamage =
-                    protectedDamage * it.stat[CustomAttribute.DEFENSE_PENETRATION]!!.coerceAtMost(1.0)
-                event.damage += reducedDamage
+                val protectRatio = event.damage / event.finalDamage - 1
+
+                event.damage *= 1 + protectRatio * it.stat[CustomAttribute.DEFENSE_PENETRATION]!!.coerceAtMost(1.0)
             }
         }
     }

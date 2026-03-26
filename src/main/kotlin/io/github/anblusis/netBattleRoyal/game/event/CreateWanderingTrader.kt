@@ -1,5 +1,6 @@
 package io.github.anblusis.netBattleRoyal.game.event
 
+import io.github.anblusis.netBattleRoyal.data.BattleRoyalItemData
 import io.github.anblusis.netBattleRoyal.data.Region
 import io.github.anblusis.netBattleRoyal.game.Game
 import io.github.anblusis.netBattleRoyal.main.NetBattleRoyal.Companion.plugin
@@ -31,7 +32,7 @@ class CreateWanderingTrader(
                 val tradeValue = item.value * multiple * count
                 val price = tradeValue.toInt().coerceAtLeast(1)
                 val recipe = MerchantRecipe(ItemStack(Material.EMERALD, price), 9999)
-                recipe.addIngredient(ItemStack(item.material, count))
+                recipe.addIngredient((if (item.itemStack != null) item.itemStack.apply { amount = count } else ItemStack(item.material, count)))
                 recipes.add(recipe)
             }
 
@@ -41,7 +42,9 @@ class CreateWanderingTrader(
                 val count = item.count(multiple)
                 val tradeValue = item.value * multiple * count
                 val price = tradeValue.toInt().coerceAtLeast(1)
-                val recipe = MerchantRecipe(ItemStack(item.material, count), 9999)
+
+                val recipe = if (item.itemStack != null) MerchantRecipe(item.itemStack.apply { amount = count }, item.itemStack.amount)
+                    else MerchantRecipe(ItemStack(item.material, count), 9999)
                 recipe.addIngredient(ItemStack(Material.EMERALD, price))
                 recipes.add(recipe)
             }
@@ -109,7 +112,7 @@ class CreateWanderingTrader(
     }
 }
 
-enum class TradeItems(val material: Material, val value: Double, val canSell: Boolean = false) {
+enum class TradeItems(val material: Material, val value: Double, val canSell: Boolean = false, val itemStack: ItemStack? = null) {
     NETHERITE_INGOT(Material.NETHERITE_INGOT, 20.0, true),
     DIAMOND(Material.DIAMOND, 4.0, true),
     GOLD_INGOT(Material.GOLD_INGOT, 2.0, true),
@@ -128,7 +131,8 @@ enum class TradeItems(val material: Material, val value: Double, val canSell: Bo
     LEATHER(Material.LEATHER, 0.15),
     ECHO_SHARD(Material.ECHO_SHARD, 1.0),
     AMETHYST_SHARD(Material.AMETHYST_SHARD, 0.6),
-    NETHER_STAR(Material.NETHER_STAR, 10.0);
+    NETHER_STAR(Material.NETHER_STAR, 10.0),
+    SIGNAL_GENERATOR(Material.YELLOW_DYE, 10.0, false, BattleRoyalItemData.SIGNAL_GENERATOR.item.clone());
 
     val count: (Double) -> Int
         get() = { multiple ->

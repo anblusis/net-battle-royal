@@ -100,34 +100,32 @@ enum class CustomRecipe(
         "explosion_arrow",
         ItemStack(Material.ARROW).apply {
             hasExplosionPower = 1
-            amount = 2
         },
-        listOf(" A ", "ABA", " A "),
-        listOf(" A ", "ABA", " A "),
+        listOf(),
+        listOf("AB ", "   ", "   "),
         mapOf('A' to ItemStack(Material.GUNPOWDER), 'B' to RecipeChoice.ExactChoice(ItemStack(Material.ARROW, 1), ItemStack(Material.TIPPED_ARROW, 1), ItemStack(Material.SPECTRAL_ARROW, 1))),
-        mapOf(),
-        CustomRecipeType.SHAPED,
+        mapOf('A' to 1, 'B' to 1),
+        CustomRecipeType.SHAPELESS,
         {
             val arrow = it[4]!!.clone()
             if (arrow.hasExplosionPower >= 3) null
-            else arrow.apply { amount = 2; hasExplosionPower += 1 }
+            else arrow.apply { hasExplosionPower += 1 }
         }
     ),
     MAGNETIC_ARROW(
         "magnetic_arrow",
         ItemStack(Material.ARROW).apply {
             hasMagneticPower = true
-            amount = 2
         },
-        listOf(" A ", "ABA", " A "),
-        listOf(" A ", "ABA", " A "),
+        listOf(),
+        listOf("AB ", "   ", "   "),
         mapOf('A' to ItemStack(Material.REDSTONE), 'B' to RecipeChoice.ExactChoice(ItemStack(Material.ARROW, 1), ItemStack(Material.TIPPED_ARROW, 1), ItemStack(Material.SPECTRAL_ARROW, 1))),
-        mapOf(),
-        CustomRecipeType.SHAPED,
+        mapOf('A' to 1, 'B' to 1),
+        CustomRecipeType.SHAPELESS,
         {
             val arrow = it[4]!!.clone()
             if (arrow.hasMagneticPower) null
-            else arrow.apply { amount = 2; hasMagneticPower = true }
+            else arrow.apply { hasMagneticPower = true }
         }
     ),
     SLIME_HELMET(
@@ -430,6 +428,60 @@ enum class CustomRecipe(
         ),
         mapOf(),
         CustomRecipeType.SHAPED
+    ),
+    LOGIC_CIRCUIT(
+        "logic_circuit",
+        CustomEquipment.LOGIC_CIRCUIT.item,
+        listOf("ABA", "A A"),
+        listOf("ABA", "A A", "   "),
+        mapOf('A' to ItemStack(Material.GOLD_INGOT), 'B' to ItemStack(Material.REDSTONE_BLOCK)),
+        mapOf(),
+        CustomRecipeType.SHAPED
+    ),
+    ECHO_HELMET(
+        "echo_helmet",
+        CustomEquipment.ECHO_HELMET.item,
+        listOf("ABA", "C C"),
+        listOf("ABA", "C C", "   "),
+        mapOf('A' to ItemStack(Material.DIAMOND), 'B' to ItemStack(Material.IRON_INGOT), 'C' to ItemStack(Material.ECHO_SHARD)),
+        mapOf(),
+        CustomRecipeType.SHAPED
+    ),
+    ECHO_CHESTPLATE(
+        "echo_chestplate",
+        CustomEquipment.ECHO_CHESTPLATE.item,
+        listOf("A A", "BCB", "ACA"),
+        listOf("A A", "BCB", "ACA"),
+        mapOf('A' to ItemStack(Material.DIAMOND), 'B' to ItemStack(Material.IRON_INGOT), 'C' to ItemStack(Material.ECHO_SHARD)),
+        mapOf(),
+        CustomRecipeType.SHAPED
+    ),
+    ECHO_LEGGINGS(
+        "echo_leggings",
+        CustomEquipment.ECHO_LEGGINGS.item,
+        listOf("CBC", "A A", "A A"),
+        listOf("CBC", "A A", "A A"),
+        mapOf('A' to ItemStack(Material.DIAMOND), 'B' to ItemStack(Material.IRON_INGOT), 'C' to ItemStack(Material.ECHO_SHARD)),
+        mapOf(),
+        CustomRecipeType.SHAPED
+    ),
+    ECHO_BOOTS(
+        "echo_boots",
+        CustomEquipment.ECHO_BOOTS.item,
+        listOf("A A", "B B"),
+        listOf("A A", "B B", "   "),
+        mapOf('A' to ItemStack(Material.DIAMOND), 'B' to ItemStack(Material.ECHO_SHARD)),
+        mapOf(),
+        CustomRecipeType.SHAPED
+    ),
+    GUARDIAN_CHESTPLATE(
+        "guardian_chestplate",
+        CustomEquipment.GUARDIAN_CHESTPLATE.item,
+        listOf("A A", "ABA", "CCC"),
+        listOf("A A", "ABA", "CCC"),
+        mapOf('A' to ItemStack(Material.DIAMOND), 'B' to ItemStack(Material.NETHER_STAR), 'C' to ItemStack(Material.AMETHYST_SHARD)),
+        mapOf(),
+        CustomRecipeType.SHAPED
     )
     ;
 
@@ -550,6 +602,16 @@ enum class CustomRecipeSet(
             CustomRecipe.IRON_GOLEM_CHESTPLATE,
             CustomRecipe.IRON_GOLEM_LEGGINGS,
             CustomRecipe.IRON_GOLEM_BOOTS
+        )
+    ),
+    ECHO(
+        "메아리",
+        CustomRecipe.ECHO_CHESTPLATE,
+        listOf(
+            CustomRecipe.ECHO_HELMET,
+            CustomRecipe.ECHO_CHESTPLATE,
+            CustomRecipe.ECHO_LEGGINGS,
+            CustomRecipe.ECHO_BOOTS
         )
     )
 }

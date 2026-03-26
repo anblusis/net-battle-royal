@@ -225,7 +225,7 @@ enum class CustomEquipment(
                         text()
                             .color(NamedTextColor.GOLD)
                             .decoration(TextDecoration.ITALIC, false)
-                            .content("피격 시 때린 상대에게 구속 부여").build()
+                            .content("피격 시 때린 상대에게 (슬라임 갑옷 개수)레벨 구속 부여").build()
                     )
                 )
                 addItemFlags(ItemFlag.HIDE_DYE)
@@ -249,7 +249,7 @@ enum class CustomEquipment(
                         text()
                             .color(NamedTextColor.GOLD)
                             .decoration(TextDecoration.ITALIC, false)
-                            .content("피격 시 때린 상대에게 구속 부여").build()
+                            .content("피격 시 때린 상대에게 (슬라임 갑옷 개수)레벨 구속 부여").build()
                     )
                 )
                 addItemFlags(ItemFlag.HIDE_DYE)
@@ -273,7 +273,7 @@ enum class CustomEquipment(
                         text()
                             .color(NamedTextColor.GOLD)
                             .decoration(TextDecoration.ITALIC, false)
-                            .content("피격 시 때린 상대에게 구속 부여").build()
+                            .content("피격 시 때린 상대에게 (슬라임 갑옷 개수)레벨 구속 부여").build()
                     )
                 )
                 addItemFlags(ItemFlag.HIDE_DYE)
@@ -297,7 +297,7 @@ enum class CustomEquipment(
                         text()
                             .color(NamedTextColor.GOLD)
                             .decoration(TextDecoration.ITALIC, false)
-                            .content("피격 시 때린 상대에게 구속 부여").build(),
+                            .content("피격 시 때린 상대에게 (슬라임 갑옷 개수)레벨 구속 부여").build(),
                         text()
                             .color(NamedTextColor.GOLD)
                             .decoration(TextDecoration.ITALIC, false)
@@ -466,7 +466,7 @@ enum class CustomEquipment(
                         text()
                             .color(NamedTextColor.GOLD)
                             .decoration(TextDecoration.ITALIC, false)
-                            .content("피격 시 때린 상대를 1초간 불태움").build()
+                            .content("피격 시 25% 확률로 때린 상대를 불태움 (갑옷 간 개별 적용)").build()
                     )
                 )
             }
@@ -491,7 +491,7 @@ enum class CustomEquipment(
                         text()
                             .color(NamedTextColor.GOLD)
                             .decoration(TextDecoration.ITALIC, false)
-                            .content("피격 시 때린 상대를 1초간 불태움").build()
+                            .content("피격 시 25% 확률로 때린 상대를 불태움 (갑옷 간 개별 적용)").build()
                     )
                 )
             }
@@ -516,7 +516,7 @@ enum class CustomEquipment(
                         text()
                             .color(NamedTextColor.GOLD)
                             .decoration(TextDecoration.ITALIC, false)
-                            .content("피격 시 때린 상대를 1초간 불태움").build()
+                            .content("피격 시 25% 확률로 때린 상대를 불태움 (갑옷 간 개별 적용)").build()
                     )
                 )
             }
@@ -541,7 +541,7 @@ enum class CustomEquipment(
                         text()
                             .color(NamedTextColor.GOLD)
                             .decoration(TextDecoration.ITALIC, false)
-                            .content("피격 시 때린 상대를 1초간 불태움").build()
+                            .content("피격 시 25% 확률로 때린 상대를 불태움 (갑옷 간 개별 적용)").build()
                     )
                 )
             }
@@ -692,7 +692,7 @@ enum class CustomEquipment(
                         text()
                             .color(NamedTextColor.GOLD)
                             .decoration(TextDecoration.ITALIC, false)
-                            .content("피격 시 때린 상대에게 구속 부여").build(),
+                            .content("피격 시 때린 상대에게 (슬라임 갑옷 개수)레벨 구속 부여").build(),
                         text()
                             .color(NamedTextColor.GOLD)
                             .decoration(TextDecoration.ITALIC, false)
@@ -727,6 +727,114 @@ enum class CustomEquipment(
         mapOf(),
         EquipmentSlot.OFF_HAND,
         SentinelSoul
+    ),
+    LOGIC_CIRCUIT(
+        ItemStack(Material.GOLDEN_HELMET).apply item@{
+            itemMeta = (itemMeta as ArmorMeta).apply {
+                displayName(
+                    text().color(NamedTextColor.WHITE).content("논리 회로").decoration(TextDecoration.ITALIC, false).build()
+                )
+                trim = ArmorTrim(TrimMaterial.REDSTONE, TrimPattern.WAYFINDER)
+                addItemFlags(ItemFlag.HIDE_DYE)
+            }
+        },
+        mapOf(
+            CustomAttribute.ARMOR to 2.0,
+            CustomAttribute.MANA_REGEN to 0.5
+        ),
+        EquipmentSlot.HEAD
+    ),
+    ECHO_HELMET(
+        ItemStack(Material.DIAMOND_HELMET).apply item@{
+            itemMeta = (itemMeta as ArmorMeta).apply {
+                displayName(
+                    text().color(NamedTextColor.WHITE).content("메아리 투구").decoration(TextDecoration.ITALIC, false).build()
+                )
+                trim = ArmorTrim(TrimMaterial.LAPIS, TrimPattern.WARD)
+                addItemFlags(ItemFlag.HIDE_ARMOR_TRIM)
+            }
+        },
+        mapOf(
+            CustomAttribute.ARMOR to 3.5,
+            CustomAttribute.ARMOR_TOUGH to 2.0,
+            CustomAttribute.DEFENSE_PENETRATION to 0.05
+        ), EquipmentSlot.HEAD
+    ),
+    ECHO_CHESTPLATE(
+        ItemStack(Material.DIAMOND_CHESTPLATE).apply item@{
+            itemMeta = (itemMeta as ArmorMeta).apply {
+                displayName(
+                    text().color(NamedTextColor.WHITE).content("메아리 흉갑").decoration(TextDecoration.ITALIC, false).build()
+                )
+                trim = ArmorTrim(TrimMaterial.LAPIS, TrimPattern.WARD)
+                addItemFlags(ItemFlag.HIDE_ARMOR_TRIM)
+            }
+        },
+        mapOf(
+            CustomAttribute.ARMOR to 8.5,
+            CustomAttribute.ARMOR_TOUGH to 2.0,
+            CustomAttribute.DEFENSE_PENETRATION to 0.05
+        ), EquipmentSlot.CHEST
+    ),
+    ECHO_LEGGINGS(
+        ItemStack(Material.DIAMOND_LEGGINGS).apply item@{
+            itemMeta = (itemMeta as ArmorMeta).apply {
+                displayName(
+                    text().color(NamedTextColor.WHITE).content("메아리 레깅스").decoration(TextDecoration.ITALIC, false).build()
+                )
+                trim = ArmorTrim(TrimMaterial.LAPIS, TrimPattern.WARD)
+                addItemFlags(ItemFlag.HIDE_ARMOR_TRIM)
+            }
+        },
+        mapOf(
+            CustomAttribute.ARMOR to 6.5,
+            CustomAttribute.ARMOR_TOUGH to 2.0,
+            CustomAttribute.DEFENSE_PENETRATION to 0.05
+        ), EquipmentSlot.LEGS
+    ),
+    ECHO_BOOTS(
+        ItemStack(Material.DIAMOND_BOOTS).apply item@{
+            itemMeta = (itemMeta as ArmorMeta).apply {
+                displayName(
+                    text().color(NamedTextColor.WHITE).content("메아리 부츠").decoration(TextDecoration.ITALIC, false).build()
+                )
+                trim = ArmorTrim(TrimMaterial.LAPIS, TrimPattern.WARD)
+                addItemFlags(ItemFlag.HIDE_ARMOR_TRIM)
+            }
+        },
+        mapOf(
+            CustomAttribute.ARMOR to 3.5,
+            CustomAttribute.ARMOR_TOUGH to 2.0,
+            CustomAttribute.DEFENSE_PENETRATION to 0.05
+        ), EquipmentSlot.FEET
+    ),
+    GUARDIAN_CHESTPLATE(
+        ItemStack(Material.DIAMOND_CHESTPLATE).apply item@{
+            itemMeta = (itemMeta as ArmorMeta).apply {
+                displayName(
+                    text().color(NamedTextColor.WHITE).content("수호자의 흉갑").decoration(TextDecoration.ITALIC, false).build()
+                )
+                trim = ArmorTrim(TrimMaterial.QUARTZ, TrimPattern.HOST)
+                lore(
+                    listOf(
+                        text()
+                            .color(NamedTextColor.GOLD)
+                            .decoration(TextDecoration.ITALIC, false)
+                            .content("체력이 6 이하가 되면 4의 흡수 체력 획득과 동시에").build(),
+                        text()
+                            .color(NamedTextColor.GOLD)
+                            .decoration(TextDecoration.ITALIC, false)
+                            .content("주변 4m 이내의 적에게 2의 피해 및 구속 (쿨타임 30초)").build()
+                    )
+                )
+                addItemFlags(ItemFlag.HIDE_ARMOR_TRIM)
+            }
+        },
+        mapOf(
+            CustomAttribute.ARMOR to 9.0,
+            CustomAttribute.ARMOR_TOUGH to 3.0,
+            CustomAttribute.KNOCKBACK_RESISTANCE to 2.0
+        ), EquipmentSlot.CHEST, GuardianChestplate
     )
     ;
 
