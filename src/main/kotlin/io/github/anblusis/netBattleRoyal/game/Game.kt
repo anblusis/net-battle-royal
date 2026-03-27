@@ -13,6 +13,7 @@ import org.bukkit.GameRules
 import org.bukkit.Location
 import org.bukkit.Particle
 import org.bukkit.Sound
+import org.bukkit.Tag
 import org.bukkit.World
 import org.bukkit.WorldBorder
 import org.bukkit.entity.Entity
@@ -35,6 +36,12 @@ class Game(
         const val FIRST_DAY_TICKS = 180 * 20
         const val NORMAL_PHASE_TICKS = 120 * 20
         const val DAY_BORDER_DECREASE_TICKS = 40 * 20
+        val RECIPE_SORT_ORDER = listOf(
+            Tag.ITEMS_HEAD_ARMOR,
+            Tag.ITEMS_CHEST_ARMOR,
+            Tag.ITEMS_LEG_ARMOR,
+            Tag.ITEMS_FOOT_ARMOR
+        )
     }
 
     internal lateinit var chests: MutableList<RoyalChest>
@@ -186,6 +193,14 @@ class Game(
             }
         }
 
+        customRecipes = customRecipes.sortedBy { 
+            val type = it.result.type
+            RECIPE_SORT_ORDER.forEachIndexed { index, tag ->
+                if (tag.isTagged(type)) return@sortedBy index
+            }
+            999
+        }
+        
         regions.forEach { region ->
             region.gameWeather = worldDefaultWeather
         }
